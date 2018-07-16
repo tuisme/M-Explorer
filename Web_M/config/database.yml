@@ -82,4 +82,4 @@ production:
   <<: *default
   database: Web_M_production
   username: Web_M
-  password: <%= ENV['WEB_M_DATABASE_PASSWORD'] %>
+  password: 

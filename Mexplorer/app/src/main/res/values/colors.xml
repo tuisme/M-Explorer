@@ -5,4 +5,8 @@
     <color name="colorAccent">#D81B60</color>
     
     <color name="colorBackgroundLogin">#1f2732</color>
+    <color name="colorBackgroundCardview">#a1a1a1</color>
+    <color name="colorBackgroundFacebook">#3c66c4</color>
+    <color name="colorBackgroundGoogle">#cf4332</color>
+
 </resources>

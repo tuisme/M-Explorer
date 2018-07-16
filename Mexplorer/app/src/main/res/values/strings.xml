@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">M-Explorer</string>
+    <string name="user_name">User Name</string>
+    <string name="password">PassWord</string>
 </resources>

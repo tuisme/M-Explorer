@@ -15,7 +15,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:elevation="5dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="10dp"
             app:cardBackgroundColor="#a1a1a1"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/cutomize_button"
             android:text="@string/sign_in"
@@ -65,7 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:padding="10dp"
             android:text="@string/forget_password"
@@ -93,6 +93,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:src="@drawable/ic_facebook_logo"
+            app:backgroundTint="@color/colorBackgroundFacebook"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.42"
             app:layout_constraintStart_toStartOf="parent"
@@ -104,6 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:src="@drawable/ic_gmail_logo"
+            app:backgroundTint="@color/colorBackgroundGoogle"
             app:layout_constraintStart_toEndOf="@+id/fab_log_with_face"
             app:layout_constraintTop_toTopOf="@+id/fab_log_with_face" />
 

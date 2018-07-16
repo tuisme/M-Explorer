@@ -20,14 +20,14 @@ class LogoActivity: AppCompatActivity() {
         Handler().postDelayed({
             startActivity(Intent(this,LogActivity::class.java))
             finish()
-        },1500)
+        },2000)
 }
 
     private fun setAnimation() {
         val animation = AnimationUtils.loadAnimation(this,R.anim.logo_anim)
         animation.interpolator = LinearInterpolator()
         animation.repeatCount = Animation.INFINITE
-        animation.duration = 1000
+        animation.duration = 1500
         logo_app.startAnimation(animation)
     }
 }

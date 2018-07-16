@@ -2,4 +2,7 @@
     <string name="app_name">M-Explorer</string>
     <string name="user_name">User Name</string>
     <string name="password">PassWord</string>
+    <string name="forget_password">Forget Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="login_with">Login With</string>
 </resources>

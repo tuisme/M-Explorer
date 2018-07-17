@@ -9,4 +9,7 @@
     <color name="colorBackgroundFacebook">#3c66c4</color>
     <color name="colorBackgroundGoogle">#cf4332</color>
 
+    <color name="colorBlack">#000</color>
+    <color name="lightgray">#F0F0F0</color>
+    <color name="colorAqua" >#00ffff</color>
 </resources>

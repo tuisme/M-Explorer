@@ -20,7 +20,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".log_in_out.LogActivity"/>
-        <activity android:name=".home.HomeActivity"/>
+        <activity android:name=".home.HomeActivity"
+            android:theme="@style/AppTheme_"
+            />
     </application>
 
 </manifest>

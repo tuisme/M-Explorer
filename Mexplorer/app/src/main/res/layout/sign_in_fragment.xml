@@ -25,14 +25,14 @@
                 android:orientation="vertical">
 
                 <EditText
-                    android:id="@+id/user_name_sign_in"
+                    android:id="@+id/email_sign_in"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
-                    android:hint="@string/user_name"
-                    android:inputType="text" />
+                    android:hint="@string/email"
+                    android:inputType="textEmailAddress" />
 
                 <EditText
                     android:id="@+id/pass_word_sign_in"
@@ -42,7 +42,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
                     android:hint="@string/password"
-                    android:inputType="text" />
+                    android:drawableRight="@drawable/ic_hide_password"
+                    android:inputType="textPassword" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.log_in_out
 
 import android.os.Bundle
+import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.tabs.TabLayout
@@ -10,6 +11,7 @@ import vinova.intern.nhomxnxx.mexplorer.adapter.PageAdapter
 
 class LogActivity:AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
+		window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_log)
 		changeTab()

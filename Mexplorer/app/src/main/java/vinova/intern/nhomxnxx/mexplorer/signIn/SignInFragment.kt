@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.facebook.CallbackManager
@@ -13,6 +14,7 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginResult
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.forget_pass.ForgetFragment
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
@@ -52,6 +54,7 @@ class SignInFragment:Fragment(), SignInInterface.View{
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+		fragmentManager?.beginTransaction()?.replace(R.id.forget_frag,ForgetFragment())?.addToBackStack(null)?.commit()
 		btn_sign_in.setOnClickListener{
 			CustomDiaglogFragment.showLoadingDialog(fragmentManager)
 			if (email_sign_in.text.toString().trim() == "" || pass_word_sign_in.text.toString().trim() == "") {
@@ -80,6 +83,9 @@ class SignInFragment:Fragment(), SignInInterface.View{
 
 			})
 			login_face?.performClick()
+		}
+		btn_forget.setOnClickListener {
+			activity?.findViewById<FrameLayout>(R.id.forget_frag)?.visibility = View.VISIBLE
 		}
 	}
 }

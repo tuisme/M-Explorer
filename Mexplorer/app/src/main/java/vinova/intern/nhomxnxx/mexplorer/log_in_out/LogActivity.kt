@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.log_in_out
 
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
@@ -23,5 +24,12 @@ class LogActivity:AppCompatActivity() {
 		view_pager.adapter = adapter
 		tab_layout.setupWithViewPager(view_pager)
 		view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tab_layout))
+	}
+
+	override fun onBackPressed() {
+		if (forget_frag.visibility == View.VISIBLE)
+			forget_frag.visibility = View.GONE
+		else
+			super.onBackPressed()
 	}
 }

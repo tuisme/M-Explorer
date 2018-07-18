@@ -26,13 +26,13 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                         if(response?.body() != null){
                             val user = response.body()
                             if (user != null) {
-                                mView.signInSuccess(user)
                                 if (databaseAccess.getUserLoggedIn() != null) {
                                     databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
                                 }
                                 databaseAccess.insertUserData(user.token, user.email, user.firstName,
                                         user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN)
-                                databaseAccess.close()
+                                mView.signInSuccess(user)
+
                             }
                         }
                         else {

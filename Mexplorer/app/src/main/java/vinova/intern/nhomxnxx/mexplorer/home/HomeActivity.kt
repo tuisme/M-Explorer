@@ -16,12 +16,13 @@ import kotlinx.android.synthetic.main.app_bar_home.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
+import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener,HomeInterface.View {
 	var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 
 	override fun logoutSuccess() {
-
+		CustomDiaglogFragment.hideLoadingDialog()
 		startActivity(Intent(this,LogActivity::class.java))
 		finish()
 	}
@@ -53,6 +54,7 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 
 			}
 			R.id.signout->{
+				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 				mPresenter.logout(this, DatabaseHandler(this).getToken())
 			}
 			R.id.plus->{

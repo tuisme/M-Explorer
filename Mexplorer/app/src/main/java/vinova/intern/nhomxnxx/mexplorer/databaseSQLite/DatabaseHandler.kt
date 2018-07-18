@@ -10,8 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper
 class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        val script = ("CREATE TABLE " + DBTable.USER.TABLE_NAME + "("
-                + DBTable.USER.TOKEN.COLUMN_NAME + " INTEGER PRIMARY KEY," + DBTable.USER.FIRST_NAME.COLUMN_NAME + " TEXT,"
+        val script = ("CREATE TABLE If not exists " + DBTable.USER.TABLE_NAME + "("
+                + DBTable.USER.TOKEN.COLUMN_NAME + " TEXT PRIMARY KEY," + DBTable.USER.FIRST_NAME.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.LAST_NAME.COLUMN_NAME + " TEXT," + DBTable.USER.EMAIL.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.TYPE.COLUMN_NAME + " TEXT," + DBTable.USER.STATUS.COLUMN_NAME + " TEXT" +")")
         // Chạy lệnh tạo bảng.
@@ -42,7 +42,6 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         values_user.put(DBTable.USER.FIRST_NAME.COLUMN_NAME, first_name)
         values_user.put(DBTable.USER.LAST_NAME.COLUMN_NAME, last_name)
         values_user.put(DBTable.USER.TYPE.COLUMN_NAME, type)
-
         values_user.put(DBTable.USER.STATUS.COLUMN_NAME, status)
 
         db!!.insert(DBTable.USER.TABLE_NAME, null, values_user)

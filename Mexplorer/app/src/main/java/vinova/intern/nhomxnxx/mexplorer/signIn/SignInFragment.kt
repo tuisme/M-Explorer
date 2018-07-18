@@ -1,21 +1,26 @@
 package vinova.intern.nhomxnxx.mexplorer.signIn
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import android.content.Intent
-import android.widget.Toast
-import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
+import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 
 class SignInFragment:Fragment(), SignInInterface.View{
 	var mPresenter : SignInInterface.Presenter = SignInPresenter(this)
+	var callBackManager : CallbackManager? = null
 
 	override fun signInSuccess(user: User) {
         CustomDiaglogFragment.hideLoadingDialog()
@@ -32,6 +37,7 @@ class SignInFragment:Fragment(), SignInInterface.View{
 	}
 
 	override fun showError(message: String) {
+		CustomDiaglogFragment.hideLoadingDialog()
 		Toast.makeText(context,message,Toast.LENGTH_LONG).show()
 	}
 
@@ -39,7 +45,10 @@ class SignInFragment:Fragment(), SignInInterface.View{
 		return inflater.inflate(R.layout.sign_in_fragment, container, false)
 	}
 
-
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		super.onActivityResult(requestCode, resultCode, data)
+		callBackManager?.onActivityResult(requestCode,resultCode,data)
+	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
@@ -52,7 +61,25 @@ class SignInFragment:Fragment(), SignInInterface.View{
 			else {
 				mPresenter.signIn(context,email_sign_in.text.toString(), pass_word_sign_in.text.toString())
 			}
+		}
+		fab_log_with_face.setOnClickListener {
+			login_face?.fragment = this
+			callBackManager = CallbackManager.Factory.create()
+			login_face?.setReadPermissions("email")
+			login_face?.fragment = this
+			login_face.registerCallback(callBackManager,object : FacebookCallback<LoginResult> {
+				override fun onSuccess(result: LoginResult) {
+					mPresenter.handleFacebookAccessToken(result)
+				}
 
+				override fun onCancel() {
+				}
+
+				override fun onError(error: FacebookException?) {
+				}
+
+			})
+			login_face?.performClick()
 		}
 	}
 }

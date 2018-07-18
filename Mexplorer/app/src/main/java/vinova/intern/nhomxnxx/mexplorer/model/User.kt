@@ -5,26 +5,35 @@ import com.google.gson.annotations.Expose
 
 class User {
 
-    @SerializedName("id")
+    @SerializedName("time")
     @Expose
-    var id: Int? = null
+    var time: String? = null
+    @SerializedName("status")
+    @Expose
+    var status: String? = null
+    @SerializedName("token")
+    @Expose
+    var token: String? = null
     @SerializedName("email")
     @Expose
     var email: String? = null
-    @SerializedName("created_at")
-    @Expose
-    var createdAt: String? = null
-    @SerializedName("updated_at")
-    @Expose
-    var updatedAt: String? = null
     @SerializedName("first_name")
     @Expose
     var firstName: String? = null
     @SerializedName("last_name")
     @Expose
     var lastName: String? = null
-    @SerializedName("token")
+    @SerializedName("avatar_url")
     @Expose
-    var token: String? = null
+    var avatarUrl: String? = null
+    @SerializedName("verified")
+    @Expose
+    var verified: String? = null
+    @SerializedName("used")
+    @Expose
+    var used: String? = null
+    @SerializedName("is_vip")
+    @Expose
+    var isVip: String? = null
 
 }

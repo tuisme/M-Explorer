@@ -1,9 +1,11 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -12,8 +14,30 @@ import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 
-class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener {
+class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener,HomeInterface.View {
+	var mPresenter :HomeInterface.Presenter= HomePresenter(this)
+
+	override fun logoutSuccess() {
+
+		startActivity(Intent(this,LogActivity::class.java))
+		finish()
+	}
+
+	override fun setPresenter(presenter: HomeInterface.Presenter) {
+		this.mPresenter = presenter
+	}
+
+	override fun showLoading(isShow: Boolean) {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
+	override fun showError(message: String) {
+		Toast.makeText(this,message,Toast.LENGTH_SHORT).show()
+	}
+
 	private val END_SCALE = 0.7f
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +53,7 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 
 			}
 			R.id.signout->{
-
+				mPresenter.logout(this, DatabaseHandler(this).getToken())
 			}
 			R.id.plus->{
 				nav_view.menu.add(Menu.NONE,Menu.NONE,1,"SomeDrive").setIcon(R.drawable.ic_drive_icon)

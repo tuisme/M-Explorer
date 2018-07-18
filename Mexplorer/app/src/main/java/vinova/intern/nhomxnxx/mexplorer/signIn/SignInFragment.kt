@@ -12,8 +12,6 @@ import android.widget.Toast
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
-import vinova.intern.nhomxnxx.mexplorer.signUp.SignInInterface
-import vinova.intern.nhomxnxx.mexplorer.signUp.SignInPresenter
 
 
 class SignInFragment:Fragment(), SignInInterface.View{
@@ -52,7 +50,7 @@ class SignInFragment:Fragment(), SignInInterface.View{
 				Toast.makeText(context, "Please fill all field", Toast.LENGTH_LONG).show()
 			}
 			else {
-				mPresenter.signIn(email_sign_in.text.toString(), pass_word_sign_in.text.toString())
+				mPresenter.signIn(context,email_sign_in.text.toString(), pass_word_sign_in.text.toString())
 			}
 
 		}

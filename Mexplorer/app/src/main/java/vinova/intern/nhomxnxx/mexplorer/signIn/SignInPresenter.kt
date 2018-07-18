@@ -1,10 +1,11 @@
-package vinova.intern.nhomxnxx.mexplorer.signUp
+package vinova.intern.nhomxnxx.mexplorer.signIn
 
-import android.util.Log
+import android.content.Context
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.model.User
 
 class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
@@ -13,7 +14,8 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     init {
         mView.setPresenter(this)
     }
-    override fun signIn(email:String, password:String){
+    override fun signIn(context: Context?, email:String, password:String){
+        val databaseAccess = DatabaseHandler(context)
         val api = CallApi.createService()
         api.logIn(email, password)
                 .enqueue(object:Callback<User>{
@@ -22,12 +24,19 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
 
                     override fun onResponse(call: Call<User>?, response: Response<User>?) {
                         if(response?.body() != null){
-                            mView.signInSuccess(response.body() as User)
+                            val user = response.body()
+                            if (user != null) {
+                                mView.signInSuccess(user)
+                                if (databaseAccess.getUserLoggedIn() != null) {
+                                    databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
+                                }
+                                databaseAccess.insertUserData(user.token, user.email, user.firstName,
+                                        user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN)
+                                databaseAccess.close()
+                            }
                         }
                         else {
-                            Log.e("HUHU", response?.errorBody()?.string().toString())
                             mView.showError("Validation failed: Email has already been taken")
-
                         }
                     }
 

@@ -1,5 +1,6 @@
-package vinova.intern.nhomxnxx.mexplorer.signUp
+package vinova.intern.nhomxnxx.mexplorer.signIn
 
+import android.content.Context
 import vinova.intern.best_trip.baseInterface.BaseView
 import vinova.intern.nhomxnxx.mexplorer.model.User
 
@@ -9,7 +10,7 @@ interface SignInInterface {
     }
 
     interface Presenter{
-        fun signIn(email:String, password:String)
+        fun signIn(context: Context?, email:String, password:String)
 
         }
 }

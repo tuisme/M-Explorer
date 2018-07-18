@@ -5,7 +5,7 @@ import vinova.intern.nhomxnxx.mexplorer.model.User
 
 interface SignUpInterface {
     interface View: BaseView<Presenter>{
-        fun signUpSuccess(user:User)
+        fun signUpSuccess(bool:Boolean)
     }
 
     interface Presenter{

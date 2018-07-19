@@ -10,16 +10,21 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
+import kotlinx.android.synthetic.main.content_home_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.adapter.rvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
+import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener,HomeInterface.View {
 	var mPresenter :HomeInterface.Presenter= HomePresenter(this)
+	val adapter = rvHomeAdapter(this)
 
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
@@ -46,6 +51,8 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 		setContentView(R.layout.activity_home)
 		setSupportActionBar(tool_bar_home)
 		setNavigationDrawer()
+		setRecyclerView()
+		mPresenter.getList(DatabaseHandler(this).getToken())
 	}
 
 	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
@@ -58,11 +65,15 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 				mPresenter.logout(this, DatabaseHandler(this).getToken())
 			}
 			R.id.plus->{
-				nav_view.menu.add(Menu.NONE,Menu.NONE,1,"SomeDrive").setIcon(R.drawable.ic_drive_icon)
+				nav_view.menu.add(Menu.NONE,Menu.NONE,1,"SomeDrive").setIcon(R.drawable.ic_logo_google_drive)
 			}
 		}
 		drawer_layout?.closeDrawer(GravityCompat.START)
 		return true
+	}
+
+	override fun showList(list: ListCloud?) {
+		adapter.setData(list?.clouds)
 	}
 
 	private fun setNavigationDrawer(){
@@ -88,5 +99,11 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 		})
 		nav_view?.setNavigationItemSelectedListener(this)
 		nav_view?.menu?.getItem(0)?.isChecked = true
+	}
+
+	private fun setRecyclerView(){
+		val manager = LinearLayoutManager(this)
+		rvContent.layoutManager = manager
+		rvContent.adapter = adapter
 	}
 }

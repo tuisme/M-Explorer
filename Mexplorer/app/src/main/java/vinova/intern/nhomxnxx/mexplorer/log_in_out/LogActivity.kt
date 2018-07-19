@@ -1,7 +1,6 @@
 package vinova.intern.nhomxnxx.mexplorer.log_in_out
 
 import android.os.Bundle
-import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
@@ -9,6 +8,7 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_log.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.PageAdapter
+import vinova.intern.nhomxnxx.mexplorer.forget_pass.ForgetFragment
 
 class LogActivity:AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,7 +18,7 @@ class LogActivity:AppCompatActivity() {
 		changeTab()
 	}
 
-	fun changeTab(){
+	private fun changeTab(){
 		val manager: FragmentManager = supportFragmentManager
 		val adapter = PageAdapter(manager)
 		view_pager.adapter = adapter
@@ -27,9 +27,9 @@ class LogActivity:AppCompatActivity() {
 	}
 
 	override fun onBackPressed() {
-		if (forget_frag.visibility == View.VISIBLE)
-			forget_frag.visibility = View.GONE
+		if (ForgetFragment.isShow)
+			ForgetFragment.hideForgetDialog()
 		else
-			super.onBackPressed()
+				super.onBackPressed()
 	}
 }

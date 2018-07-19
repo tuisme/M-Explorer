@@ -8,7 +8,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "vinova.intern.nhomxnxx.mexplorer"
-        minSdkVersion 22
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -58,4 +58,5 @@ dependencies {
 
     //google
     implementation 'com.google.android.gms:play-services-auth:15.0.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 }

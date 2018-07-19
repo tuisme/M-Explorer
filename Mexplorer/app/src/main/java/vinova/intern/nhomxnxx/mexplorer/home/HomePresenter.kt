@@ -6,12 +6,11 @@ import retrofit2.Callback
 import retrofit2.Response
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.model.Request
 
 @Suppress("NAME_SHADOWING")
 class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
-
-
     val mView: HomeInterface.View = view
 
     init {
@@ -38,5 +37,19 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                                 mView.showError(response?.body()?.message!!)
                         }
                     })
+    }
+
+    override fun getList(token: String?) {
+        if (token != null)
+            CallApi.getInstance().getListCloud(token).enqueue(object : Callback<ListCloud>{
+                override fun onFailure(call: Call<ListCloud>?, t: Throwable?) {
+
+                }
+
+                override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
+                    if (response?.body()?.status.equals("success"))
+                        mView.showList(response?.body())
+                }
+            })
     }
 }

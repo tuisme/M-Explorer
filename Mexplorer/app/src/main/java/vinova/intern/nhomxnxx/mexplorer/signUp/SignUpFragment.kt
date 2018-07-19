@@ -1,6 +1,5 @@
 package vinova.intern.nhomxnxx.mexplorer.signUp
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.sign_up_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 class SignUpFragment : Fragment(), SignUpInterface.View{
@@ -67,6 +65,7 @@ class SignUpFragment : Fragment(), SignUpInterface.View{
 	}
 
 	override fun showError(message: String) {
+		CustomDiaglogFragment.hideLoadingDialog()
 		Toast.makeText(context,message, Toast.LENGTH_LONG).show()
 	}
 

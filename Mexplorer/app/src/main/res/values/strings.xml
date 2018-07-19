@@ -23,4 +23,7 @@
     <!--for login face-->
     <string name="facebook_app_id">218083235510756</string>
     <string name="fb_login_protocol_scheme">fb218083235510756</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="number_check">Number check</string>
+    <string name="new_password">New password</string>
 </resources>

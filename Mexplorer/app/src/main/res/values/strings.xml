@@ -21,6 +21,6 @@
     <string name="last_name">Last name</string>
 
     <!--for login face-->
-    <string name="facebook_app_id">422614928222382</string>
-    <string name="fb_login_protocol_scheme">fb422614928222382</string>
+    <string name="facebook_app_id">218083235510756</string>
+    <string name="fb_login_protocol_scheme">fb218083235510756</string>
 </resources>

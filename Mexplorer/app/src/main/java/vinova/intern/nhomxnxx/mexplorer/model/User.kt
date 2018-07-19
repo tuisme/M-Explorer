@@ -5,12 +5,6 @@ import com.google.gson.annotations.Expose
 
 class User {
 
-    @SerializedName("time")
-    @Expose
-    var time: String? = null
-    @SerializedName("status")
-    @Expose
-    var status: String? = null
     @SerializedName("token")
     @Expose
     var token: String? = null

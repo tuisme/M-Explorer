@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentActivity
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
+import com.facebook.FacebookSdk
 import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -26,6 +27,7 @@ import vinova.intern.nhomxnxx.mexplorer.forget_pass.ForgetFragment
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import java.util.*
 
 
 class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, SignInInterface.View{
@@ -70,21 +72,11 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 			handleSignInResult(result)
 		}
 	}
-	private fun handleSignInResult(result: GoogleSignInResult){
-		if (result.isSuccess){
-			val account: GoogleSignInAccount
-			account = result.signInAccount!!
-			Log.d("email",account.email)
-			Log.d("name",account.displayName)
-			Log.d("image",account.photoUrl.toString())
-			Log.d("id",account.id)
-			Log.d("familyName",account.familyName)
-			Log.d("givenName",account.givenName)
-		}
-	}
+
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+		FacebookSdk.sdkInitialize(activity)
 		fragmentManager?.beginTransaction()?.replace(R.id.forget_frag, ForgetFragment())?.addToBackStack(null)?.commit()
 		btn_sign_in.setOnClickListener {
 			CustomDiaglogFragment.showLoadingDialog(fragmentManager)
@@ -98,11 +90,11 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		fab_log_with_face.setOnClickListener {
 			login_face?.fragment = this
 			callBackManager = CallbackManager.Factory.create()
-			login_face?.setReadPermissions("email")
-			login_face?.fragment = this
+            login_face?.setReadPermissions(Arrays.asList("public_profile","email"))
 			login_face.registerCallback(callBackManager, object : FacebookCallback<LoginResult> {
 				override fun onSuccess(result: LoginResult) {
-					mPresenter.handleFacebookAccessToken(result)
+                    CustomDiaglogFragment.showLoadingDialog(fragmentManager)
+					mPresenter.handleFacebookAccessToken(result,context)
 				}
 
 				override fun onCancel() {
@@ -127,6 +119,19 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		fab_log_with_google.setOnClickListener {
 			val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
 			startActivityForResult(signInIntent, RC_SIGN_IN)
+		}
+	}
+
+	private fun handleSignInResult(result: GoogleSignInResult){
+		if (result.isSuccess){
+			val account: GoogleSignInAccount
+			account = result.signInAccount!!
+			Log.d("email",account.email)
+			Log.d("name",account.displayName)
+			Log.d("image",account.photoUrl.toString())
+			Log.d("id",account.id)
+			Log.d("familyName",account.familyName)
+			Log.d("givenName",account.givenName)
 		}
 	}
 }

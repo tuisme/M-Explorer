@@ -1,4 +1,4 @@
-package vinova.intern.best_trip.baseInterface
+package vinova.intern.nhomxnxx.mexplorer.baseInterface
 
 interface BaseView<T> {
     fun setPresenter(presenter: T)

@@ -1,10 +1,10 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.content.Context
-import vinova.intern.best_trip.baseInterface.BaseView
+import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseView
 
 interface HomeInterface {
-    interface View:BaseView<Presenter>{
+    interface View: BaseView<Presenter> {
         fun logoutSuccess()
     }
 

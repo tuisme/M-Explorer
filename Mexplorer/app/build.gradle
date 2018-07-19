@@ -55,4 +55,7 @@ dependencies {
 
     //lottie render
     implementation 'com.airbnb.android:lottie:2.5.5'
+
+    //google
+    implementation 'com.google.android.gms:play-services-auth:15.0.1'
 }

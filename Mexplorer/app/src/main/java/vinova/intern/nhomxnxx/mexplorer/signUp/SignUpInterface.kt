@@ -1,10 +1,9 @@
 package vinova.intern.nhomxnxx.mexplorer.signUp
 
-import vinova.intern.best_trip.baseInterface.BaseView
-import vinova.intern.nhomxnxx.mexplorer.model.User
+import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseView
 
 interface SignUpInterface {
-    interface View: BaseView<Presenter>{
+    interface View: BaseView<Presenter> {
         fun signUpSuccess(bool:Boolean)
     }
 

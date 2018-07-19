@@ -13,4 +13,7 @@ class Request {
     @SerializedName("message")
     @Expose
     val message: String? = null
+    @SerializedName("user")
+    @Expose
+    val user: User? = null
 }

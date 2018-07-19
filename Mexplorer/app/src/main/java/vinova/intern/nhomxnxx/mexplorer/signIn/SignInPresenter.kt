@@ -18,6 +18,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.facebook.AccessToken
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import vinova.intern.nhomxnxx.mexplorer.model.Request
 
 
@@ -101,5 +103,49 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
         parameters.putString("fields", "id,email,first_name,last_name")
         request.parameters = parameters
         request.executeAsync()
+    }
+    @SuppressLint("HardwareIds")
+    override fun handleGoogleSignInResult(result: GoogleSignInResult, context: Context?){
+        if (result.isSuccess){
+            val databaseAccess = DatabaseHandler(context)
+            val account: GoogleSignInAccount = result.signInAccount!!
+            val email = account.email
+            val first_name = account.familyName
+            val last_name = account.givenName
+            val androidName = android.os.Build.MODEL
+            val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
+            val api = CallApi.createService()
+            api.logInGoogle(email!!, first_name!!, last_name!!,androidId,androidName)
+                    .enqueue(object:Callback<Request> {
+                        override fun onFailure(call: Call<Request>?, t: Throwable?) {
+                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                        }
+
+                        override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+                            if (response?.body()?.status.toString() == "success") {
+                                val user = response?.body()?.user
+                                if (user != null) {
+                                    if (databaseAccess.getUserLoggedIn() != null) {
+                                        databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
+                                    }
+                                    databaseAccess.insertUserData(user.token, user.email, user.firstName,
+                                            user.lastName, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN)
+                                    mView.signInSuccess(user)
+                                }
+                        else {
+                            mView.showError(response?.body()?.message.toString())
+                        }
+
+                            }
+                            Log.d("email", account.email)
+                            Log.d("name", account.displayName)
+                            Log.d("image", account.photoUrl.toString())
+                            Log.d("id", account.id)
+                            Log.d("familyName", account.familyName)
+                            Log.d("givenName", account.givenName)
+                        }
+                    })
+        }
+
     }
 }

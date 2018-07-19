@@ -69,7 +69,7 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		if (requestCode == 9001){
 			val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
 			Log.d("xxx",result.toString())
-			handleSignInResult(result)
+			mPresenter.handleGoogleSignInResult(result, context)
 		}
 	}
 
@@ -122,16 +122,16 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		}
 	}
 
-	private fun handleSignInResult(result: GoogleSignInResult){
-		if (result.isSuccess){
-			val account: GoogleSignInAccount
-			account = result.signInAccount!!
-			Log.d("email",account.email)
-			Log.d("name",account.displayName)
-			Log.d("image",account.photoUrl.toString())
-			Log.d("id",account.id)
-			Log.d("familyName",account.familyName)
-			Log.d("givenName",account.givenName)
-		}
-	}
+//	private fun handleSignInResult(result: GoogleSignInResult){
+//		if (result.isSuccess){
+//			val account: GoogleSignInAccount
+//			account = result.signInAccount!!
+//			Log.d("email",account.email)
+//			Log.d("name",account.displayName)
+//			Log.d("image",account.photoUrl.toString())
+//			Log.d("id",account.id)
+//			Log.d("familyName",account.familyName)
+//			Log.d("givenName",account.givenName)
+//		}
+//	}
 }

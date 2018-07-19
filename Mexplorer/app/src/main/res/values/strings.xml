@@ -1,3 +1,29 @@
 <resources>
-    <string name="app_name">M explorer</string>
+    <string name="app_name">M-Explorer</string>
+    <!--sign in/up-->
+    <string name="user_name">User Name</string>
+    <string name="password">PassWord</string>
+    <string name="forget_password">Forget Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="login_with">Login With</string>
+    <string name="email">Email</string>
+    <string name="sign_up">Sign Up</string>
+
+    <!--Navigation-->
+    <string name="profile">Profile</string>
+    <string name="percentage">Percentage and memory left</string>
+    <string name="home">Home</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="plus">Plus</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+
+    <!--for login face-->
+    <string name="facebook_app_id">218083235510756</string>
+    <string name="fb_login_protocol_scheme">fb218083235510756</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="number_check">Number check</string>
+    <string name="new_password">New password</string>
 </resources>

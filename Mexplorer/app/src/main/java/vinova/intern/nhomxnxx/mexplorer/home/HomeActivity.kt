@@ -12,6 +12,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
@@ -29,7 +30,7 @@ import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener,HomeInterface.View {
 	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 	private lateinit var adapter : RvHomeAdapter
-
+	private lateinit var listCloud : ListCloud
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
 		startActivity(Intent(this,LogActivity::class.java))
@@ -56,7 +57,8 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 		setSupportActionBar(tool_bar_home)
 		setNavigationDrawer()
 		setRecyclerView()
-		mPresenter.getList(DatabaseHandler(this).getToken())
+		if (savedInstanceState==null)
+			mPresenter.getList(DatabaseHandler(this).getToken())
 	}
 
 	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
@@ -77,7 +79,8 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 	}
 
 	override fun showList(list: ListCloud?) {
-		adapter.setData(list?.clouds)
+		this.listCloud = list!!
+		adapter.setData(list.clouds)
 	}
 
 	override fun showUser(user: User?) {
@@ -123,7 +126,32 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 		rvContent.layoutManager = manager
 		rvContent.adapter = adapter
 
-		swipeContent.isRefreshing = false
+		swipeContent.setOnRefreshListener {
+			mPresenter.getList(DatabaseHandler(this).getToken())
+			swipeContent.isRefreshing = false
+		}
 	}
 
+	override fun refreshList(list: ListCloud?) {
+		this.listCloud = list!!
+		adapter.refreshData(list.clouds)
+	}
+
+	override fun onBackPressed() {
+		if (BottomSheetBehavior.from(bottom_sheet_detail).state == BottomSheetBehavior.STATE_EXPANDED )
+			BottomSheetBehavior.from(bottom_sheet_detail).state = BottomSheetBehavior.STATE_COLLAPSED
+		else
+			super.onBackPressed()
+	}
+
+	override fun onSaveInstanceState(outState: Bundle?) {
+		super.onSaveInstanceState(outState)
+		outState?.putParcelable("list_cloud",listCloud)
+	}
+
+	override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+		super.onRestoreInstanceState(savedInstanceState)
+		this.listCloud = savedInstanceState?.getParcelable("list_cloud")!!
+		adapter.setData(this.listCloud.clouds)
+	}
 }

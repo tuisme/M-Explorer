@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -16,15 +18,25 @@ import kotlinx.android.synthetic.main.item_rv.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 
+
+
 class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
 	private var listCloud : MutableList<Cloud> = mutableListOf()
 	private val context : Context = ctx
 	private val root : View = view
+
 	fun setData(clouds : List<Cloud>?){
 		if (clouds!=null)
 			this.listCloud = clouds.sortedBy {
 				it.cname
 			}.toMutableList()
+		notifyDataSetChanged()
+	}
+
+	fun refreshData(clouds : List<Cloud>?){
+		this.listCloud = clouds?.sortedBy {
+			it.cname
+		}?.toMutableList()!!
 		notifyDataSetChanged()
 	}
 
@@ -51,19 +63,29 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 			val bottomSheetBehave = BottomSheetBehavior.from(root)
 			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
 		}
-		root.deleteFile.setOnClickListener {
+		root.share.setOnClickListener {
+			val sharingIntent = Intent(android.content.Intent.ACTION_SEND)
+			sharingIntent.type = "text/plain"
+			val shareBody = "Here is the share content body"
+			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here")
+			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody)
+			startActivity(context,Intent.createChooser(sharingIntent, "Share via"),null)
+		}
+		root.rename.setOnClickListener {
 
 		}
 		root.copyFile.setOnClickListener {
 
 		}
-		root.share.setOnClickListener {
-
-		}
 		root.moveFile.setOnClickListener {
 
 		}
-		root
+		root.openWith.setOnClickListener {
+
+		}
+		root.deleteFile.setOnClickListener {
+
+		}
 	}
 
 	private fun setIcon(img : ImageView,type:String){

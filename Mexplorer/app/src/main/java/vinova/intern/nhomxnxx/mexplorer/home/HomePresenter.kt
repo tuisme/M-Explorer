@@ -54,4 +54,18 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                 }
             })
     }
+
+    override fun refreshList(token: String?) {
+        if (token != null)
+            CallApi.getInstance().getListCloud(token).enqueue(object : Callback<ListCloud>{
+                override fun onFailure(call: Call<ListCloud>?, t: Throwable?) {
+                }
+
+                override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
+                    if (response?.body()?.status.equals("success")){
+                        mView.showList(response?.body())
+                    }
+                }
+            })
+    }
 }

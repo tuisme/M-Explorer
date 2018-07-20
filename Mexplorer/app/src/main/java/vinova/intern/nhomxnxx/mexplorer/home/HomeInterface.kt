@@ -10,10 +10,12 @@ interface HomeInterface {
         fun logoutSuccess()
         fun showList(list : ListCloud?)
         fun showUser(user : User?)
+        fun refreshList(list : ListCloud?)
     }
 
     interface Presenter{
         fun logout(context: Context?, token: String?)
         fun getList(token: String?)
+        fun refreshList(token : String?)
     }
 }

@@ -8,16 +8,19 @@
     >
 
     <ImageView
+        android:id="@+id/img_profile"
         android:layout_width="180dp"
         android:layout_height="180dp"
-        android:src="@drawable/ic_person_black_24dp"
+        android:src="@drawable/ic_person"
         android:contentDescription="@string/profile" />
     <TextView
+        android:id="@+id/user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/user_name"
         android:padding="10dp"/>
     <TextView
+        android:id="@+id/user_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/email"
@@ -31,6 +34,7 @@
         android:progress="90"
         />
     <TextView
+        android:id="@+id/user_have_percentage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"

@@ -11,20 +11,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.adapter.rvHomeAdapter
+import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
+import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
+
 class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener,HomeInterface.View {
-	var mPresenter :HomeInterface.Presenter= HomePresenter(this)
-	val adapter = rvHomeAdapter(this)
+	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
+	private val adapter = RvHomeAdapter(this)
 
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
@@ -37,7 +41,7 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 	}
 
 	override fun showLoading(isShow: Boolean) {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
 	}
 
 	override fun showError(message: String) {
@@ -76,6 +80,17 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 		adapter.setData(list?.clouds)
 	}
 
+	override fun showUser(user: User?) {
+		val name = "${user?.firstName} ${user?.lastName}"
+		user_name.text = name
+		user_email.text = user?.email
+		user_have_percentage.text = user?.used
+		progressBar.progress = (user?.used?.toFloat()!! *100).toInt()
+		Glide.with(this)
+				.load(user?.avatarUrl)
+				.into(img_profile)
+	}
+
 	private fun setNavigationDrawer(){
 		val toggle =
 				ActionBarDrawerToggle(this,drawer_layout, tool_bar_home,R.string.navigation_drawer_open,R.string.navigation_drawer_close)
@@ -99,11 +114,15 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 		})
 		nav_view?.setNavigationItemSelectedListener(this)
 		nav_view?.menu?.getItem(0)?.isChecked = true
+		nav_view?.itemIconTintList = null
 	}
 
 	private fun setRecyclerView(){
 		val manager = LinearLayoutManager(this)
 		rvContent.layoutManager = manager
 		rvContent.adapter = adapter
+
+		swipeContent.isRefreshing = false
 	}
+
 }

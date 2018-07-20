@@ -47,8 +47,10 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                 }
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
-                    if (response?.body()?.status.equals("success"))
+                    if (response?.body()?.status.equals("success")){
+                        mView.showUser(response?.body()?.user)
                         mView.showList(response?.body())
+                    }
                 }
             })
     }

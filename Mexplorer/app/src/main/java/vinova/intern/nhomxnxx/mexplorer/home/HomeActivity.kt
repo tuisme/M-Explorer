@@ -28,7 +28,7 @@ import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener,HomeInterface.View {
 	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
-	private val adapter = RvHomeAdapter(this)
+	private lateinit var adapter : RvHomeAdapter
 
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
@@ -118,6 +118,7 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 	}
 
 	private fun setRecyclerView(){
+		adapter = RvHomeAdapter(this,app_bar_home.findViewById(R.id.bottom_sheet_detail))
 		val manager = LinearLayoutManager(this)
 		rvContent.layoutManager = manager
 		rvContent.adapter = adapter

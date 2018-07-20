@@ -10,13 +10,16 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.android.synthetic.main.bottom_view_detail.view.*
 import kotlinx.android.synthetic.main.item_rv.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 
-class RvHomeAdapter(ctx : Context): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
+class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
 	private var listCloud : MutableList<Cloud> = mutableListOf()
 	private val context : Context = ctx
+	private val root : View = view
 	fun setData(clouds : List<Cloud>?){
 		if (clouds!=null)
 			this.listCloud = clouds.sortedBy {
@@ -45,8 +48,22 @@ class RvHomeAdapter(ctx : Context): RecyclerView.Adapter<RvHomeAdapter.ViewHolde
 		holder.used.text = used
 		cl.ctype?.let { setIcon(holder.thumb, it) }
 		holder.btn.setOnClickListener {
+			val bottomSheetBehave = BottomSheetBehavior.from(root)
+			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
+		}
+		root.deleteFile.setOnClickListener {
 
 		}
+		root.copyFile.setOnClickListener {
+
+		}
+		root.share.setOnClickListener {
+
+		}
+		root.moveFile.setOnClickListener {
+
+		}
+		root
 	}
 
 	private fun setIcon(img : ImageView,type:String){

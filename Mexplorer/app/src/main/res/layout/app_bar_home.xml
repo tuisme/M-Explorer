@@ -23,6 +23,5 @@
     </LinearLayout>
     <include
         android:id="@+id/bottom_sheet_detail"
-        layout="@layout/bottom_view_detail"
-        android:visibility="gone"/>
+        layout="@layout/bottom_view_detail"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

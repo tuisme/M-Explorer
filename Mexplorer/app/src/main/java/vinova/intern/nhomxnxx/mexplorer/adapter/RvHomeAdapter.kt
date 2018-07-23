@@ -19,6 +19,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.bottom_view_detail.view.*
 import kotlinx.android.synthetic.main.item_rv.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.local.LocalActivity
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 
 
@@ -65,13 +66,16 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 		val used = "${cl.used} of $sum"
 		holder.used.text = used
 		cl.ctype?.let { setIcon(holder.thumb, it) }
+		holder.itemView.setOnClickListener {
+			startActivity(context,Intent(context, LocalActivity::class.java),null)
+		}
+
 		holder.btn.setOnClickListener {
 			val bottomSheetBehave = BottomSheetBehavior.from(root)
 			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
 		}
 		if (cl.ctype== "local"){
 			holder.used.text ="free "+getAvailableInternalMemorySize() +" of  " + getTotalInternalMemorySize()
-			holder.process.progress = ((1 - (getTotalInternalMemorySize().toFloat()/getAvailableInternalMemorySize().toFloat()))*100).toInt()
 		}
 
 		root.share.setOnClickListener {
@@ -122,7 +126,7 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 
 	private fun getAvailableInternalMemorySize(): String {
 		val path = Environment.getDataDirectory()
-		val stat = StatFs(path.getPath())
+		val stat = StatFs(path.path)
 		val blockSize = stat.blockSizeLong
 		val availableBlocks = stat.availableBlocksLong
 		return formatSize(availableBlocks * blockSize)
@@ -130,14 +134,14 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 
 	private fun getTotalInternalMemorySize(): String {
 		val path = Environment.getDataDirectory()
-		val stat = StatFs(path.getPath())
+		val stat = StatFs(path.path)
 		val blockSize = stat.blockSizeLong
 		val totalBlocks = stat.blockCountLong
 		return formatSize(totalBlocks * blockSize)
 	}
 
-	private fun formatSize(size: Long): String {
-		var size = size
+	private fun formatSize(size_: Long): String {
+		var size = size_
 		var suffix: String? = null
 
 		if (size >= 1024) {

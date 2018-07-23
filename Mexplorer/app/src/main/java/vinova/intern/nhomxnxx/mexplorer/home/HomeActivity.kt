@@ -20,6 +20,7 @@ import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
+import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
@@ -90,7 +91,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View {
 		user_have_percentage.text = user?.used
 		progressBar.progress = (user?.used?.toFloat()!! *100).toInt()
 		Glide.with(this)
-				.load(user?.avatarUrl)
+				.load(user.avatarUrl)
 				.into(img_profile)
 	}
 
@@ -125,7 +126,8 @@ class HomeActivity : BaseActivity(),HomeInterface.View {
 		val manager = LinearLayoutManager(this)
 		rvContent.layoutManager = manager
 		rvContent.adapter = adapter
-
+		adapter.setData(listOf(Cloud("local","local","local","212","123"),
+			Cloud("local","local","googledrive","212","123")))
 		swipeContent.setOnRefreshListener {
 			mPresenter.getList(DatabaseHandler(this).getToken())
 			swipeContent.isRefreshing = false
@@ -146,12 +148,12 @@ class HomeActivity : BaseActivity(),HomeInterface.View {
 
 	override fun onSaveInstanceState(outState: Bundle?) {
 		super.onSaveInstanceState(outState)
-		outState?.putParcelable("list_cloud",listCloud)
+//		outState?.putParcelable("list_cloud",listCloud)
 	}
 
 	override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
 		super.onRestoreInstanceState(savedInstanceState)
-		this.listCloud = savedInstanceState?.getParcelable("list_cloud")!!
-		adapter.setData(this.listCloud.clouds)
+//		this.listCloud = savedInstanceState?.getParcelable("list_cloud")!!
+//		adapter.setData(this.listCloud.clouds)
 	}
 }

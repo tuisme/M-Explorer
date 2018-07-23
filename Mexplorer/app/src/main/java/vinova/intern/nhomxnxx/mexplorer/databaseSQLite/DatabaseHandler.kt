@@ -120,5 +120,17 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         } else null
     }
 
+    @SuppressLint("Recycle")
+    fun getType(): String? {
+        val db = this.writableDatabase
+        val cursor = db?.rawQuery(
+                "SELECT * FROM " + DBTable.USER.TABLE_NAME, null
+        )
+        cursor?.moveToFirst()
+        return if (cursor?.count!! > 0) {
+            cursor.getString(DBTable.USER.TYPE.COLUMN_NUMBER)
+        } else null
+    }
+
 
 }

@@ -32,9 +32,8 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                                 mView.logoutSuccess()
                                 db.deleteUserData(token)
                             }
-
                             else
-                                mView.showError(response?.body()?.message!!)
+                                mView.showError(response?.message()!!)
                         }
                     })
     }
@@ -63,7 +62,9 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
                     if (response?.body()?.status.equals("success")){
-                        mView.showList(response?.body())
+                        mView.refreshList(
+
+                                response?.body())
                     }
                 }
             })

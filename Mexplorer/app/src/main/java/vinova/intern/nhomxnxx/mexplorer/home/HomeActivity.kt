@@ -2,24 +2,22 @@ package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
 import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
+import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
@@ -27,7 +25,7 @@ import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 
-class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener,HomeInterface.View {
+class HomeActivity : BaseActivity(),HomeInterface.View {
 	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 	private lateinit var adapter : RvHomeAdapter
 	private lateinit var listCloud : ListCloud
@@ -46,14 +44,16 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 	}
 
 	override fun showError(message: String) {
+		CustomDiaglogFragment.hideLoadingDialog()
 		Toast.makeText(this,message,Toast.LENGTH_SHORT).show()
 	}
 
-	private val END_SCALE = 0.7f
+	private val END_SCALE = 0.8f
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_home)
+		super.onCreateDrawer()
 		setSupportActionBar(tool_bar_home)
 		setNavigationDrawer()
 		setRecyclerView()
@@ -70,8 +70,8 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 				mPresenter.logout(this, DatabaseHandler(this).getToken())
 			}
-			R.id.plus->{
-				nav_view.menu.add(Menu.NONE,Menu.NONE,1,"SomeDrive").setIcon(R.drawable.ic_logo_google_drive)
+			R.id.bookmark->{
+
 			}
 		}
 		drawer_layout?.closeDrawer(GravityCompat.START)
@@ -103,10 +103,10 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
 		drawer_layout?.addDrawerListener(object : DrawerLayout.SimpleDrawerListener(){
 			override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
 				val diffScaledOffset = slideOffset * (1 - END_SCALE)
-				val offsetScale = 1 - diffScaledOffset
-
-				app_bar_home.scaleX = offsetScale
-				app_bar_home.scaleY = offsetScale
+//				val offsetScale = 1 - diffScaledOffset
+//
+//				app_bar_home.scaleX = offsetScale
+//				app_bar_home.scaleY = offsetScale
 
 				val  xOffset = drawerView.width * slideOffset
 				val  xOffsetDiff = app_bar_home.width * diffScaledOffset / 2

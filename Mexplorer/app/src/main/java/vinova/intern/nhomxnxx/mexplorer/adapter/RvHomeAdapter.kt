@@ -1,7 +1,10 @@
 package vinova.intern.nhomxnxx.mexplorer.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.os.Environment
+import android.os.StatFs
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +20,8 @@ import kotlinx.android.synthetic.main.bottom_view_detail.view.*
 import kotlinx.android.synthetic.main.item_rv.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
+
+
 
 
 
@@ -50,6 +55,7 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 		return listCloud.size
 	}
 
+	@SuppressLint("SetTextI18n")
 	override fun onBindViewHolder(holder: ViewHolderCloud, position: Int) {
 		val cl : Cloud = listCloud[position]
 		holder.name.text = cl.cname
@@ -63,6 +69,11 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 			val bottomSheetBehave = BottomSheetBehavior.from(root)
 			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
 		}
+		if (cl.ctype== "local"){
+			holder.used.text ="free "+getAvailableInternalMemorySize() +" of  " + getTotalInternalMemorySize()
+			holder.process.progress = ((1 - (getTotalInternalMemorySize().toFloat()/getAvailableInternalMemorySize().toFloat()))*100).toInt()
+		}
+
 		root.share.setOnClickListener {
 			val sharingIntent = Intent(android.content.Intent.ACTION_SEND)
 			sharingIntent.type = "text/plain"
@@ -109,4 +120,44 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 		val btn : Button = itemView.btnSetting
 	}
 
+	private fun getAvailableInternalMemorySize(): String {
+		val path = Environment.getDataDirectory()
+		val stat = StatFs(path.getPath())
+		val blockSize = stat.blockSizeLong
+		val availableBlocks = stat.availableBlocksLong
+		return formatSize(availableBlocks * blockSize)
+	}
+
+	private fun getTotalInternalMemorySize(): String {
+		val path = Environment.getDataDirectory()
+		val stat = StatFs(path.getPath())
+		val blockSize = stat.blockSizeLong
+		val totalBlocks = stat.blockCountLong
+		return formatSize(totalBlocks * blockSize)
+	}
+
+	private fun formatSize(size: Long): String {
+		var size = size
+		var suffix: String? = null
+
+		if (size >= 1024) {
+			suffix = "KB"
+			size /= 1024
+			if (size >= 1024) {
+				suffix = "MB"
+				size /= 1024
+			}
+		}
+
+		val resultBuffer = StringBuilder(java.lang.Long.toString(size))
+
+		var commaOffset = resultBuffer.length - 3
+		while (commaOffset > 0) {
+			resultBuffer.insert(commaOffset, ',')
+			commaOffset -= 3
+		}
+
+		if (suffix != null) resultBuffer.append(suffix)
+		return resultBuffer.toString()
+	}
 }

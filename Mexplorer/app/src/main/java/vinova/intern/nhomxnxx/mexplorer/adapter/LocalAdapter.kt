@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.adapter
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -12,18 +13,24 @@ import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.facebook.FacebookSdk.getApplicationContext
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.item_folder.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.File
+import java.text.DecimalFormat
 
 
-class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdapter.LocalViewHolder>() {
+class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdapter.LocalViewHolder>(){
     private var fileList: MutableList<File> = mutableListOf()
     var path: String = Environment.getExternalStorageDirectory().absolutePath
     val error : TextView = view as TextView
+    private var mListener: OnFileItemListener? = null
 
     private val ctx = context
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocalViewHolder {
@@ -31,6 +38,11 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
                 .inflate(R.layout.item_folder, parent, false)
         return LocalViewHolder(view)
     }
+
+    fun setListener(listener: OnFileItemListener) {
+        mListener = listener
+    }
+
 
     override fun getItemCount(): Int {
         return fileList.size
@@ -64,7 +76,8 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
                         .load(file.url)
                         .apply(RequestOptions().circleCrop())
                         .into(holder.logo)
-                holder.size.text = "${file.size} KB"
+                holder.size.visibility = View.VISIBLE
+                holder.size.text = file.size?.toLong()?.let { getFileSize(it)}
             }
         }
 
@@ -77,6 +90,11 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
             } else if (java.io.File("$path/${fileList[position].name}").isFile) {
                 openFile(java.io.File("$path/${fileList[position].name}"))
             }
+        }
+
+        holder.itemView.setOnLongClickListener {
+            mListener?.onLongClick(java.io.File("$path/${fileList[position].name}"))
+            true
         }
     }
 
@@ -120,15 +138,37 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
                 }
             }
         }
+        fileList.sortWith(compareBy ({ it.type }, {it.name}))
         return fileList
     }
 
     private fun openFile(url: java.io.File){
-        val uri = Uri.fromFile(url)
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(uri,getMimeType(uri))
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-        ctx.startActivity(intent)
+        try {
+            val uri = Uri.fromFile(url)
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            val apkURI = FileProvider.getUriForFile(ctx, getApplicationContext()
+                    .packageName + ".provider", url)
+            intent.setDataAndType(apkURI, getMimeType(uri))
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            ctx.startActivity(intent)
+        }
+        catch (e:ActivityNotFoundException){
+            Toast.makeText(ctx,"No support this file",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun getFileSize(size: Long): String {
+        if (size <= 0)
+            return "0"
+        val units = arrayOf("B", "KB", "MB", "GB", "TB")
+        val digitGroups = (Math.log10(size.toDouble()) / Math.log10(1024.0)).toInt()
+        return DecimalFormat("#,##0.#").format(size / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
+    }
+
+    interface OnFileItemListener {
+        fun onClick(file: java.io.File)
+
+        fun onLongClick(file: java.io.File)
     }
 }

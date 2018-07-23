@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.bottom_view_detail.view.*
 import kotlinx.android.synthetic.main.item_rv.view.*
@@ -112,6 +113,7 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 		}
 		Glide.with(context)
 				.load(a)
+				.apply(RequestOptions().circleCrop())
 				.into(img)
 	}
 

@@ -12,9 +12,9 @@
     <style name="AppTheme_" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">@color/colorPrim</item>
-        <item name="colorPrimaryDark">@color/colorPLight</item>
-        <item name="colorAccent">@color/colorFromDribble</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
 
         <item name="editTextColor">@color/colorBlack</item>
         <item name="android:textColorHint">@color/colorBlack</item>

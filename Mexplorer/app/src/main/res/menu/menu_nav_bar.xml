@@ -14,7 +14,8 @@
             android:icon="@drawable/ic_bookmark"
             android:orderInCategory="100"
             app:showAsAction="always"
-            android:title="@string/plus" />
+            android:title="@string/book_mark" />
+
         <item
             android:id="@+id/signout"
             android:icon="@drawable/ic_sign_out"

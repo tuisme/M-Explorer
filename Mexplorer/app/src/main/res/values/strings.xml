@@ -28,4 +28,7 @@
     <string name="new_password">New password</string>
     <string name="download">Download</string>
     <string name="_1223_kb">1223 KB</string>
+
+    <string name="book_mark">Bookmark</string>
+    <string name="no_folders_or_files">No folders or files</string>
 </resources>

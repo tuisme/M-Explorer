@@ -20,6 +20,5 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_bar_header"
         app:menu="@menu/menu_nav_bar"
-        android:background="@color/colorPLight"
         />
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -3,7 +3,6 @@ package vinova.intern.nhomxnxx.mexplorer.dialogs
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.DialogFragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.fragment.app.DialogFragment
 
 
 import java.io.File
@@ -30,7 +30,7 @@ class RenameDialog : DialogFragment() {
 
         // if text is empty, disable the dialog positive button
         val currentNameText = view.findViewById<View>(R.id.current_name) as EditText
-        val path = arguments.getString(PATH)
+        val path = arguments?.getString(PATH)
 
         val file = File(path)
         currentNameText.setText(file.name)

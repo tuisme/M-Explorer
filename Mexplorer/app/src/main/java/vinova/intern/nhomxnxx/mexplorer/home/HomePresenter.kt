@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.content.Context
+import com.facebook.login.LoginManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -29,11 +30,12 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                             if (response?.body()?.status.equals("success")) {
+                                LoginManager.getInstance().logOut()
                                 mView.logoutSuccess()
                                 db.deleteUserData(token)
                             }
                             else
-                                mView.showError(response?.message()!!)
+                                mView.showError(response?.message().toString())
                         }
                     })
     }

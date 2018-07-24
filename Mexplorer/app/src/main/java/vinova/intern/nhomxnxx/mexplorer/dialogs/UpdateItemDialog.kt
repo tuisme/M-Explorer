@@ -3,17 +3,16 @@ package vinova.intern.nhomxnxx.mexplorer.dialogs
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
-import android.app.DialogFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
+import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.snatik.storage.Storage
 
 import vinova.intern.nhomxnxx.mexplorer.R
+import java.io.File
 
 class UpdateItemDialog : DialogFragment() {
     private var mListener: DialogListener? = null
@@ -21,9 +20,9 @@ class UpdateItemDialog : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-        val dialog = BottomSheetDialog(activity, theme)
-        val path = arguments.getString(PATH)
-        val isDirectory = Storage(activity).getFile(path!!).isDirectory
+        val dialog = BottomSheetDialog(context!!, theme)
+        val path = arguments?.getString(PATH)
+        val isDirectory = File(path).isDirectory
         val view = LayoutInflater.from(activity).inflate(R.layout.update_item_dialog, null)
         dialog.setContentView(view)
         dialog.setCancelable(true)
@@ -39,23 +38,23 @@ class UpdateItemDialog : DialogFragment() {
 
         rename.setOnClickListener {
             dialog.dismiss()
-            mListener!!.onOptionClick(R.id.rename, path)
+            mListener?.onOptionClick(R.id.rename, path)
         }
 
         delete.setOnClickListener {
             dialog.dismiss()
-            mListener!!.onOptionClick(R.id.delete, path)
+            mListener?.onOptionClick(R.id.delete, path)
         }
 
         if (!isDirectory) {
             move.setOnClickListener {
                 dialog.dismiss()
-                mListener!!.onOptionClick(R.id.move, path)
+                mListener?.onOptionClick(R.id.move, path)
             }
 
             copy.setOnClickListener {
                 dialog.dismiss()
-                mListener!!.onOptionClick(R.id.copy, path)
+                mListener?.onOptionClick(R.id.copy, path)
             }
         } else {
             move.visibility = View.GONE
@@ -65,7 +64,7 @@ class UpdateItemDialog : DialogFragment() {
         // control dialog width on different devices
         dialog.setOnShowListener {
             val width = resources.getDimension(R.dimen.bottom_sheet_dialog_width).toInt()
-            dialog.window!!.setLayout(
+            dialog.window?.setLayout(
                     if (width == 0) ViewGroup.LayoutParams.MATCH_PARENT else width,
                     ViewGroup.LayoutParams.MATCH_PARENT)
         }

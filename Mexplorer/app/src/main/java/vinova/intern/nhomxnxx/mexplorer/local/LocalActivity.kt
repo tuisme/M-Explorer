@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.snatik.storage.Storage
 import kotlinx.android.synthetic.main.content_home_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.LocalAdapter
@@ -71,16 +70,16 @@ class LocalActivity :BaseActivity(), AddItemsDialog.DialogListener,
     }
 
     override fun onLongClick(file: File) {
-        UpdateItemDialog.newInstance(file.absolutePath).show(fragmentManager, "update_item")
+        UpdateItemDialog.newInstance(file.absolutePath).show(supportFragmentManager, "update_item")
 
     }
 
     override fun onOptionClick(which: Int, path: String?) {
         when (which) {
-            R.id.new_file -> NewTextFileDialog.newInstance().show(fragmentManager, "new_file_dialog")
-            R.id.new_folder -> NewFolderDialog.newInstance().show(fragmentManager, "new_folder_dialog")
-            R.id.delete -> ConfirmDeleteDialog.newInstance(path.toString()).show(fragmentManager, "confirm_delete")
-            R.id.rename -> RenameDialog.newInstance(path.toString()).show(fragmentManager, "rename")
+            R.id.new_file -> NewTextFileDialog.newInstance().show(supportFragmentManager, "new_file_dialog")
+            R.id.new_folder -> NewFolderDialog.newInstance().show(supportFragmentManager, "new_folder_dialog")
+            R.id.delete -> ConfirmDeleteDialog.newInstance(path.toString()).show(supportFragmentManager, "confirm_delete")
+            R.id.rename -> RenameDialog.newInstance(path.toString()).show(supportFragmentManager, "rename")
 //            R.id.move -> {
 //                mo.setText(getString(R.string.moving_file, mStorage?.getFile(path).getName()))
 //                mMovingPath = path
@@ -123,7 +122,7 @@ class LocalActivity :BaseActivity(), AddItemsDialog.DialogListener,
         }
         fab_add.visibility = View.VISIBLE
         fab_add.setOnClickListener {
-            AddItemsDialog.newInstance().show(fragmentManager, "add_items")
+            AddItemsDialog.newInstance().show(supportFragmentManager, "add_items")
         }
         swipeContent.isEnabled =false
 
@@ -197,7 +196,6 @@ class LocalActivity :BaseActivity(), AddItemsDialog.DialogListener,
         } catch (e: IOException) {
             return false
         }
-
         return true
     }
 }

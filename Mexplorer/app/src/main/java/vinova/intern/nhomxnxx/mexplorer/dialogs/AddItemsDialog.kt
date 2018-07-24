@@ -3,11 +3,11 @@ package vinova.intern.nhomxnxx.mexplorer.dialogs
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
-import android.app.DialogFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
 
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -21,7 +21,7 @@ class AddItemsDialog : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-        val dialog = BottomSheetDialog(activity, theme)
+        val dialog = BottomSheetDialog(context!!, theme)
 
         val view = LayoutInflater.from(activity).inflate(R.layout.add_items_dialog, null)
         dialog.setContentView(view)
@@ -29,18 +29,18 @@ class AddItemsDialog : DialogFragment() {
 
         view.findViewById<View>(R.id.new_folder).setOnClickListener {
             dialog.dismiss()
-            mListener!!.onOptionClick(R.id.new_folder, null)
+            mListener?.onOptionClick(R.id.new_folder, null)
         }
 
         view.findViewById<View>(R.id.new_file).setOnClickListener {
             dialog.dismiss()
-            mListener!!.onOptionClick(R.id.new_file, null)
+            mListener?.onOptionClick(R.id.new_file, null)
         }
 
         // control dialog width on different devices
         dialog.setOnShowListener {
             val width = resources.getDimension(R.dimen.bottom_sheet_dialog_width).toInt()
-            dialog.window!!.setLayout(
+            dialog.window?.setLayout(
                     if (width == 0) ViewGroup.LayoutParams.MATCH_PARENT else width,
                     ViewGroup.LayoutParams.MATCH_PARENT)
         }

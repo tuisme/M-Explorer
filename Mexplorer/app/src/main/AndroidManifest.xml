@@ -58,7 +58,7 @@
             />
 
         <provider
-            android:name=".GenericFileProvider"
+            android:name=".utils.GenericFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">

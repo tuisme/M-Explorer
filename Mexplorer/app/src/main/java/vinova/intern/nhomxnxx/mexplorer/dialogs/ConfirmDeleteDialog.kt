@@ -2,14 +2,12 @@ package vinova.intern.nhomxnxx.mexplorer.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.DialogFragment
 import android.os.Bundle
-
-
-import com.snatik.storage.Storage
+import androidx.fragment.app.DialogFragment
 
 
 import vinova.intern.nhomxnxx.mexplorer.R
+import java.io.File
 
 class ConfirmDeleteDialog : DialogFragment() {
     private val mPath: String? = null
@@ -18,9 +16,8 @@ class ConfirmDeleteDialog : DialogFragment() {
         val builder = AlertDialog.Builder(activity)
 
         val msg: String
-        val path = arguments.getString(PATH)
-        val storage = Storage(activity)
-        val file = storage.getFile(path!!)
+        val path = arguments?.getString(PATH)
+        val file = File(path)
         if (file.isDirectory) {
             msg = "You are about to delete the folder with all it's content for real."
         } else {

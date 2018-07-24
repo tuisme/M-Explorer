@@ -3,7 +3,6 @@ package vinova.intern.nhomxnxx.mexplorer.dialogs
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.DialogFragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.fragment.app.DialogFragment
 
 import vinova.intern.nhomxnxx.mexplorer.R
 
@@ -40,7 +40,7 @@ class NewFolderDialog : DialogFragment() {
 
         builder.setTitle(R.string.new_folder)
         builder.setView(view)
-        builder.setPositiveButton(R.string.label_save) { dialogInterface, i -> mListener!!.onNewFolder(editText.text.toString()) }
+        builder.setPositiveButton(R.string.label_save) { dialogInterface, i -> mListener?.onNewFolder(editText.text.toString()) }
 
         val dialog = builder.create()
         view.post { dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false }

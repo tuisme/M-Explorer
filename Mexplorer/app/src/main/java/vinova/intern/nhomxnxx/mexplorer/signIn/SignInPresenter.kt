@@ -38,7 +38,6 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
         api.logIn(email, password, androidName, androidId)
                 .enqueue(object:Callback<Request>{
                     override fun onFailure(call: Call<Request>?, t: Throwable?) {
-                        Toast.makeText(context, "NGu ",Toast.LENGTH_SHORT).show()
                     }
 
                     override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
@@ -46,7 +45,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                             val user = response?.body()?.user
                             if (user != null) {
                                 if (databaseAccess.getUserLoggedIn() != null) {
-                                    databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
+                                    databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                 }
                                 databaseAccess.insertUserData(user.token, user.email, user.firstName,
                                         user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN)
@@ -84,7 +83,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                 val user = response?.body()?.user
                                 if (user != null) {
                                     if (databaseAccess.getUserLoggedIn() != null) {
-                                        databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
+                                        databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                     }
                                     databaseAccess.insertUserData(user.token, user.email, user.firstName,
                                             user.lastName, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN)
@@ -115,7 +114,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val androidName = android.os.Build.MODEL
             val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
             val api = CallApi.createService()
-            api.logInGoogle(email!!, first_name!!, last_name!!,androidId,androidName)
+            api.logInGoogle(email.toString(), first_name.toString(), last_name.toString(),androidId,androidName)
                     .enqueue(object:Callback<Request> {
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
                             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

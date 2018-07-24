@@ -89,9 +89,9 @@ class HomeActivity : BaseActivity(),HomeInterface.View {
 		user_name.text = name
 		user_email.text = user?.email
 		user_have_percentage.text = user?.used
-		progressBar.progress = (user?.used?.toFloat()!! *100).toInt()
+		progressBar.progress = (user?.used?.toFloat()?.times(100))?.toInt() ?: 0
 		Glide.with(this)
-				.load(user.avatarUrl)
+				.load(user?.avatarUrl)
 				.into(img_profile)
 	}
 
@@ -104,11 +104,6 @@ class HomeActivity : BaseActivity(),HomeInterface.View {
 		drawer_layout?.addDrawerListener(object : DrawerLayout.SimpleDrawerListener(){
 			override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
 				val diffScaledOffset = slideOffset * (1 - END_SCALE)
-//				val offsetScale = 1 - diffScaledOffset
-//
-//				app_bar_home.scaleX = offsetScale
-//				app_bar_home.scaleY = offsetScale
-
 				val  xOffset = drawerView.width * slideOffset
 				val  xOffsetDiff = app_bar_home.width * diffScaledOffset / 2
 				val  xTranslation = xOffset - xOffsetDiff

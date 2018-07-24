@@ -10,11 +10,12 @@
             android:orderInCategory="1"
             android:title="@string/home"/>
         <item
-            android:id="@+id/plus"
-            android:icon="@drawable/ic_add_black_24dp"
+            android:id="@+id/bookmark"
+            android:icon="@drawable/ic_bookmark"
             android:orderInCategory="100"
             app:showAsAction="always"
-            android:title="@string/plus" />
+            android:title="@string/book_mark" />
+
         <item
             android:id="@+id/signout"
             android:icon="@drawable/ic_sign_out"

@@ -44,7 +44,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         values_user.put(DBTable.USER.TYPE.COLUMN_NAME, type)
         values_user.put(DBTable.USER.STATUS.COLUMN_NAME, status)
 
-        db!!.insert(DBTable.USER.TABLE_NAME, null, values_user)
+        db?.insert(DBTable.USER.TABLE_NAME, null, values_user)
     }
 
     fun updateUserStatus(username: String, status: Int): Boolean {
@@ -53,7 +53,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
 
         values.put(DBTable.USER.STATUS.COLUMN_NAME, status)
         return try {
-            db!!.update(
+            db?.update(
                     DBTable.USER.TABLE_NAME,
                     values,
                     DBTable.USER.EMAIL.COLUMN_NAME + " = '" + username + "'", null
@@ -70,7 +70,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         val db = this.writableDatabase
 
         return try {
-            db!!.delete(
+            db?.delete(
                     DBTable.USER.TABLE_NAME,
                     DBTable.USER.TOKEN.COLUMN_NAME + " = '" + token + "'", null
             )
@@ -85,11 +85,11 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
     @SuppressLint("Recycle")
     fun userIsLogingIn(): Boolean {
         val db = this.writableDatabase
-        val cursor = db!!.rawQuery(
+        val cursor = db?.rawQuery(
                 "SELECT * FROM " + DBTable.USER.TABLE_NAME, null
         )
-        cursor.moveToFirst()
-        return cursor.count > 0 && cursor.getInt(DBTable.USER.STATUS.COLUMN_NUMBER) == DatabaseHandler.LOGGING_IN
+        cursor?.moveToFirst()
+        return cursor?.count!! > 0 && cursor.getInt(DBTable.USER.STATUS.COLUMN_NUMBER) == DatabaseHandler.LOGGING_IN
     }
 
     @SuppressLint("Recycle")
@@ -117,6 +117,18 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         cursor?.moveToFirst()
         return if (cursor?.count!! > 0) {
             cursor.getString(DBTable.USER.TOKEN.COLUMN_NUMBER)
+        } else null
+    }
+
+    @SuppressLint("Recycle")
+    fun getType(): String? {
+        val db = this.writableDatabase
+        val cursor = db?.rawQuery(
+                "SELECT * FROM " + DBTable.USER.TABLE_NAME, null
+        )
+        cursor?.moveToFirst()
+        return if (cursor?.count!! > 0) {
+            cursor.getString(DBTable.USER.TYPE.COLUMN_NUMBER)
         } else null
     }
 

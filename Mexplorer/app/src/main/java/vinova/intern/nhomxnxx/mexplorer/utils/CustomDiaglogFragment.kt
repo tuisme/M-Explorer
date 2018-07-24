@@ -34,8 +34,8 @@ class CustomDiaglogFragment:DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val alertDialogBuilder = AlertDialog.Builder(this@CustomDiaglogFragment.requireActivity())
-        val inflater = activity!!.layoutInflater
-        val view = inflater.inflate(R.layout.loading_fragment, null)
+        val inflater = activity?.layoutInflater
+        val view = inflater?.inflate(R.layout.loading_fragment, null)
         alertDialogBuilder.setView(view)
         val dialog = alertDialogBuilder.create()
         dialog.setCancelable(false)

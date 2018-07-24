@@ -25,8 +25,6 @@ interface ApiInterface {
     @POST("/api/v2/users/logout")
     fun logout(@Header("Access-Token") token:String) : Call<Request>
 
-    @POST("/api/v2/users/forgot")
-    fun requestNewPass(@Query("email") email : String) : Call<Request>
 
     @POST("/api/v2/users/google")
     fun logInGoogle(@Query("email") email:String,

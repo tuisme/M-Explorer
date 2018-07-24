@@ -23,7 +23,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.forget_pass.ForgetFragment
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
@@ -68,7 +67,6 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		callBackManager?.onActivityResult(requestCode,resultCode,data)
 		if (requestCode == 9001){
 			val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-			Log.d("xxx",result.toString())
 			mPresenter.handleGoogleSignInResult(result, context)
 		}
 	}
@@ -77,7 +75,6 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 		FacebookSdk.sdkInitialize(activity)
-		fragmentManager?.beginTransaction()?.replace(R.id.forget_frag, ForgetFragment())?.addToBackStack(null)?.commit()
 		btn_sign_in.setOnClickListener {
 			CustomDiaglogFragment.showLoadingDialog(fragmentManager)
 			if (email_sign_in.text.toString().trim() == "" || pass_word_sign_in.text.toString().trim() == "") {
@@ -106,9 +103,6 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 			})
 			login_face?.performClick()
 		}
-		btn_forget.setOnClickListener {
-			activity?.findViewById<FrameLayout>(R.id.forget_frag)?.visibility = View.VISIBLE
-		}
 		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 				.requestEmail()
 				.build()
@@ -122,16 +116,4 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		}
 	}
 
-//	private fun handleSignInResult(result: GoogleSignInResult){
-//		if (result.isSuccess){
-//			val account: GoogleSignInAccount
-//			account = result.signInAccount!!
-//			Log.d("email",account.email)
-//			Log.d("name",account.displayName)
-//			Log.d("image",account.photoUrl.toString())
-//			Log.d("id",account.id)
-//			Log.d("familyName",account.familyName)
-//			Log.d("givenName",account.givenName)
-//		}
-//	}
 }

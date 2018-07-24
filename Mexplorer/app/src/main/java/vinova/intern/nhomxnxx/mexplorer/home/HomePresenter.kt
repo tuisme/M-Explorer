@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.content.Context
+import com.facebook.login.LoginManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -29,12 +30,12 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                             if (response?.body()?.status.equals("success")) {
+                                LoginManager.getInstance().logOut()
                                 mView.logoutSuccess()
                                 db.deleteUserData(token)
                             }
-
                             else
-                                mView.showError(response?.body()?.message!!)
+                                mView.showError(response?.message().toString())
                         }
                     })
     }
@@ -47,8 +48,26 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                 }
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
-                    if (response?.body()?.status.equals("success"))
+                    if (response?.body()?.status.equals("success")){
+                        mView.showUser(response?.body()?.user)
                         mView.showList(response?.body())
+                    }
+                }
+            })
+    }
+
+    override fun refreshList(token: String?) {
+        if (token != null)
+            CallApi.getInstance().getListCloud(token).enqueue(object : Callback<ListCloud>{
+                override fun onFailure(call: Call<ListCloud>?, t: Throwable?) {
+                }
+
+                override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
+                    if (response?.body()?.status.equals("success")){
+                        mView.refreshList(
+
+                                response?.body())
+                    }
                 }
             })
     }

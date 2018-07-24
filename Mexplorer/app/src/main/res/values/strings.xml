@@ -23,7 +23,40 @@
     <!--for login face-->
     <string name="facebook_app_id">218083235510756</string>
     <string name="fb_login_protocol_scheme">fb218083235510756</string>
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait…</string>
     <string name="number_check">Number check</string>
     <string name="new_password">New password</string>
+    <string name="download">Download</string>
+    <string name="_1223_kb">1223 KB</string>
+
+    <string name="book_mark">Bookmark</string>
+    <string name="no_folders_or_files">No folders or files</string>
+
+
+
+
+
+    <!--Test-->
+    <string name="new_folder">New Folder</string>
+    <string name="label_save">Save</string>
+    <string name="new_file">New File</string>
+    <string name="encrypt_the_content">Encrypt the content</string>
+    <string name="label_content">Content</string>
+    <string name="label_name">Name</string>
+    <string name="label_decrypt">Decrypt</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="label_delete">Delete</string>
+    <string name="new_name">New name</string>
+    <string name="current_name">Current name</string>
+    <string name="rename">Rename</string>
+    <string name="drop_here">DROP HERE</string>
+    <string name="decline">DECLINE</string>
+    <string name="folder_options">Folder options</string>
+    <string name="file_options">File options</string>
+    <string name="moving_file">Moving: %1$s</string>
+    <string name="copy_file">Copying: %1$s</string>
+    <string name="switch_to_internal">Switch to internal</string>
+    <string name="order_by">Order by …</string>
+    <string name="filter">Filter</string>
+    <string name="add_new_items">Add new items</string>
 </resources>

@@ -8,7 +8,6 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_log.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.PageAdapter
-import vinova.intern.nhomxnxx.mexplorer.forget_pass.ForgetFragment
 
 class LogActivity:AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,12 +23,5 @@ class LogActivity:AppCompatActivity() {
 		view_pager.adapter = adapter
 		tab_layout.setupWithViewPager(view_pager)
 		view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tab_layout))
-	}
-
-	override fun onBackPressed() {
-		if (ForgetFragment.isShow)
-			ForgetFragment.hideForgetDialog()
-		else
-				super.onBackPressed()
 	}
 }

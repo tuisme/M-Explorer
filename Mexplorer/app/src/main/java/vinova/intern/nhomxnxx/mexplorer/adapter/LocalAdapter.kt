@@ -1,11 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.adapter
 
 import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
-import android.content.ContentResolver
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,13 +9,9 @@ import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.facebook.FacebookSdk.getApplicationContext
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.item_folder.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.File
@@ -82,14 +74,9 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
         }
 
         holder.itemView.setOnClickListener {
-            if (java.io.File("$path/${fileList[position].name}").isDirectory) {
-                this.path = "$path/${fileList[position].name}"
-                //listDir(this.path, holder, position)
-                setData()
-                notifyDataSetChanged()
-            } else if (java.io.File("$path/${fileList[position].name}").isFile) {
-                openFile(java.io.File("$path/${fileList[position].name}"))
-            }
+            mListener?.onClick(java.io.File("$path/${fileList[position].name}"))
+            true
+
         }
 
         holder.itemView.setOnLongClickListener {
@@ -104,19 +91,6 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
         val size: TextView = itemView.tv_size
     }
 
-    private fun getMimeType(uri: Uri): String? {
-        val mimeType: String?
-        mimeType = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-            val cr = ctx.contentResolver
-            cr.getType(uri)
-        } else {
-            val regex = Regex("[^A-Za-z0-9 .]")
-            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString().replace(regex, ""))
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    fileExtension.toLowerCase())
-        }
-        return mimeType
-    }
     fun getData(path: String):List<File>{
         val root = java.io.File(path)
         val files = root.listFiles()
@@ -142,28 +116,17 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
         return fileList
     }
 
-    private fun openFile(url: java.io.File){
-        try {
-            val uri = Uri.fromFile(url)
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            val apkURI = FileProvider.getUriForFile(ctx, getApplicationContext()
-                    .packageName + ".provider", url)
-            intent.setDataAndType(apkURI, getMimeType(uri))
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            ctx.startActivity(intent)
-        }
-        catch (e:ActivityNotFoundException){
-            Toast.makeText(ctx,"No support this file",Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    fun getFileSize(size: Long): String {
+    private fun getFileSize(size: Long): String {
         if (size <= 0)
             return "0"
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         val digitGroups = (Math.log10(size.toDouble()) / Math.log10(1024.0)).toInt()
         return DecimalFormat("#,##0.#").format(size / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
+    }
+
+    fun refreshData(){
+        setData()
+        notifyDataSetChanged()
     }
 
     interface OnFileItemListener {

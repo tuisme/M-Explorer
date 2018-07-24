@@ -46,13 +46,13 @@ class NewTextFileDialog : DialogFragment() {
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
 
             override fun afterTextChanged(editable: Editable) {
-                (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = editable.length > 0 && nameEditText.text.length > 0
+                (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = editable.length > 0 && nameEditText.text.isNotEmpty()
             }
         })
 
         builder.setTitle(R.string.new_file)
         builder.setView(view)
-        builder.setPositiveButton(R.string.label_save) { dialogInterface, i -> mListener?.onNewFile(nameEditText.text.toString(), contentEditText.text.toString(), false) }
+        builder.setPositiveButton(R.string.label_save) { dialogInterface, i -> mListener?.onNewFile(nameEditText.text.toString(), contentEditText.text.toString()) }
 
         val dialog = builder.create()
         view.post { dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false }
@@ -61,7 +61,7 @@ class NewTextFileDialog : DialogFragment() {
     }
 
     interface DialogListener {
-        fun onNewFile(name: String, content: String, encrypt: Boolean)
+        fun onNewFile(name: String, content: String)
     }
 
     override fun onAttach(activity: Activity) {

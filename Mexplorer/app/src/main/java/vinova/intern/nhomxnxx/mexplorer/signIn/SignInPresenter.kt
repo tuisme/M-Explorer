@@ -2,24 +2,19 @@ package vinova.intern.nhomxnxx.mexplorer.signIn
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
+import com.facebook.AccessToken
+import com.facebook.GraphRequest
 import com.facebook.login.LoginResult
-import okhttp3.OkHttpClient
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.provider.Settings
-import com.facebook.GraphRequest
-import com.facebook.GraphResponse
-import org.json.JSONObject
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.model.User
-import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
-import com.facebook.AccessToken
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import vinova.intern.nhomxnxx.mexplorer.model.Request
 
 
@@ -48,7 +43,8 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                 }
                                 databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                        user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN)
+                                        user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+                                        user.avatarUrl,user.isVip,user.used,user.verified)
                                 mView.signInSuccess(user)
 
                             }
@@ -86,7 +82,9 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                     }
                                     databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                            user.lastName, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN)
+                                            user.lastName, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN,
+                                            user.avatarUrl
+                                            ,user.isVip,user.used,user.verified)
                                     mView.signInSuccess(user)
 
                                 }
@@ -128,7 +126,8 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
                                     }
                                     databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                            user.lastName, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN)
+                                            user.lastName, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN,user.avatarUrl,
+                                            user.isVip,user.used,user.verified)
                                     mView.signInSuccess(user)
                                 }
                         else {

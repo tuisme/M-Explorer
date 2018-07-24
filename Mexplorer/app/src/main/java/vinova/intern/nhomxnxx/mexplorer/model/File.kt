@@ -18,7 +18,22 @@ data class File (
     @SerializedName("type")
     @Expose
     var type: String? = null,
-    @SerializedName("url")
+    @SerializedName("thumbnail")
     @Expose
     var url: String? = null
+)
+
+data class SpecificCloud (
+    @SerializedName("time")
+    @Expose
+    var time: String? = null,
+    @SerializedName("status")
+    @Expose
+    var status: String? = null,
+    @SerializedName("message")
+    @Expose
+    var message: Any? = null,
+    @SerializedName("data")
+    @Expose
+    var data: List<File>? = null
 )

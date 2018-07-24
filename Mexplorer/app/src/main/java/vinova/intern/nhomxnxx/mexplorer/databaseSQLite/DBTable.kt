@@ -35,6 +35,25 @@ class DBTable {
             val COLUMN_NUMBER = 5
         }
 
+        object AVATAR{
+            val COLUMN_NAME = "avatar"
+            val COLUMN_NUMBER = 6
+        }
+
+        object USED{
+            val COLUMN_NAME = "used"
+            val COLUMN_NUMBER = 7
+        }
+
+        object ISVIP{
+            val COLUMN_NAME = "isVip"
+            val COLUMN_NUMBER = 8
+        }
+
+        object VERI{
+            val COLUMN_NAME = "verified"
+            val COLUMN_NUMBER = 9
+        }
     }
 
 }

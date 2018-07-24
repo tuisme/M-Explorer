@@ -17,10 +17,7 @@ data class ListCloud (
 	@SerializedName("message")
 	@Expose
 	var message: String? = null,
-	@SerializedName("user")
-	@Expose
-	var user: User? = null,
-	@SerializedName("clouds")
+	@SerializedName("data")
 	@Expose
 	var clouds: List<Cloud>? = null
 ):Parcelable {
@@ -28,14 +25,12 @@ data class ListCloud (
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readString(),
-			parcel.readParcelable(User::class.java.classLoader),
 			parcel.createTypedArrayList(Cloud))
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeString(time)
 		parcel.writeString(status)
 		parcel.writeString(message)
-		parcel.writeParcelable(user, flags)
 		parcel.writeTypedList(clouds)
 	}
 
@@ -64,6 +59,9 @@ data class Cloud (
 	@SerializedName("ctype")
 	@Expose
 	var ctype: String? = null,
+	@SerializedName("ctoken")
+	@Expose
+	var token: String? = null,
 	@SerializedName("used")
 	@Expose
 	var used: String? = null,

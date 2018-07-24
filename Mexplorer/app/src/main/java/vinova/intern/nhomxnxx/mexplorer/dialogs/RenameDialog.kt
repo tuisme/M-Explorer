@@ -1,5 +1,6 @@
 package vinova.intern.nhomxnxx.mexplorer.dialogs
 
+
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
@@ -11,16 +12,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
-
-
-import java.io.File
-
 import vinova.intern.nhomxnxx.mexplorer.R
+import java.io.File
 
 
 class RenameDialog : DialogFragment() {
     private var mListener: DialogListener? = null
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         val builder = AlertDialog.Builder(activity)
@@ -31,7 +28,8 @@ class RenameDialog : DialogFragment() {
         // if text is empty, disable the dialog positive button
         val currentNameText = view.findViewById<View>(R.id.current_name) as EditText
         val path = arguments?.getString(PATH)
-
+        val id = arguments?.getString("id")
+        val token = arguments?.getString("token")
         val file = File(path)
         currentNameText.setText(file.name)
         val parent = file.parent
@@ -52,7 +50,10 @@ class RenameDialog : DialogFragment() {
         builder.setPositiveButton(R.string.label_save) { _, _ ->
             val newName = newNameText.text.toString()
             val toPath = if (parent == null) newName else parent + File.separator + newName
-            mListener?.onRename(file.path, toPath)
+            if (isLocal)
+                mListener?.onRename(file.path, toPath)
+            else
+                mListener?.onReNameCloud(toPath,id!!,token!!)
         }
 
         val dialog = builder.create()
@@ -63,6 +64,7 @@ class RenameDialog : DialogFragment() {
 
     interface DialogListener {
         fun onRename(fromPath: String, toPath: String)
+        fun onReNameCloud(newName: String,id:String,token:String)
     }
 
     override fun onAttach(activity: Activity) {
@@ -83,11 +85,22 @@ class RenameDialog : DialogFragment() {
     companion object {
 
         private val PATH = "path"
-
+        private var isLocal = false
         fun newInstance(path: String): RenameDialog {
+            isLocal = true
             val fragment = RenameDialog()
             val args = Bundle()
             args.putString(PATH, path)
+            fragment.arguments = args
+            return fragment
+        }
+
+        fun newInstanceCloud(name:String,id:String,token :String):RenameDialog{
+            val fragment = RenameDialog()
+            val args = Bundle()
+            args.putString(PATH, name)
+            args.putString("id",id)
+            args.putString("token",token)
             fragment.arguments = args
             return fragment
         }

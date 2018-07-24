@@ -13,7 +13,19 @@ class Request {
     @SerializedName("message")
     @Expose
     val message: String? = null
-    @SerializedName("user")
+    @SerializedName("data")
     @Expose
     val user: User? = null
 }
+
+data class RequestChangeName (
+    @SerializedName("time")
+    @Expose
+    val time: String? = null,
+    @SerializedName("status")
+    @Expose
+    val status: String? = null,
+    @SerializedName("message")
+    @Expose
+    val message: String? = null
+)

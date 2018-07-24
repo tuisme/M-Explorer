@@ -9,6 +9,7 @@ import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.model.Request
+import vinova.intern.nhomxnxx.mexplorer.model.RequestChangeName
 
 @Suppress("NAME_SHADOWING")
 class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
@@ -49,7 +50,6 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
                     if (response?.body()?.status.equals("success")){
-                        mView.showUser(response?.body()?.user)
                         mView.showList(response?.body())
                     }
                 }
@@ -64,11 +64,38 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
                     if (response?.body()?.status.equals("success")){
-                        mView.refreshList(
-
-                                response?.body())
+                        mView.refreshList(response?.body())
                     }
                 }
             })
+    }
+
+    override fun renameCloud(id: String, newName: String,token:String,userToken:String) {
+        CallApi.getInstance().changeNameCloud(userToken,id,newName)
+                .enqueue(object : Callback<RequestChangeName>{
+                    override fun onFailure(call: Call<RequestChangeName>?, t: Throwable?) {
+
+                    }
+
+                    override fun onResponse(call: Call<RequestChangeName>?, response: Response<RequestChangeName>?) {
+	                    if(response?.body() == null)
+	                        mView.refresh()
+	                    else
+		                    mView.refresh()
+                    }
+                })
+    }
+
+    override fun deleteCloud(id: String, token: String) {
+        CallApi.getInstance().deleteDrive(token,id)
+                .enqueue(object : Callback<RequestChangeName>{
+                    override fun onFailure(call: Call<RequestChangeName>?, t: Throwable?) {
+
+                    }
+
+                    override fun onResponse(call: Call<RequestChangeName>?, response: Response<RequestChangeName>?) {
+                        mView.refresh()
+                    }
+                })
     }
 }

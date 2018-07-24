@@ -2,6 +2,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -94,15 +95,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="7dp"
+            android:layout_marginEnd="6dp"
             android:text="@string/login_with"
-            app:layout_constraintBottom_toTopOf="@+id/fab_log_with_face"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/fab_log_with_face"
+            app:layout_constraintEnd_toStartOf="@+id/fab_log_with_face"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_forget"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="@+id/fab_log_with_face" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_log_with_face"
@@ -118,8 +118,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.42"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_sign_in"
-            app:layout_constraintVertical_bias="0.29000002" />
+            app:layout_constraintTop_toBottomOf="@+id/btn_forget"
+            app:layout_constraintVertical_bias="0.00999999" />
 
         <com.facebook.login.widget.LoginButton
             android:layout_width="0dp"

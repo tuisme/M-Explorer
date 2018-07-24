@@ -1,12 +1,11 @@
 package vinova.intern.nhomxnxx.mexplorer.api
 
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.model.Request
+import vinova.intern.nhomxnxx.mexplorer.model.RequestChangeName
+import vinova.intern.nhomxnxx.mexplorer.model.SpecificCloud
 
 interface ApiInterface {
 
@@ -46,4 +45,14 @@ interface ApiInterface {
 
     @GET("/api/v2/clouds")
     fun addListCloud(@Header("Access-Token") token : String) : Call<ListCloud>
+
+    @GET("/api/v2/folders/{id}")
+    fun gotoCloud(@Path("id") id : String, @Header("ctoken") token :String, @Header("Access-Token") userToken : String) : Call<SpecificCloud>
+
+    @PUT("/api/v2/clouds/{cid}")
+    fun changeNameCloud(@Header("Access-Token") token :String,
+                        @Path("cid") id : String , @Query("cname") name : String) : Call<RequestChangeName>
+
+    @DELETE("/api/v2/clouds/{cid}")
+    fun deleteDrive(@Header("Access-Token") token:String,@Path("cid") id : String) : Call<RequestChangeName>
 }

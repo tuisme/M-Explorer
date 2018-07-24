@@ -9,21 +9,19 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment.getExternalStorageDirectory
-import android.util.Log
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.content_home_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.LocalAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
-import java.io.*
+import java.io.File
 
 
 class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogListener,
@@ -80,6 +78,10 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         adapter.refreshData()
     }
 
+    override fun onReNameCloud(newName: String, id: String, token: String) {
+
+    }
+
     override fun onClick(file: File) {
         mPresenter.openFileOrFolder(adapter,file)
     }
@@ -112,6 +114,10 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     override fun onConfirmDelete(path: String?) {
         mPresenter.delete(path.toString())
         adapter.refreshData()
+    }
+
+    override fun onConfirmDeleteCloud(name: String, id: String) {
+
     }
 
     @SuppressLint("RestrictedApi")

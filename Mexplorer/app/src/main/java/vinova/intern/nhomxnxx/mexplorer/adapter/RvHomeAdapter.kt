@@ -12,7 +12,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -20,6 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.bottom_view_detail.view.*
 import kotlinx.android.synthetic.main.item_rv.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
@@ -34,7 +35,8 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 	private val root : View = view
 	private val sup = frag
 	private lateinit var listener: ItemClickListener
-
+	private val bottomSheetBehave = BottomSheetBehavior.from(root)
+	private val token = DatabaseHandler(context).getToken()
 	fun setData(clouds : List<Cloud>?){
 		if (clouds!=null)
 			this.listCloud = clouds.sortedBy {
@@ -75,38 +77,42 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 		holder.used.text = used
 		cl.ctype?.let { setIcon(holder.thumb, it) }
 		holder.btn.setOnClickListener {
-			val bottomSheetBehave = BottomSheetBehavior.from(root)
 			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
+			val cloud = listCloud[holder.adapterPosition]
+			root.share.setOnClickListener {
+				val sharingIntent = Intent(Intent.ACTION_SEND)
+				sharingIntent.type = "text/plain"
+				val shareBody = "Here is the share content body"
+				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here")
+				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody)
+				ContextCompat.startActivity(context, Intent.createChooser(sharingIntent, "Share via"), null)
+			}
+			root.rename.setOnClickListener {
+				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
+				RenameDialog.newInstanceCloud(cloud.cname!!,cloud.cid!!,token!!).show(sup,"halo")
+			}
+			root.copyFile.setOnClickListener {
+
+			}
+			root.moveFile.setOnClickListener {
+
+			}
+			root.openWith.setOnClickListener {
+
+			}
+			root.deleteFile.setOnClickListener {
+				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
+				ConfirmDeleteDialog.newInstanceCloud(cloud.cname!!,cloud.cid!!).show(sup,"halo")
+			}
 		}
 
 		if (cl.ctype== "local"){
 			holder.used.text ="free "+getAvailableInternalMemorySize() +" of  " + getTotalInternalMemorySize()
 		}
-
-		root.share.setOnClickListener {
-			val sharingIntent = Intent(Intent.ACTION_SEND)
-			sharingIntent.type = "text/plain"
-			val shareBody = "Here is the share content body"
-			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here")
-			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody)
-			startActivity(context,Intent.createChooser(sharingIntent, "Share via"),null)
+		else{
+			root.share.visibility = View.GONE
 		}
 
-		root.rename.setOnClickListener {
-			RenameDialog.newInstanceCloud(cl.cname!!,cl.cid!!,cl.token!!).show(sup,"halo")
-		}
-		root.copyFile.setOnClickListener {
-
-		}
-		root.moveFile.setOnClickListener {
-
-		}
-		root.openWith.setOnClickListener {
-
-		}
-		root.deleteFile.setOnClickListener {
-			ConfirmDeleteDialog.newInstanceCloud(cl.cname!!,cl.cid!!).show(sup,"halo")
-		}
 	}
 
 	private fun setIcon(img : ImageView,type:String){
@@ -130,6 +136,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 		init {
 			itemView.setOnClickListener(this)
 		}
+
 		override fun onClick(p0: View?) {
 			listener.onItemClick(listCloud[adapterPosition])
 		}

@@ -7,16 +7,18 @@ import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.model.File
+import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 
 class CloudActivity : BaseActivity(),CloudInterface.View {
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this)
 	lateinit var token : String
-
+	lateinit var userToken : String
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		super.onCreateDrawer()
 		setRv()
+		userToken = DatabaseHandler(this).getToken()!!
 	}
 
 	fun setRv(){
@@ -31,7 +33,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 				if (file.type.equals("folder"))
 					mPresenter.getList(file.id!!,token,DatabaseHandler(this@CloudActivity).getToken()!!)
 				else{
-					file.url
+					mPresenter.getUrlFile(file.id!!,token,userToken)
 				}
 			}
 		})
@@ -40,6 +42,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 	override fun showList(files: List<File>) {
 		adapter.setData(files)
 		adapter.notifyDataSetChanged()
+	}
+
+	override fun showFile(file: FileSec) {
+		mPresenter.openFile(this@CloudActivity,file.url!!)
 	}
 
 	override fun setPresenter(presenter: CloudInterface.Presenter) {
@@ -51,4 +57,5 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 
 	override fun showError(message: String) {
 	}
+
 }

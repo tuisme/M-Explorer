@@ -24,4 +24,5 @@ class LogActivity:AppCompatActivity() {
 		tab_layout.setupWithViewPager(view_pager)
 		view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tab_layout))
 	}
+
 }

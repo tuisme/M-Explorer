@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -16,7 +15,6 @@ import com.facebook.FacebookException
 import com.facebook.FacebookSdk
 import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.ConnectionResult
@@ -38,6 +36,7 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 	var callBackManager : CallbackManager? = null
 	val RC_SIGN_IN = 9001
 	var mGoogleApiClient: GoogleApiClient? = null
+
 
 	override fun signInSuccess(user: User) {
         CustomDiaglogFragment.hideLoadingDialog()
@@ -67,7 +66,7 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		callBackManager?.onActivityResult(requestCode,resultCode,data)
 		if (requestCode == 9001){
 			val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-			mPresenter.handleGoogleSignInResult(result, context)
+			mPresenter.handleGoogleSignInResult(result,context!!)
 		}
 	}
 

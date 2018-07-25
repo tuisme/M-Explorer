@@ -18,7 +18,9 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.Scope
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
@@ -103,6 +105,7 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 			login_face?.performClick()
 		}
 		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+				.requestScopes(Scope(Scopes.DRIVE_FULL))
 				.requestEmail()
 				.build()
 		mGoogleApiClient = GoogleApiClient.Builder(context!!)

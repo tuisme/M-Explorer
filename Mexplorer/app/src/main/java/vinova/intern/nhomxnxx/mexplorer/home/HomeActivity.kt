@@ -142,9 +142,14 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		super.onActivityResult(requestCode, resultCode, data)
 		if (requestCode == 9001){
 			val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-			val account: GoogleSignInAccount = result.signInAccount!!
+			val account: GoogleSignInAccount = result?.signInAccount!!
+			val authCode = account?.serverAuthCode
 //			RetrieveTokenTask().execute(account.email)
-			Log.e("ABCD",account.toJson())
+			account.grantedScopes.forEach {
+				val sop = it
+				val bacl = 1000
+			}
+			Log.e("ABCD",authCode)
 			val ab = 2000000000
 		}
 	}
@@ -167,6 +172,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	override fun onOptionClick() {
 		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 				.requestScopes(Scope(Scopes.DRIVE_FULL))
+				.requestServerAuthCode("389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com")
 				.requestEmail()
 				.build()
 		mGoogleApiClient = GoogleApiClient.Builder(this@HomeActivity)

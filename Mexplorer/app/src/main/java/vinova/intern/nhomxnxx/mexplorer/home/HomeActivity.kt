@@ -1,18 +1,13 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.android.gms.auth.GoogleAuthException
-import com.google.android.gms.auth.GoogleAuthUtil
-import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -39,7 +34,10 @@ import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
-import java.io.IOException
+
+
+
+
 
 
 class HomeActivity : BaseActivity(),HomeInterface.View ,
@@ -51,6 +49,9 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	private var listCloud : ListCloud = ListCloud()
 	val RC_SIGN_IN = 9001
 	var mGoogleApiClient: GoogleApiClient? = null
+	var newName : String = ""
+	var providerName : String = ""
+	lateinit var userToken : String
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
 		startActivity(Intent(this,LogActivity::class.java))
@@ -74,6 +75,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		super.onCreate(savedInstanceState)
 		super.onCreateDrawer()
 		setRecyclerView()
+		userToken = DatabaseHandler(this).getToken()!!
 		if (savedInstanceState==null)
 			mPresenter.getList(DatabaseHandler(this).getToken())
 	}
@@ -142,15 +144,11 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		super.onActivityResult(requestCode, resultCode, data)
 		if (requestCode == 9001){
 			val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-			val account: GoogleSignInAccount = result?.signInAccount!!
-			val authCode = account?.serverAuthCode
-//			RetrieveTokenTask().execute(account.email)
-			account.grantedScopes.forEach {
-				val sop = it
-				val bacl = 1000
+			if(result.isSuccess){
+				val account: GoogleSignInAccount = result.signInAccount!!
+				val authCode = account.serverAuthCode
+				mPresenter.sendCode(authCode!!,newName,userToken,providerName)
 			}
-			Log.e("ABCD",authCode)
-			val ab = 2000000000
 		}
 	}
 
@@ -169,18 +167,38 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		mPresenter.deleteCloud(id,DatabaseHandler(this@HomeActivity).getToken()!!)
 	}
 
-	override fun onOptionClick() {
+	override fun onOptionClick(name: String,provider:String) {
 		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 				.requestScopes(Scope(Scopes.DRIVE_FULL))
-				.requestServerAuthCode("389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com")
+				.requestServerAuthCode("389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",true)
 				.requestEmail()
 				.build()
 		mGoogleApiClient = GoogleApiClient.Builder(this@HomeActivity)
 				.enableAutoManage(FragmentActivity(), this)
 				.addApi(Auth.GOOGLE_SIGN_IN_API, gso)
 				.build()
-		val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
-		startActivityForResult(signInIntent, RC_SIGN_IN)
+		newName = name
+		providerName = provider
+		when(provider){
+			"googledrive" -> {
+				val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
+				startActivityForResult(signInIntent, RC_SIGN_IN)
+			}
+			"dropbox" ->{
+				com.dropbox.core.android.Auth.startOAuth2Authentication(this@HomeActivity,getString(R.string.drbx_key))
+			}
+			"onedrive" -> {
+
+			}
+		}
+	}
+
+	override fun onResume() {
+		super.onResume()
+		if (com.dropbox.core.android.Auth.getOAuth2Token() != null){
+			val token = com.dropbox.core.android.Auth.getOAuth2Token()
+			mPresenter.sendCode(token,newName,userToken,providerName)
+		}
 	}
 
 	override fun onConnectionFailed(p0: ConnectionResult) {
@@ -211,31 +229,6 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 
 	override fun refresh() {
-		mPresenter.refreshList(DatabaseHandler(this).getToken())
-	}
-
-	private inner class RetrieveTokenTask : AsyncTask<String, Void, String>() {
-
-		override fun doInBackground(vararg params: String): String? {
-			val accountName = params[0]
-			val scopes = "oauth2:profile email"
-			var token: String? = null
-			try {
-				token = GoogleAuthUtil.getToken(applicationContext, accountName, scopes)
-			} catch (e: IOException) {
-
-			} catch (e: UserRecoverableAuthException) {
-
-			} catch (e: GoogleAuthException) {
-
-			}
-
-			return token
-		}
-
-		override fun onPostExecute(s: String) {
-			super.onPostExecute(s)
-			Log.e("ABCD",s)
-		}
+		mPresenter.refreshList(userToken)
 	}
 }

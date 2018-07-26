@@ -48,7 +48,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".log_in_out.LogActivity"/>
+        <activity android:name=".log_in_out.LogActivity"
+            android:theme="@style/AppTheme_"/>
 
         <activity android:name=".home.HomeActivity"
             android:theme="@style/AppTheme_"
@@ -69,6 +70,19 @@
 
         <activity android:name=".cloud.CloudActivity"
             android:theme="@style/AppTheme_"/>
+
+        <activity
+            android:name="com.dropbox.core.android.AuthActivity"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|keyboard">
+            <intent-filter>
+                <!-- Change this to be db- followed by your app key -->
+                <data android:scheme="db-mzbf7iesot0oc5u" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

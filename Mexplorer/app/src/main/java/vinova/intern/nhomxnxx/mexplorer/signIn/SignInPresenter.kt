@@ -27,17 +27,18 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     @SuppressLint("HardwareIds")
     override fun signIn(context: Context?, email:String, password:String){
         val databaseAccess = DatabaseHandler(context)
-        val api = CallApi.createService()
+        val api = CallApi.getInstance()
         val androidName = android.os.Build.MODEL
         val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
         api.logIn(email, password, androidName, androidId)
                 .enqueue(object:Callback<Request>{
                     override fun onFailure(call: Call<Request>?, t: Throwable?) {
+                        Log.e("ABCD",t.toString())
                     }
 
                     override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                         if(response?.body()?.status.toString() == "success"){
-                            val user = response?.body()?.user
+                            val user = response?.body()?.data
                             if (user != null) {
                                 if (databaseAccess.getUserLoggedIn() != null) {
                                     databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
@@ -68,7 +69,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val lastName = obj?.getString("last_name").toString()
             val androidName = android.os.Build.MODEL
             val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
-            val api = CallApi.createService()
+            val api = CallApi.getInstance()
             api.logInProvider(provider, email,firstName,lastName,androidId,androidName)
                     .enqueue(object:Callback<Request>{
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
@@ -77,7 +78,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                             if(response?.body()?.status.toString() == "success"){
-                                val user = response?.body()?.user
+                                val user = response?.body()?.data
                                 if (user != null) {
                                     if (databaseAccess.getUserLoggedIn() != null) {
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
@@ -88,6 +89,9 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                             ,user.isVip,user.used,user.verified)
                                     mView.signInSuccess(user)
 
+                                }
+                                else{
+                                    mView.showError("can find user")
                                 }
                             }
                             else {
@@ -102,6 +106,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
         request.parameters = parameters
         request.executeAsync()
     }
+
     @SuppressLint("HardwareIds")
     override fun handleGoogleSignInResult(result: GoogleSignInResult, context:Context ){
         if (result.isSuccess){
@@ -111,8 +116,8 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val first_name = account.familyName
             val last_name = account.givenName
             val androidName = android.os.Build.MODEL
-            val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
-            val api = CallApi.createService()
+            val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            val api = CallApi.getInstance()
             api.logInProvider("google",email!!, first_name.toString(), last_name.toString(),androidId,androidName)
                     .enqueue(object:Callback<Request> {
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
@@ -121,7 +126,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                             if (response?.body()?.status.toString() == "success") {
-                                val user = response?.body()?.user
+                                val user = response?.body()?.data
                                 if (user != null) {
                                     if (databaseAccess.getUserLoggedIn() != null) {
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)

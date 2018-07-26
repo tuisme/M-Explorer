@@ -1,12 +1,12 @@
 package vinova.intern.nhomxnxx.mexplorer.api
 
+import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class CallApi {
 	companion object {
 		val Base_URL : String = "https://mexplorer.herokuapp.com"
-
 		private var api : ApiInterface? = null
 
 		fun getInstance():ApiInterface{
@@ -16,8 +16,9 @@ class CallApi {
 		}
 
 		fun builder(): Retrofit {
+			val gson = GsonBuilder().setLenient().create()
 			return Retrofit.Builder()
-					.addConverterFactory(GsonConverterFactory.create())
+					.addConverterFactory(GsonConverterFactory.create(gson))
 					.baseUrl(Base_URL)
 					.build()
 		}

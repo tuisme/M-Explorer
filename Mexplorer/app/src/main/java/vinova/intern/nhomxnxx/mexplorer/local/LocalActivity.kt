@@ -9,17 +9,22 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment.getExternalStorageDirectory
+import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.LocalAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
+import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import java.io.File
 
@@ -32,6 +37,11 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         ConfirmDeleteDialog.ConfirmListener,
         RenameDialog.DialogListener{
 
+    private var mPresenter :LocalInterface.Presenter= LocalPresenter(this)
+    var mMovingPath:String? = null
+    var mCopy:Boolean =false
+    lateinit var adapter: LocalAdapter
+
     override fun openFile(url: File) {
         val uri = Uri.fromFile(url)
         val intent = Intent(Intent.ACTION_VIEW)
@@ -41,11 +51,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         startActivity(intent)
     }
-
-    private var mPresenter :LocalInterface.Presenter= LocalPresenter(this)
-    var mMovingPath:String? = null
-    var mCopy:Boolean =false
-    lateinit var adapter: LocalAdapter
 
     override fun setPresenter(presenter: LocalInterface.Presenter) {
         this.mPresenter = presenter
@@ -62,7 +67,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
 
     override fun showError(message: String) {
     }
-
 
     override fun onNewFolder(name: String) {
         mPresenter.newFolder(adapter,name)
@@ -149,7 +153,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         }
     }
 
-    fun isStoragePermissionGranted(): Boolean {
+    private fun isStoragePermissionGranted(): Boolean {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 return true
@@ -198,5 +202,26 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         return mimeType
     }
 
+    override fun onNavigationItemSelected(p0: MenuItem): Boolean {
+        when(p0.itemId){
+            R.id.home->{
 
+            }
+            R.id.signout->{
+                CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+                mPresenter.logout(this, DatabaseHandler(this).getToken())
+            }
+            R.id.bookmark->{
+
+            }
+        }
+        drawer_layout?.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    override fun logoutSuccess() {
+        CustomDiaglogFragment.hideLoadingDialog()
+        startActivity(Intent(this, LogActivity::class.java))
+        finish()
+    }
 }

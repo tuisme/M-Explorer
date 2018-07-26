@@ -14,7 +14,6 @@ import vinova.intern.nhomxnxx.mexplorer.model.RequestChangeName
 @Suppress("NAME_SHADOWING")
 class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
     val mView: HomeInterface.View = view
-
     init {
         mView.setPresenter(this)
     }
@@ -23,10 +22,10 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         val token = DatabaseHandler(context).getToken()
         val db = DatabaseHandler(context)
         if (token!=null)
-            CallApi.createService().logout(token)
+            CallApi.getInstance().logout(token)
                     .enqueue(object : Callback<Request>{
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
-                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                            mView.showError("can not sign out")
                         }
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
@@ -88,6 +87,19 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
 
     override fun deleteCloud(id: String, token: String) {
         CallApi.getInstance().deleteDrive(token,id)
+                .enqueue(object : Callback<RequestChangeName>{
+                    override fun onFailure(call: Call<RequestChangeName>?, t: Throwable?) {
+
+                    }
+
+                    override fun onResponse(call: Call<RequestChangeName>?, response: Response<RequestChangeName>?) {
+                        mView.refresh()
+                    }
+                })
+    }
+
+    override fun sendCode(code: String, name: String,userToken: String,provider:String) {
+        CallApi.getInstance().getDrive(userToken,code,name,provider)
                 .enqueue(object : Callback<RequestChangeName>{
                     override fun onFailure(call: Call<RequestChangeName>?, t: Throwable?) {
 

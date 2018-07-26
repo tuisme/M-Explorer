@@ -21,9 +21,18 @@ class AddCloudDialog:DialogFragment() {
 		dialog.setCancelable(true)
 
 
+
 		view.googledrive.setOnClickListener {
-			dialog.dismiss()
-			mListener?.onOptionClick()
+			val name =view.nameNewCloud.text.toString()
+			if (name != "") {
+				dialog.dismiss()
+				val provider = when (true) {
+					view.checkDropbox.isChecked -> "dropbox"
+					view.checkOneDrive.isChecked -> "onedrive"
+					else -> "googledrive"
+				}
+				mListener?.onOptionClick(name, provider)
+			}
 		}
 
 		dialog.setOnShowListener {
@@ -36,7 +45,7 @@ class AddCloudDialog:DialogFragment() {
 
 	}
 	interface DialogListener {
-		fun onOptionClick()
+		fun onOptionClick(name : String,provider : String)
 	}
 
 	override fun onAttach(activity: Activity) {

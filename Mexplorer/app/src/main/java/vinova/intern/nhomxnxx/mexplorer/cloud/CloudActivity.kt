@@ -1,13 +1,20 @@
 package vinova.intern.nhomxnxx.mexplorer.cloud
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.File
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
+import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 class CloudActivity : BaseActivity(),CloudInterface.View {
 	private lateinit var adapter : CloudAdapter
@@ -58,4 +65,26 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 	override fun showError(message: String) {
 	}
 
+	override fun logoutSuccess() {
+		CustomDiaglogFragment.hideLoadingDialog()
+		startActivity(Intent(this, LogActivity::class.java))
+		finish()
+	}
+
+	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
+		when(p0.itemId){
+			R.id.home->{
+
+			}
+			R.id.signout->{
+				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+				mPresenter.logout(this, DatabaseHandler(this).getToken())
+			}
+			R.id.bookmark->{
+
+			}
+		}
+		drawer_layout?.closeDrawer(GravityCompat.START)
+		return true
+	}
 }

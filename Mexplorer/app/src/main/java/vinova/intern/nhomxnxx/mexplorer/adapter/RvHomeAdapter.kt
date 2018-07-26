@@ -72,7 +72,6 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 		holder.name.text = cl.cname
 		val use = cl.used?.toFloat()
 		val sum = use?.let { cl.used?.toFloat()?.plus(it) }
-		if (use != null && sum != null) holder.process.progress = (use/sum *100).toInt()
 		val used = "${cl.used} of $sum"
 		holder.used.text = used
 		cl.ctype?.let { setIcon(holder.thumb, it) }
@@ -89,7 +88,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			}
 			root.rename.setOnClickListener {
 				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
-				RenameDialog.newInstanceCloud(cloud.cname!!,cloud.cid!!,token!!).show(sup,"halo")
+				RenameDialog.newInstanceCloud(cloud.cname!!,cloud.id!!,token!!).show(sup,"halo")
 			}
 			root.copyFile.setOnClickListener {
 
@@ -102,7 +101,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			}
 			root.deleteFile.setOnClickListener {
 				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
-				ConfirmDeleteDialog.newInstanceCloud(cloud.cname!!,cloud.cid!!).show(sup,"halo")
+				ConfirmDeleteDialog.newInstanceCloud(cloud.cname!!,cloud.id!!).show(sup,"halo")
 			}
 		}
 
@@ -110,7 +109,9 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			holder.used.text ="free "+getAvailableInternalMemorySize() +" of  " + getTotalInternalMemorySize()
 		}
 		else{
+			if (use != null && sum != null) holder.process.progress = (use/sum *100).toInt()
 			root.share.visibility = View.GONE
+			root.available.visibility = View.GONE
 		}
 
 	}

@@ -18,5 +18,6 @@ interface HomeInterface {
         fun refreshList(token : String?)
         fun renameCloud(id:String,newName : String,token:String,userToken :String)
         fun deleteCloud(id:String,token:String)
+        fun sendCode(code : String,name:String,userToken: String,provider:String)
     }
 }

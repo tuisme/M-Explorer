@@ -31,11 +31,7 @@
 
     <string name="book_mark">Bookmark</string>
     <string name="no_folders_or_files">No folders or files</string>
-
-
-
-
-
+    
     <!--Test-->
     <string name="new_folder">New Folder</string>
     <string name="label_save">Save</string>
@@ -59,4 +55,8 @@
     <string name="order_by">Order by …</string>
     <string name="filter">Filter</string>
     <string name="add_new_items">Add new items</string>
+    
+    <!--drop box-->
+    <string name="drbx_key">mzbf7iesot0oc5u</string>
+    <string name="drbx_secret">naj221wscst1316</string>
 </resources>

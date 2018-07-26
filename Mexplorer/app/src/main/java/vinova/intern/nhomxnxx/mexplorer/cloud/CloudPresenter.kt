@@ -3,10 +3,13 @@ package vinova.intern.nhomxnxx.mexplorer.cloud
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.facebook.login.LoginManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.model.Request
 import vinova.intern.nhomxnxx.mexplorer.model.SpecificCloud
 import vinova.intern.nhomxnxx.mexplorer.model.SpecificFile
 
@@ -93,5 +96,26 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 					}
 
 				})
+	}
+	override fun logout(context: Context?, token: String?) {
+		val token = DatabaseHandler(context).getToken()
+		val db = DatabaseHandler(context)
+		if (token!=null)
+			CallApi.getInstance().logout(token)
+					.enqueue(object : Callback<Request> {
+						override fun onFailure(call: Call<Request>?, t: Throwable?) {
+
+						}
+
+						override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+							if (response?.body()?.status.equals("success")) {
+								LoginManager.getInstance().logOut()
+
+								db.deleteUserData(token)
+							}
+							else
+								mView.showError(response?.message().toString())
+						}
+					})
 	}
 }

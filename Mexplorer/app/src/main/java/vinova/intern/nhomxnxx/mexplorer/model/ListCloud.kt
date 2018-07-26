@@ -50,23 +50,12 @@ data class ListCloud (
 }
 
 data class Cloud (
-	@SerializedName("cid")
-	@Expose
+	var id: String? = null,
 	var cid: String? = null,
-	@SerializedName("cname")
-	@Expose
 	var cname: String? = null,
-	@SerializedName("ctype")
-	@Expose
 	var ctype: String? = null,
-	@SerializedName("ctoken")
-	@Expose
 	var token: String? = null,
-	@SerializedName("used")
-	@Expose
 	var used: String? = null,
-	@SerializedName("unused")
-	@Expose
 	var unused: String? = null
 ):Parcelable {
 	constructor(parcel: Parcel) : this(

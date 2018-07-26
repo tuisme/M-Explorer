@@ -39,17 +39,20 @@ interface ApiInterface {
     @GET("/api/v2/folders/{id}")
     fun gotoCloud(@Path("id") id : String, @Header("ctoken") token :String, @Header("Access-Token") userToken : String) : Call<SpecificCloud>
 
-    @PUT("/api/v2/clouds/{cid}")
+    @PUT("/api/v2/clouds/{id}")
     fun changeNameCloud(@Header("Access-Token") token :String,
-                        @Path("cid") id : String , @Query("cname") name : String) : Call<RequestChangeName>
+                        @Path("id") id : String , @Query("cname") name : String) : Call<RequestChangeName>
 
-    @DELETE("/api/v2/clouds/{cid}")
-    fun deleteDrive(@Header("Access-Token") token:String,@Path("cid") id : String) : Call<RequestChangeName>
+    @DELETE("/api/v2/clouds/{id}")
+    fun deleteDrive(@Header("Access-Token") token:String,@Path("id") id : String) : Call<RequestChangeName>
 
     @GET("/api/v2/files/{id}")
     fun getUrlFile(@Path("id") id :String ,@Query("ctoken") token:String,
                    @Header("Access-Token") user_token : String) : Call<SpecificFile>
 
 
-
+    @POST("/api/v2/clouds")
+    fun getDrive(@Header("Access-Token") user_token : String,
+                 @Query("code") serverAuth : String, @Query("cname") name : String,
+                 @Query("provider") provider:String) :  Call<RequestChangeName>
 }

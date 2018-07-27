@@ -59,4 +59,7 @@
     <!--drop box-->
     <string name="drbx_key">mzbf7iesot0oc5u</string>
     <string name="drbx_secret">naj221wscst1316</string>
+    <string name="name_device">Name Device</string>
+    <string name="location_device">Location device</string>
+    <string name="delete">Delete</string>
 </resources>

@@ -54,6 +54,9 @@
         <activity android:name=".home.HomeActivity"
             android:theme="@style/AppTheme_"
             />
+        <activity android:name=".device.DeviceActivity"
+            android:theme="@style/AppTheme_"
+            />
         <activity android:name=".local.LocalActivity"
             android:theme="@style/AppTheme_"
             />

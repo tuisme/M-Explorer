@@ -26,6 +26,7 @@ import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.cloud.CloudActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.device.DeviceActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.AddCloudDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
@@ -78,6 +79,16 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		userToken = DatabaseHandler(this).getToken()!!
 		if (savedInstanceState==null)
 			mPresenter.getList(DatabaseHandler(this).getToken())
+		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+				.requestScopes(Scope(Scopes.DRIVE_FULL))
+				.requestServerAuthCode("389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",true)
+				.requestEmail()
+				.build()
+		mGoogleApiClient = GoogleApiClient.Builder(this@HomeActivity)
+				.enableAutoManage(FragmentActivity(), this)
+				.addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+				.build()
+		mGoogleApiClient?.connect()
 	}
 
 	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
@@ -88,9 +99,11 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 			R.id.signout->{
 				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 				mPresenter.logout(this, DatabaseHandler(this).getToken())
+				Auth.GoogleSignInApi.signOut(mGoogleApiClient)
 			}
 			R.id.bookmark->{
-
+                val intent = Intent(this,DeviceActivity::class.java)
+                startActivity(intent)
 			}
 		}
 		drawer_layout?.closeDrawer(GravityCompat.START)
@@ -168,15 +181,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 
 	override fun onOptionClick(name: String,provider:String) {
-		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-				.requestScopes(Scope(Scopes.DRIVE_FULL))
-				.requestServerAuthCode("389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",true)
-				.requestEmail()
-				.build()
-		mGoogleApiClient = GoogleApiClient.Builder(this@HomeActivity)
-				.enableAutoManage(FragmentActivity(), this)
-				.addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-				.build()
+
 		newName = name
 		providerName = provider
 		when(provider){

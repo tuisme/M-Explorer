@@ -55,4 +55,6 @@ interface ApiInterface {
     fun getDrive(@Header("Access-Token") user_token : String,
                  @Query("code") serverAuth : String, @Query("cname") name : String,
                  @Query("provider") provider:String) :  Call<RequestChangeName>
+    @GET("/api/v2/devices")
+    fun getDevices(@Header("Access-Token") token : String) : Call<ListDevice>
 }

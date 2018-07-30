@@ -22,15 +22,14 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 		CallApi.getInstance().gotoCloud(id,token,userToken,type)
 				.enqueue(object : Callback<SpecificCloud>{
 					override fun onFailure(call: Call<SpecificCloud>?, t: Throwable?) {
-
+						mView.showError(t.toString())
 					}
 
 					override fun onResponse(call: Call<SpecificCloud>?, response: Response<SpecificCloud>?) {
 						if (response?.body() != null)
-							if (response.body()?.status.equals("success"))
-								mView.showList(response.body()?.data!!)
+							mView.showList(response.body()?.data!!)
 						else
-							mView.showError(response.message())
+							mView.showError(response?.message()!!)
 					}
 
 				})
@@ -88,12 +87,14 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 		CallApi.getInstance().getUrlFile(id, ctoken, user_token,ctype)
 				.enqueue(object : Callback<SpecificFile>{
 					override fun onFailure(call: Call<SpecificFile>?, t: Throwable?) {
-
+						mView.showError(t.toString())
 					}
 
 					override fun onResponse(call: Call<SpecificFile>?, response: Response<SpecificFile>?) {
 						if (response?.body()?.status.equals("success"))
 							mView.showFile(response?.body()?.data!!)
+						else
+							mView.showError("something wrong just happened")
 					}
 
 				})
@@ -105,7 +106,7 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 			CallApi.getInstance().logout(token)
 					.enqueue(object : Callback<Request> {
 						override fun onFailure(call: Call<Request>?, t: Throwable?) {
-
+							mView.showError(t.toString())
 						}
 
 						override fun onResponse(call: Call<Request>?, response: Response<Request>?) {

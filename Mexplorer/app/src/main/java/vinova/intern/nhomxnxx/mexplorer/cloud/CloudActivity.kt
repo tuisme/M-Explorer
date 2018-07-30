@@ -3,8 +3,10 @@ package vinova.intern.nhomxnxx.mexplorer.cloud
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
@@ -24,6 +26,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 	lateinit var userToken : String
 	lateinit var cloudType : String
 	lateinit var cloudId : String
+	val path : ArrayList<String> = arrayListOf()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -41,13 +44,16 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 		token = intent.getStringExtra("token")
 		cloudType = intent.getStringExtra("type")
 		cloudId = intent.getStringExtra("id")
+		path.add(cloudId)
 		CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 		mPresenter.getList(cloudId,token,DatabaseHandler(this).getToken()!!,cloudType)
 		adapter.setListener(object : CloudAdapter.ItemClickListener{
 			override fun onItemClick(file: FileSec) {
 				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
-				if (file.mime_type!!.contains("folder"))
-					mPresenter.getList(file.id!!,token,DatabaseHandler(this@CloudActivity).getToken()!!,cloudType)
+				if (file.mime_type!!.contains("folder")) {
+					mPresenter.getList(file.id!!, token, DatabaseHandler(this@CloudActivity).getToken()!!, cloudType)
+					path.add(file.id!!)
+				}
 				else{
 					mPresenter.getUrlFile(file.id!!,token,userToken,cloudType)
 				}
@@ -74,6 +80,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 	}
 
 	override fun showError(message: String) {
+		CustomDiaglogFragment.hideLoadingDialog()
+		Toasty.error(this,message,Toast.LENGTH_SHORT).show()
 	}
 
 	override fun logoutSuccess() {
@@ -97,5 +105,15 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 		}
 		drawer_layout?.closeDrawer(GravityCompat.START)
 		return true
+	}
+
+	override fun onBackPressed() {
+		if (path.size > 1){
+			path.removeAt(path.size-1)
+			val id = path.last()
+			mPresenter.getList(id,token,userToken,cloudType)
+		}
+		else
+			super.onBackPressed()
 	}
 }

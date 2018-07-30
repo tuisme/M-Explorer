@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.dialogs
 
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.os.Bundle
@@ -14,6 +15,7 @@ import vinova.intern.nhomxnxx.mexplorer.R
 class AddCloudDialog:DialogFragment() {
 	private var mListener: AddCloudDialog.DialogListener? = null
 
+	@SuppressLint("InflateParams")
 	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 		val dialog = BottomSheetDialog(context!!, theme)
 		val view = LayoutInflater.from(activity).inflate(R.layout.add_cloud_bottomsheetdialog, null)
@@ -29,6 +31,7 @@ class AddCloudDialog:DialogFragment() {
 				val provider = when (true) {
 					view.checkDropbox.isChecked -> "dropbox"
 					view.checkOneDrive.isChecked -> "onedrive"
+					view.checkBox.isChecked -> "box"
 					else -> "googledrive"
 				}
 				mListener?.onOptionClick(name, provider)

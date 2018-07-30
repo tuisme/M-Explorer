@@ -20,6 +20,7 @@ import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.Scope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
@@ -55,7 +56,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	var providerName : String = ""
 	lateinit var userToken : String
 	lateinit var boxSession: BoxSession
-
+	var firstTime = false
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
 		startActivity(Intent(this,LogActivity::class.java))
@@ -72,7 +73,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	override fun showError(message: String) {
 		CustomDiaglogFragment.hideLoadingDialog()
-		Toast.makeText(this,message,Toast.LENGTH_SHORT).show()
+		Toasty.error(this,message,Toast.LENGTH_SHORT).show()
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -195,13 +196,16 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				startActivityForResult(signInIntent, RC_SIGN_IN)
 			}
 			"dropbox" ->{
+				firstTime = true
 				com.dropbox.core.android.Auth.startOAuth2Authentication(this@HomeActivity,getString(R.string.drbx_key))
 			}
 			"onedrive" -> {
+
+			}
+			"box" -> {
 				BoxConfig.CLIENT_ID = "i9jieqavbpuutnbbrqdyeo44m0imegpk"
 				BoxConfig.CLIENT_SECRET = "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F"
 				BoxConfig.REDIRECT_URL = "https://app.box.com"
-
 				boxSession = BoxSession(this@HomeActivity)
 				boxSession.setSessionAuthListener(this@HomeActivity)
 				boxSession.authenticate(this@HomeActivity)
@@ -211,7 +215,8 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	override fun onResume() {
 		super.onResume()
-		if (com.dropbox.core.android.Auth.getOAuth2Token() != null){
+		if (com.dropbox.core.android.Auth.getOAuth2Token() != null && firstTime){
+			firstTime = false
 			val token = com.dropbox.core.android.Auth.getOAuth2Token()
 			mPresenter.sendCode(token,newName,userToken,providerName)
 		}
@@ -254,8 +259,8 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 	// get access token of box
 	override fun onAuthCreated(info: BoxAuthentication.BoxAuthenticationInfo?) {
-		val code = boxSession.authInfo.accessToken()
-		mPresenter.sendCode(code,newName,userToken,"box")
+		val code = boxSession.authInfo.refreshToken()
+		mPresenter.sendCode(code,newName,userToken,providerName)
 	}
 
 	override fun onRefreshed(info: BoxAuthentication.BoxAuthenticationInfo?) {

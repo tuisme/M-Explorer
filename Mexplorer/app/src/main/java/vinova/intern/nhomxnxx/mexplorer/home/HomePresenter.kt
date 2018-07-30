@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.content.Context
+import android.util.Log
 import com.facebook.login.LoginManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -107,7 +108,10 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                     }
 
                     override fun onResponse(call: Call<RequestChangeName>?, response: Response<RequestChangeName>?) {
-                        mView.refresh()
+                        if(response?.body()!=null)
+                            mView.refresh()
+                        else
+                            mView.showError(response?.message()!!)
                     }
                 })
     }

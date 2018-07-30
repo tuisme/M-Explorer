@@ -10,7 +10,6 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import java.io.File
 
 class ConfirmDeleteDialog : DialogFragment() {
-    private val mPath: String? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(activity)

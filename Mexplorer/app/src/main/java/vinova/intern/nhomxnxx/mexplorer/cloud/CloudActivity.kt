@@ -14,6 +14,7 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.dialogs.UpdateItemDialog
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
@@ -48,15 +49,17 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 		CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 		mPresenter.getList(cloudId,token,DatabaseHandler(this).getToken()!!,cloudType)
 		adapter.setListener(object : CloudAdapter.ItemClickListener{
-			override fun onItemClick(file: FileSec) {
+			override fun onClick(file: FileSec) {
 				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
-				if (file.mime_type!!.contains("folder")) {
-					mPresenter.getList(file.id!!, token, DatabaseHandler(this@CloudActivity).getToken()!!, cloudType)
-					path.add(file.id!!)
-				}
+				if (file.mime_type!!.contains("folder"))
+					mPresenter.getList(file.id!!,token,DatabaseHandler(this@CloudActivity).getToken()!!,cloudType)
 				else{
 					mPresenter.getUrlFile(file.id!!,token,userToken,cloudType)
 				}
+			}
+
+			override fun onLongClick(file: FileSec) {
+				UpdateItemDialog.newInstance("").show(supportFragmentManager, "update_item")
 			}
 		})
 	}
@@ -112,6 +115,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 			path.removeAt(path.size-1)
 			val id = path.last()
 			mPresenter.getList(id,token,userToken,cloudType)
+
 		}
 		else
 			super.onBackPressed()

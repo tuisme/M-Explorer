@@ -37,6 +37,12 @@ class AddItemsDialog : DialogFragment() {
             mListener?.onOptionClick(R.id.new_file, null)
         }
 
+        view.findViewById<View>(R.id.new_image).setOnClickListener {
+            dialog.dismiss()
+            mListener?.onOptionClick(R.id.new_image, null)
+        }
+
+
         // control dialog width on different devices
         dialog.setOnShowListener {
             val width = resources.getDimension(R.dimen.bottom_sheet_dialog_width).toInt()

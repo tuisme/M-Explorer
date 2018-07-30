@@ -15,7 +15,7 @@ import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.item_folder.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.File
-import java.text.DecimalFormat
+import vinova.intern.nhomxnxx.mexplorer.utils.Support
 
 
 class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdapter.LocalViewHolder>(){
@@ -52,31 +52,54 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
         when (file.type) {
             null -> {
                 Glide.with(ctx)
-                        .load(R.drawable.ic_logo_folder)
+                        .load(R.drawable.ic_folder)
                         .apply(RequestOptions().circleCrop())
                         .into(holder.logo)
                 holder.size.visibility = View.GONE
             }
-//            "jpg", "png" -> {
-//                Glide.with(ctx)
-//                        .load(file.url)
-//                        .into(holder.logo)
-//                holder.size.text = "${file.size} KB"
-//            }
-            else -> {
+            "zip" -> {
                 Glide.with(ctx)
-                        .load(file.url)
-                        .apply(RequestOptions().circleCrop())
+                        .load(R.drawable.ic_zip)
                         .into(holder.logo)
                 holder.size.visibility = View.VISIBLE
-                holder.size.text = file.size?.toLong()?.let { getFileSize(it)}
+
+                holder.size.text = file.size?.toLong()?.let { Support.getFileSize(it) }
+            }
+            "txt" -> {
+                Glide.with(ctx)
+                        .load(R.drawable.ic_txt)
+                        .into(holder.logo)
+                holder.size.visibility = View.VISIBLE
+
+                holder.size.text = file.size?.toLong()?.let { Support.getFileSize(it) }
+                }
+            "doc"-> {
+                Glide.with(ctx)
+                        .load(R.drawable.ic_doc)
+                        .into(holder.logo)
+                holder.size.visibility = View.VISIBLE
+
+                holder.size.text = file.size?.toLong()?.let { Support.getFileSize(it) }
+            }
+            "jpg", "png","mp4","gif" -> {
+                Glide.with(ctx)
+                        .load(file.url)
+                        .apply ( RequestOptions().circleCrop() )
+                        .into(holder.logo)
+                holder.size.visibility = View.VISIBLE
+                holder.size.text = file.size?.toLong()?.let { Support.getFileSize(it) }
+            }
+            else -> {
+                Glide.with(ctx)
+                        .load(R.drawable.ic_doc)
+                        .into(holder.logo)
+                holder.size.visibility = View.VISIBLE
+                holder.size.text = file.size?.toLong()?.let { Support.getFileSize(it)}
             }
         }
 
         holder.itemView.setOnClickListener {
             mListener?.onClick(java.io.File("$path/${fileList[position].name}"))
-            true
-
         }
 
         holder.itemView.setOnLongClickListener {
@@ -114,14 +137,6 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<LocalAdap
         }
         fileList.sortWith(compareBy ({ it.type }, {it.name}))
         return fileList
-    }
-
-    private fun getFileSize(size: Long): String {
-        if (size <= 0)
-            return "0"
-        val units = arrayOf("B", "KB", "MB", "GB", "TB")
-        val digitGroups = (Math.log10(size.toDouble()) / Math.log10(1024.0)).toInt()
-        return DecimalFormat("#,##0.#").format(size / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
     }
 
     fun refreshData(){

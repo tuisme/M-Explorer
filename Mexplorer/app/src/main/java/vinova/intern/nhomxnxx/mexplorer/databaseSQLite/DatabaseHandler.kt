@@ -112,7 +112,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         )
         cursor?.moveToFirst()
         return if (cursor?.count!! > 0) {
-            cursor.getString(DBTable.USER.EMAIL.COLUMN_NUMBER)
+            cursor.getString(DBTable.USER.TOKEN.COLUMN_NUMBER)
         } else null
     }
 

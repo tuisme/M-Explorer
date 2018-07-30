@@ -141,6 +141,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
     }
 
 
+    @SuppressLint("Recycle")
     fun getUser():User{
         val db = this.writableDatabase
         val cursor = db?.rawQuery(

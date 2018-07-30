@@ -4,7 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/customize_bottomsheet"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp">
 
 
     <RadioGroup
@@ -28,7 +31,7 @@
             android:drawablePadding="8dp"
             android:layoutDirection="rtl"
             android:padding="8dp"
-            android:text="Google Drive" />
+            android:text="@string/google_drive" />
 
         <RadioButton
             android:id="@+id/checkDropbox"
@@ -38,7 +41,7 @@
             android:drawablePadding="8dp"
             android:layoutDirection="rtl"
             android:padding="8dp"
-            android:text="Drop box" />
+            android:text="@string/drop_box" />
 
         <RadioButton
             android:id="@+id/checkOneDrive"
@@ -49,7 +52,7 @@
             android:layoutDirection="rtl"
             android:checked="true"
             android:padding="8dp"
-            android:text="One Drive" />
+            android:text="@string/one_drive" />
     </RadioGroup>
 
     <Button
@@ -57,7 +60,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="test"
+        android:text="@string/add_new_items"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/nameNewCloud" />
 
@@ -68,7 +71,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:inputType="text"
         app:layout_constraintEnd_toStartOf="@+id/googledrive"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup"
+        tools:ignore="Autofill,LabelFor" />
 </androidx.constraintlayout.widget.ConstraintLayout>

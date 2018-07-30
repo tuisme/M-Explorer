@@ -37,7 +37,8 @@ interface ApiInterface {
     fun addListCloud(@Header("Access-Token") token : String) : Call<ListCloud>
 
     @GET("/api/v2/folders/{id}")
-    fun gotoCloud(@Path("id") id : String, @Header("ctoken") token :String, @Header("Access-Token") userToken : String) : Call<SpecificCloud>
+    fun gotoCloud(@Path("id") id : String, @Query("ctoken") token :String,
+                  @Header("Access-Token") userToken : String, @Query("ctype") type : String) : Call<SpecificCloud>
 
     @PUT("/api/v2/clouds/{id}")
     fun changeNameCloud(@Header("Access-Token") token :String,
@@ -48,13 +49,14 @@ interface ApiInterface {
 
     @GET("/api/v2/files/{id}")
     fun getUrlFile(@Path("id") id :String ,@Query("ctoken") token:String,
-                   @Header("Access-Token") user_token : String) : Call<SpecificFile>
+                   @Header("Access-Token") user_token : String,@Query("ctype")ctype:String) : Call<SpecificFile>
 
 
     @POST("/api/v2/clouds")
     fun getDrive(@Header("Access-Token") user_token : String,
                  @Query("code") serverAuth : String, @Query("cname") name : String,
                  @Query("provider") provider:String) :  Call<RequestChangeName>
+
     @GET("/api/v2/devices")
     fun getDevices(@Header("Access-Token") token : String) : Call<ListDevice>
 }

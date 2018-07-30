@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.sign_up_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
@@ -26,7 +27,8 @@ class SignUpFragment : Fragment(), SignUpInterface.View{
 			if (first_name_sign_up.text.toString().trim() == "" || last_name_sign_up.text.toString().trim() == "" ||
 					email_sign_up.text.toString().trim() == "" || pass_word.text.toString().trim() == "") {
 				CustomDiaglogFragment.hideLoadingDialog()
-				Toast.makeText(context, "Please fill all field", Toast.LENGTH_LONG).show()
+//				Toast.makeText(context, "Please fill all field", Toast.LENGTH_LONG).show()
+				Toasty.warning(context!!,"Please fill all field",Toast.LENGTH_SHORT).show()
 
 			}
 			else {
@@ -45,13 +47,15 @@ class SignUpFragment : Fragment(), SignUpInterface.View{
 			pass_word.setText("", TextView.BufferType.EDITABLE)
 			CustomDiaglogFragment.hideLoadingDialog()
 
-			Toast.makeText(context, "Sign up success",Toast.LENGTH_SHORT).show()
+//			Toast.makeText(context, "Sign up success",Toast.LENGTH_SHORT).show()
+			Toasty.success(context!!,"Sign up success",Toast.LENGTH_LONG).show()
 			activity?.findViewById<ViewPager>(R.id.view_pager)?.setCurrentItem(0, true)
 
 		}
 		else {
 			CustomDiaglogFragment.hideLoadingDialog()
-			Toast.makeText(context, "Sign up fail", Toast.LENGTH_SHORT).show()
+//			Toast.makeText(context, "Sign up fail", Toast.LENGTH_SHORT).show()
+			Toasty.error(context!!,"Sign up fail",Toast.LENGTH_SHORT).show()
 		}
 
 		}
@@ -66,7 +70,8 @@ class SignUpFragment : Fragment(), SignUpInterface.View{
 
 	override fun showError(message: String) {
 		CustomDiaglogFragment.hideLoadingDialog()
-		Toast.makeText(context,message, Toast.LENGTH_LONG).show()
+//		Toast.makeText(context,message, Toast.LENGTH_LONG).show()
+		Toasty.error(context!!,message,Toast.LENGTH_SHORT).show()
 	}
 
 }

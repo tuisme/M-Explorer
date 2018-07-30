@@ -21,6 +21,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.Scope
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
@@ -56,7 +57,8 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 
 	override fun showError(message: String) {
 		CustomDiaglogFragment.hideLoadingDialog()
-		Toast.makeText(context,message,Toast.LENGTH_LONG).show()
+//		Toast.makeText(context,message,Toast.LENGTH_LONG).show()
+		Toasty.error(context!!,message,Toast.LENGTH_LONG).show()
 	}
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

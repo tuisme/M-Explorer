@@ -44,7 +44,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         if (token != null)
             CallApi.getInstance().getListCloud(token).enqueue(object : Callback<ListCloud>{
                 override fun onFailure(call: Call<ListCloud>?, t: Throwable?) {
-
+                    mView.showError(t.toString())
                 }
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
@@ -59,6 +59,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         if (token != null)
             CallApi.getInstance().getListCloud(token).enqueue(object : Callback<ListCloud>{
                 override fun onFailure(call: Call<ListCloud>?, t: Throwable?) {
+                    mView.showError(t.toString())
                 }
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
@@ -73,7 +74,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         CallApi.getInstance().changeNameCloud(userToken,id,newName)
                 .enqueue(object : Callback<RequestChangeName>{
                     override fun onFailure(call: Call<RequestChangeName>?, t: Throwable?) {
-
+                        mView.showError(t.toString())
                     }
 
                     override fun onResponse(call: Call<RequestChangeName>?, response: Response<RequestChangeName>?) {
@@ -89,7 +90,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         CallApi.getInstance().deleteDrive(token,id)
                 .enqueue(object : Callback<RequestChangeName>{
                     override fun onFailure(call: Call<RequestChangeName>?, t: Throwable?) {
-
+                        mView.showError(t.toString())
                     }
 
                     override fun onResponse(call: Call<RequestChangeName>?, response: Response<RequestChangeName>?) {
@@ -102,7 +103,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         CallApi.getInstance().getDrive(userToken,code,name,provider)
                 .enqueue(object : Callback<RequestChangeName>{
                     override fun onFailure(call: Call<RequestChangeName>?, t: Throwable?) {
-
+                        mView.showError(t.toString())
                     }
 
                     override fun onResponse(call: Call<RequestChangeName>?, response: Response<RequestChangeName>?) {
@@ -110,4 +111,6 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                     }
                 })
     }
+
+
 }

@@ -18,8 +18,8 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 	init {
 		mView.setPresenter(this)
 	}
-	override fun getList(id:String,token:String,userToken:String) {
-		CallApi.getInstance().gotoCloud(id,token,userToken)
+	override fun getList(id:String,token:String,userToken:String,type : String) {
+		CallApi.getInstance().gotoCloud(id,token,userToken,type)
 				.enqueue(object : Callback<SpecificCloud>{
 					override fun onFailure(call: Call<SpecificCloud>?, t: Throwable?) {
 
@@ -35,6 +35,7 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 
 				})
 	}
+
 	override fun openFile(context: Context, url: String){
 		val intent = Intent(Intent.ACTION_VIEW)
 		val uri: Uri = Uri.parse(url)
@@ -83,8 +84,8 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 		context.startActivity(intent)
 	}
 
-	override fun getUrlFile(id: String, token: String, user_token: String) {
-		CallApi.getInstance().getUrlFile(id, token, user_token)
+	override fun getUrlFile(id: String, ctoken: String, user_token: String,ctype:String) {
+		CallApi.getInstance().getUrlFile(id, ctoken, user_token,ctype)
 				.enqueue(object : Callback<SpecificFile>{
 					override fun onFailure(call: Call<SpecificFile>?, t: Throwable?) {
 
@@ -97,8 +98,8 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 
 				})
 	}
+
 	override fun logout(context: Context?, token: String?) {
-		val token = DatabaseHandler(context).getToken()
 		val db = DatabaseHandler(context)
 		if (token!=null)
 			CallApi.getInstance().logout(token)

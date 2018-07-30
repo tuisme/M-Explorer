@@ -51,10 +51,10 @@ data class ListCloud (
 
 data class Cloud (
 	var id: String? = null,
-	var cid: String? = null,
+	var croot: String? = null,
 	var cname: String? = null,
 	var ctype: String? = null,
-	var token: String? = null,
+	var ctoken: String? = null,
 	var used: String? = null,
 	var unused: String? = null
 ):Parcelable {
@@ -66,7 +66,7 @@ data class Cloud (
 			parcel.readString())
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
-		parcel.writeString(cid)
+		parcel.writeString(croot)
 		parcel.writeString(cname)
 		parcel.writeString(ctype)
 		parcel.writeString(used)

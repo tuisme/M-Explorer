@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">M-Explorer</string>
     <!--sign in/up-->
     <string name="user_name">User Name</string>
@@ -59,7 +59,16 @@
     <!--drop box-->
     <string name="drbx_key">mzbf7iesot0oc5u</string>
     <string name="drbx_secret">naj221wscst1316</string>
+
+
+    <!--one drive-->
+    <string name="ODkey">drturY80_snZRNFTI844^*_</string>
+    <string name="ODid" tools:ignore="TypographyDashes">f8ecd10b-ab84-40af-a74e-258bf48f90f2</string>
+
     <string name="name_device">Name Device</string>
     <string name="location_device">Location device</string>
     <string name="delete">Delete</string>
+    <string name="google_drive">Google Drive</string>
+    <string name="drop_box">Drop box</string>
+    <string name="one_drive">One Drive</string>
 </resources>

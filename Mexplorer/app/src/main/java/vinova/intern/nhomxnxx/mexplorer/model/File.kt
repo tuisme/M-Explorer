@@ -1,73 +1,41 @@
 package vinova.intern.nhomxnxx.mexplorer.model
 
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
-
 
 data class File (
-
-    @SerializedName("id")
-    @Expose
     var id: String? = null,
-    @SerializedName("name")
-    @Expose
     var name: String? = null,
-    @SerializedName("size")
-    @Expose
     var size: String? = null,
-    @SerializedName("type")
-    @Expose
     var type: String? = null,
-    @SerializedName("thumbnail")
-    @Expose
     var url: String? = null
 )
 
 data class SpecificCloud (
-    @SerializedName("time")
-    @Expose
     var time: String? = null,
-    @SerializedName("status")
-    @Expose
     var status: String? = null,
-    @SerializedName("message")
-    @Expose
     var message: Any? = null,
-    @SerializedName("data")
-    @Expose
-    var data: List<File>? = null
+    var data: List<FileSec>? = null
 )
 
 data class SpecificFile (
-        @SerializedName("time")
-        @Expose
-        var time: String? = null,
-        @SerializedName("status")
-        @Expose
-        var status: String? = null,
-        @SerializedName("message")
-        @Expose
-        var message: Any? = null,
-        @SerializedName("data")
-        @Expose
-        var data: FileSec? = null
-)
+        var data: FileDetail? = null
+) : BaseResponse()
 
 data class FileSec (
-
-        @SerializedName("id")
-        @Expose
         var id: String? = null,
-        @SerializedName("name")
-        @Expose
         var name: String? = null,
-        @SerializedName("size")
-        @Expose
+        var has_thumbnail:Boolean? = null,
+        var thumbnail_link: String? = null,
         var size: String? = null,
-        @SerializedName("type")
-        @Expose
-        var type: String? = null,
-        @SerializedName("url")
-        @Expose
-        var url: String? = null
+        var mime_type: String? = null,
+        var created_time : String? = null
 )
+
+data class FileDetail(
+		var id: String? = null,
+		var name: String? = null,
+		var url: String? = null,
+		var size: String? = null,
+		var mime_type: String? = null,
+		var created_time : String? = null
+)
+

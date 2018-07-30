@@ -7,6 +7,9 @@ import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.box.androidsdk.content.BoxConfig
+import com.box.androidsdk.content.auth.BoxAuthentication
+import com.box.androidsdk.content.models.BoxSession
 import com.bumptech.glide.Glide
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -35,16 +38,14 @@ import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
-
-
-
-
+import java.lang.Exception
 
 
 class HomeActivity : BaseActivity(),HomeInterface.View ,
 		RenameDialog.DialogListener, GoogleApiClient.OnConnectionFailedListener,
 		ConfirmDeleteDialog.ConfirmListener,
-		AddCloudDialog.DialogListener{
+		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener {
+
 	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 	private lateinit var adapter : RvHomeAdapter
 	private var listCloud : ListCloud = ListCloud()
@@ -53,6 +54,8 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	var newName : String = ""
 	var providerName : String = ""
 	lateinit var userToken : String
+	lateinit var boxSession: BoxSession
+
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
 		startActivity(Intent(this,LogActivity::class.java))
@@ -140,10 +143,12 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		adapter.setListener(object : RvHomeAdapter.ItemClickListener{
 			override fun onItemClick(cloud: Cloud) {
 				if (cloud.ctype.equals("local"))
-					startActivity(Intent(this@HomeActivity,LocalActivity::class.java))
+					startActivity(Intent(this@HomeActivity,LocalActivity::class.java)
+							.putExtra("name",cloud.cname))
 				else {
 					val intent = Intent(this@HomeActivity, CloudActivity::class.java)
-					intent.putExtra("id", cloud.cid).putExtra("token",cloud.token)
+					intent.putExtra("id", cloud.croot).putExtra("token",cloud.ctoken)
+							.putExtra("type",cloud.ctype).putExtra("name",cloud.cname)
 					startActivity(intent)
 				}
 			}
@@ -193,7 +198,13 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				com.dropbox.core.android.Auth.startOAuth2Authentication(this@HomeActivity,getString(R.string.drbx_key))
 			}
 			"onedrive" -> {
+				BoxConfig.CLIENT_ID = "i9jieqavbpuutnbbrqdyeo44m0imegpk"
+				BoxConfig.CLIENT_SECRET = "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F"
+				BoxConfig.REDIRECT_URL = "https://app.box.com"
 
+				boxSession = BoxSession(this@HomeActivity)
+				boxSession.setSessionAuthListener(this@HomeActivity)
+				boxSession.authenticate(this@HomeActivity)
 			}
 		}
 	}
@@ -235,5 +246,23 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	override fun refresh() {
 		mPresenter.refreshList(userToken)
+	}
+
+	//box session
+	override fun onLoggedOut(info: BoxAuthentication.BoxAuthenticationInfo?, ex: Exception?) {
+
+	}
+	// get access token of box
+	override fun onAuthCreated(info: BoxAuthentication.BoxAuthenticationInfo?) {
+		val code = boxSession.authInfo.accessToken()
+		mPresenter.sendCode(code,newName,userToken,"box")
+	}
+
+	override fun onRefreshed(info: BoxAuthentication.BoxAuthenticationInfo?) {
+
+	}
+
+	override fun onAuthFailure(info: BoxAuthentication.BoxAuthenticationInfo?, ex: Exception?) {
+
 	}
 }

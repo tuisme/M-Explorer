@@ -2,8 +2,8 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -22,13 +22,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:hintAnimationEnabled="false">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/email_sign_in"
                         android:layout_width="match_parent"
@@ -44,6 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    app:hintAnimationEnabled="false"
                     app:passwordToggleEnabled="true"
                     app:passwordToggleTint="@color/colorBlack">
 
@@ -67,10 +72,11 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
-            android:background="@drawable/cutomize_button"
+            android:background="@drawable/customize_button_ripple"
             android:text="@string/sign_in"
             android:textColor="#fff"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialCardView" />
 
@@ -90,20 +96,6 @@
             app:layout_constraintTop_toBottomOf="@+id/btn_sign_in"
             app:layout_constraintVertical_bias="0.0" />
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="6dp"
-            android:text="@string/login_with"
-            android:padding="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/fab_log_with_face"
-            app:layout_constraintEnd_toStartOf="@+id/fab_log_with_face"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/fab_log_with_face" />
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_log_with_face"
             android:layout_width="wrap_content"
@@ -122,10 +114,10 @@
             app:layout_constraintVertical_bias="0.00999999" />
 
         <com.facebook.login.widget.LoginButton
+            android:id="@+id/login_face"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="gone"
-            android:id="@+id/login_face"
             app:layout_constraintBottom_toBottomOf="@+id/fab_log_with_face"
             app:layout_constraintEnd_toEndOf="@+id/fab_log_with_face"
             app:layout_constraintStart_toStartOf="@+id/fab_log_with_face"
@@ -138,15 +130,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:src="@drawable/ic_gmail_logo"
             app:backgroundTint="@color/colorBackgroundGoogle"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/fab_log_with_face"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/fab_log_with_face"
-            app:layout_constraintTop_toTopOf="@+id/fab_log_with_face"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="@+id/fab_log_with_face" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

@@ -14,6 +14,7 @@ interface CloudInterface {
 		fun showFile(file : FileDetail)
 		fun logoutSuccess()
 		fun refresh()
+		fun downloadFile(name:String)
 	}
 
 	interface Presenter : BasePresenter{
@@ -21,5 +22,6 @@ interface CloudInterface {
 		fun openFile(context: Context, url: String)
 		fun getUrlFile(id : String,ctoken:String,user_token:String,ctype : String)
 		fun upLoadFile(user_token: String,id: String,uri: Uri,ctype: String,ctoken : String)
+		fun download(id : String,ctoken:String,user_token:String,ctype : String)
 	}
 }

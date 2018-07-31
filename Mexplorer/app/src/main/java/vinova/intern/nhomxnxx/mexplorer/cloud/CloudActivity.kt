@@ -1,10 +1,14 @@
 package vinova.intern.nhomxnxx.mexplorer.cloud
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
@@ -20,9 +24,10 @@ import vinova.intern.nhomxnxx.mexplorer.dialogs.UploadFileDialog
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
+import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
-class CloudActivity : BaseActivity(),CloudInterface.View,UploadFileDialog.DialogListener {
+class CloudActivity : BaseActivity(),CloudInterface.View,UploadFileDialog.DialogListener, UpdateItemDialog.DialogListener {
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
 	lateinit var ctoken : String
@@ -65,7 +70,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View,UploadFileDialog.Dialog
 			}
 
 			override fun onLongClick(file: FileSec) {
-				UpdateItemDialog.newInstance("").show(supportFragmentManager, "update_item")
+				UpdateItemDialog.newInstanceCloud(file).show(supportFragmentManager, "update_item")
 			}
 		})
 
@@ -103,6 +108,16 @@ class CloudActivity : BaseActivity(),CloudInterface.View,UploadFileDialog.Dialog
 			}
 		}
 	}
+
+	override fun onOptionClick(which: Int, path: String?) {
+		when(which){
+			R.id.offline ->{
+				path?.let { mPresenter.download(it, ctoken,userToken,cloudType) }
+
+			}
+		}
+	}
+
 
 	override fun showList(files: List<FileSec>) {
 		swipeContent.isRefreshing = false
@@ -153,20 +168,62 @@ class CloudActivity : BaseActivity(),CloudInterface.View,UploadFileDialog.Dialog
 	}
 
 	override fun onBackPressed() {
-		if (!drawer_layout?.isDrawerOpen(GravityCompat.START)!!){
-			drawer_layout?.isDrawerOpen(GravityCompat.START)
+		when {
+			drawer_layout?.isDrawerOpen(GravityCompat.END)!! -> drawer_layout?.isDrawerOpen(GravityCompat.START)
+			path.size > 1 -> {
+				path.removeAt(path.size-1)
+				namePath.removeAt(namePath.size-1)
+				val id = path.last()
+				mPresenter.getList(id,ctoken,userToken,cloudType)
+			}
+			else -> super.onBackPressed()
 		}
-		else if (path.size > 1){
-			path.removeAt(path.size-1)
-			namePath.removeAt(namePath.size-1)
-			val id = path.last()
-			mPresenter.getList(id,ctoken,userToken,cloudType)
-		}
-		else
-			super.onBackPressed()
 	}
 
 	override fun refresh() {
 		mPresenter.getList(path.last(),ctoken,userToken,cloudType)
 	}
+
+	lateinit var name_ :String
+
+	override fun downloadFile(name: String) {
+		name_ = name
+		if (checkPermission()) {
+			startDownload(name)
+		} else {
+			requestPermission()
+		}
+	}
+
+	private fun startDownload(name:String) {
+		val intent = Intent(this, DownloadService::class.java)
+		intent.putExtra("name",name)
+		startService(intent)
+	}
+
+
+
+	private fun checkPermission(): Boolean {
+		val result = ContextCompat.checkSelfPermission(this,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE)
+		return result == PackageManager.PERMISSION_GRANTED
+	}
+
+	private fun requestPermission() {
+
+		ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 2)
+
+	}
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+		when (requestCode) {
+			2 -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				startDownload(name_)
+			} else {
+				Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
+
+			}
+		}
+	}
+
+
 }

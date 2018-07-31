@@ -67,7 +67,6 @@
 
     <string name="name_device">Name Device</string>
     <string name="location_device">Location device</string>
-    <string name="delete">Delete</string>
     <string name="google_drive">Google Drive</string>
     <string name="drop_box">Drop box</string>
     <string name="one_drive">One Drive</string>
@@ -75,4 +74,8 @@
     <string name="new_image">New image</string>
     <string name="new_text_file">New text file</string>
     <string name="new_folder_">New folder</string>
+    <string name="move">Move</string>
+    <string name="copy">Copy</string>
+    <string name="avaiable_offline">Avaiable offline</string>
+    <string name="share">Share</string>
 </resources>

@@ -2,6 +2,7 @@ package vinova.intern.nhomxnxx.mexplorer.local
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,8 +18,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.update_item_dialog.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.LocalAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -43,13 +46,18 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     lateinit var adapter: LocalAdapter
 
     override fun openFile(url: File) {
-        val uri = Uri.fromFile(url)
-        val intent = Intent(Intent.ACTION_VIEW)
-        val apkURI = FileProvider.getUriForFile(this, applicationContext
-                .packageName + ".provider", url)
-        intent.setDataAndType(apkURI, getMimeType(uri))
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(intent)
+        try {
+            val uri = Uri.fromFile(url)
+            val intent = Intent(Intent.ACTION_VIEW)
+            val apkURI = FileProvider.getUriForFile(this, applicationContext
+                    .packageName + ".provider", url)
+            intent.setDataAndType(apkURI, getMimeType(uri))
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            startActivity(intent)
+        }
+        catch (e: ActivityNotFoundException){
+            Toasty.info(this,"No support this file", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun setPresenter(presenter: LocalInterface.Presenter) {
@@ -95,6 +103,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     }
 
     override fun onOptionClick(which: Int, path: String?) {
+        offline.visibility = View.GONE
         when (which) {
             R.id.new_file -> NewTextFileDialog.newInstance().show(supportFragmentManager, "new_file_dialog")
             R.id.new_folder -> NewFolderDialog.newInstance().show(supportFragmentManager, "new_folder_dialog")

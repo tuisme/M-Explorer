@@ -1,5 +1,6 @@
 package vinova.intern.nhomxnxx.mexplorer.api
 
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.*
 import vinova.intern.nhomxnxx.mexplorer.model.*
@@ -56,4 +57,10 @@ interface ApiInterface {
 
     @GET("/api/v2/devices")
     fun getDevices(@Header("Access-Token") token : String) : Call<ListDevice>
+
+    @Multipart
+    @POST("/api/v2/files")
+    fun uploadFile(@Header("Access-Token") user_token: String,
+                   @Query("id") id: String, @Part file : MultipartBody.Part, @Query("ctype") ctype: String,
+                   @Query("ctoken") ctoken : String) : Call<BaseResponse>
 }

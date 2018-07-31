@@ -1,6 +1,6 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
-import android.content.Context
+import vinova.intern.nhomxnxx.mexplorer.baseInterface.BasePresenter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseView
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 
@@ -12,8 +12,7 @@ interface HomeInterface {
         fun refresh()
     }
 
-    interface Presenter{
-        fun logout(context: Context?, token: String?)
+    interface Presenter : BasePresenter{
         fun getList(token: String?)
         fun refreshList(token : String?)
         fun renameCloud(id:String,newName : String,token:String,userToken :String)

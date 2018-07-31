@@ -134,6 +134,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         adapter.setListener(this)
         if (isStoragePermissionGranted()){
             adapter.refreshData()
+            super.showUser()
         }
         fab_add.visibility = View.VISIBLE
         fab_add.setOnClickListener {
@@ -148,7 +149,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         }
 
         decline_move.setOnClickListener {
-            moving_layout.visibility = View.GONE;
+            moving_layout.visibility = View.GONE
             mMovingPath = null
         }
     }
@@ -178,7 +179,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
 
     override fun onBackPressed() {
         if (adapter.path == getExternalStorageDirectory().absolutePath)
-        super.onBackPressed()
+            super.onBackPressed()
         else {
             if(error_nothing.visibility == View.VISIBLE)
                 error_nothing.visibility = View.GONE

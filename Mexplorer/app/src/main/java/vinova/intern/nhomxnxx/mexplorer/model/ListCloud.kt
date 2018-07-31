@@ -55,22 +55,26 @@ data class Cloud (
 	var cname: String? = null,
 	var ctype: String? = null,
 	var ctoken: String? = null,
-	var used: String? = null,
-	var unused: String? = null
+	var used: Long? = null,
+	var unused: Long? = null
 ):Parcelable {
 	constructor(parcel: Parcel) : this(
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readString(),
-			parcel.readString())
+			parcel.readString(),
+			parcel.readValue(Long::class.java.classLoader) as? Long,
+			parcel.readValue(Long::class.java.classLoader) as? Long)
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
+		parcel.writeString(id)
 		parcel.writeString(croot)
 		parcel.writeString(cname)
 		parcel.writeString(ctype)
-		parcel.writeString(used)
-		parcel.writeString(unused)
+		parcel.writeString(ctoken)
+		parcel.writeValue(used)
+		parcel.writeValue(unused)
 	}
 
 	override fun describeContents(): Int {

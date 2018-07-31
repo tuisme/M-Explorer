@@ -3,18 +3,26 @@ package vinova.intern.nhomxnxx.mexplorer.cloud
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.facebook.login.LoginManager
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.model.BaseResponse
 import vinova.intern.nhomxnxx.mexplorer.model.Request
 import vinova.intern.nhomxnxx.mexplorer.model.SpecificCloud
 import vinova.intern.nhomxnxx.mexplorer.model.SpecificFile
+import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
 
-class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
+
+class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface.Presenter {
 	val mView = view
+	val ctx = context
 	init {
 		mView.setPresenter(this)
 	}
@@ -97,6 +105,31 @@ class CloudPresenter(view : CloudInterface.View):CloudInterface.Presenter {
 							mView.showError("something wrong just happened")
 					}
 
+				})
+	}
+
+	override fun upLoadFile(user_token: String, id: String, uri: Uri, ctype: String, ctoken: String) {
+		val file = FileUtils.getFile(ctx,uri)!!
+		val requestBody = RequestBody.create(
+				MediaType.parse(ctx.contentResolver.getType(uri)),
+				file)
+		val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+
+		CallApi.getInstance().uploadFile(user_token, id, body, ctype, ctoken)
+				.enqueue(object : Callback<BaseResponse>{
+					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+						mView.showError(t.toString())
+						Log.e("ABCD",t.toString())
+					}
+
+					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+						if (response?.body()?.status.equals("success"))
+							mView.refresh()
+						else {
+							Log.e("ABCD",response?.errorBody()?.string()!!)
+							mView.showError(response.errorBody()?.string()!!)
+						}
+					}
 				})
 	}
 

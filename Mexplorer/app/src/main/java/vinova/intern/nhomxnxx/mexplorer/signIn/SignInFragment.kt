@@ -24,6 +24,7 @@ import com.google.android.gms.common.api.Scope
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
@@ -43,6 +44,7 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 
 	override fun signInSuccess(user: User) {
         CustomDiaglogFragment.hideLoadingDialog()
+		startActivity(Intent(context,BaseActivity::class.java))
 		startActivity(Intent(context, HomeActivity::class.java))
 		activity?.finish()
 	}

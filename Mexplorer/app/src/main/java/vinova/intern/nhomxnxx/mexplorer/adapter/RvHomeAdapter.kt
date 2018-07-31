@@ -24,9 +24,7 @@ import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
-
-
-
+import vinova.intern.nhomxnxx.mexplorer.utils.Support
 
 
 class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
@@ -70,11 +68,9 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 	override fun onBindViewHolder(holder: ViewHolderCloud, position: Int) {
 		val cl : Cloud = listCloud[position]
 		holder.name.text = cl.cname
-		val use = cl.used?.toFloat()
-		val sum = use?.let { cl.used?.toFloat()?.plus(it) }
-		val used = "${cl.used} of $sum"
-		holder.used.text = used
+
 		cl.ctype?.let { setIcon(holder.thumb, it) }
+
 		holder.btn.setOnClickListener {
 			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
 			val cloud = listCloud[holder.adapterPosition]
@@ -106,10 +102,13 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 		}
 
 		if (cl.ctype== "local"){
-			holder.used.text ="free "+getAvailableInternalMemorySize() +" of  " + getTotalInternalMemorySize()
+			holder.used.text = "${getAvailableInternalMemorySize()} of ${getTotalInternalMemorySize()}"
 		}
 		else{
-			if (use != null && sum != null) holder.process.progress = (use/sum *100).toInt()
+			val sum = Support.getFileSize(cl.used!! + cl.unused!!)
+			val used = "${Support.getFileSize(cl.used!!)} of $sum"
+			holder.used.text = used
+			holder.process.progress = ((cl.used!!/(cl.used!! + cl.unused!!))*100).toInt()
 			root.share.visibility = View.GONE
 			root.available.visibility = View.GONE
 		}
@@ -121,6 +120,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			"dropbox" -> R.drawable.ic_logo_dropbox
 			"googledrive" -> R.drawable.ic_logo_google_drive
 			"local" -> R.drawable.ic_logo_folder
+			"box" -> R.drawable.ic_logo_box
 			else -> R.drawable.ic_logo_onedrive
 		}
 		Glide.with(context)

@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.cloud
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -15,25 +16,27 @@ import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.dialogs.UpdateItemDialog
+import vinova.intern.nhomxnxx.mexplorer.dialogs.UploadFileDialog
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
-class CloudActivity : BaseActivity(),CloudInterface.View {
+class CloudActivity : BaseActivity(),CloudInterface.View,UploadFileDialog.DialogListener {
 	private lateinit var adapter : CloudAdapter
-	var mPresenter : CloudInterface.Presenter = CloudPresenter(this)
-	lateinit var token : String
+	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
+	lateinit var ctoken : String
 	lateinit var userToken : String
 	lateinit var cloudType : String
 	lateinit var cloudId : String
 	val path : ArrayList<String> = arrayListOf()
+	val namePath : ArrayList<String> = arrayListOf()
+	val PICKFILE_REQUEST_CODE = 1997
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		super.onCreateDrawer()
 		setRv()
-		title = intent.getStringExtra("name")
 		userToken = DatabaseHandler(this).getToken()!!
 	}
 
@@ -41,20 +44,23 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 		adapter = CloudAdapter(this,error_nothing,bottom_sheet_detail,supportFragmentManager)
 		rvContent.layoutManager = LinearLayoutManager(this)
 		rvContent.adapter = adapter
-		swipeContent.isEnabled = false
-		token = intent.getStringExtra("token")
+		ctoken = intent.getStringExtra("token")
 		cloudType = intent.getStringExtra("type")
 		cloudId = intent.getStringExtra("id")
 		path.add(cloudId)
+		namePath.add(intent.getStringExtra("name"))
+		title = namePath.last()
 		CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
-		mPresenter.getList(cloudId,token,DatabaseHandler(this).getToken()!!,cloudType)
+		mPresenter.getList(cloudId,ctoken,DatabaseHandler(this).getToken()!!,cloudType)
 		adapter.setListener(object : CloudAdapter.ItemClickListener{
 			override fun onClick(file: FileSec) {
 				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
-				if (file.mime_type!!.contains("folder"))
-					mPresenter.getList(file.id!!,token,DatabaseHandler(this@CloudActivity).getToken()!!,cloudType)
+				if (file.mime_type!!.contains("folder")) {
+					mPresenter.getList(file.id!!, ctoken, DatabaseHandler(this@CloudActivity).getToken()!!, cloudType)
+					namePath.add(file.name!!)
+				}
 				else{
-					mPresenter.getUrlFile(file.id!!,token,userToken,cloudType)
+					mPresenter.getUrlFile(file.id!!,ctoken,userToken,cloudType)
 				}
 			}
 
@@ -62,10 +68,46 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 				UpdateItemDialog.newInstance("").show(supportFragmentManager, "update_item")
 			}
 		})
+
+		fab_add.setOnClickListener {
+			UploadFileDialog.getInstance().show(supportFragmentManager,"upload file")
+		}
+
+		swipeContent.setOnRefreshListener {
+			mPresenter.getList(path.last(),ctoken,userToken,cloudType)
+		}
+	}
+
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		super.onActivityResult(requestCode, resultCode, data)
+		if (requestCode == PICKFILE_REQUEST_CODE){
+			if (data!=null) {
+				val uri : Uri = data.data
+				mPresenter.upLoadFile(userToken, path.last().toString(),uri,cloudType,ctoken)
+			}
+		}
+	}
+
+	override fun onOptionClick(type: String) {
+		when(type){
+			"upload file" ->{
+				val intent = Intent(Intent.ACTION_GET_CONTENT)
+				intent.type = "*/*"
+				startActivityForResult(Intent.createChooser(intent,"select a file to upload"),PICKFILE_REQUEST_CODE)
+			}
+			"upload folder" -> {
+
+			}
+			"upload image" -> {
+
+			}
+		}
 	}
 
 	override fun showList(files: List<FileSec>) {
+		swipeContent.isRefreshing = false
 		CustomDiaglogFragment.hideLoadingDialog()
+		super.showUser()
 		adapter.setData(files)
 		adapter.notifyDataSetChanged()
 	}
@@ -111,13 +153,20 @@ class CloudActivity : BaseActivity(),CloudInterface.View {
 	}
 
 	override fun onBackPressed() {
-		if (path.size > 1){
+		if (!drawer_layout?.isDrawerOpen(GravityCompat.START)!!){
+			drawer_layout?.isDrawerOpen(GravityCompat.START)
+		}
+		else if (path.size > 1){
 			path.removeAt(path.size-1)
+			namePath.removeAt(namePath.size-1)
 			val id = path.last()
-			mPresenter.getList(id,token,userToken,cloudType)
-
+			mPresenter.getList(id,ctoken,userToken,cloudType)
 		}
 		else
 			super.onBackPressed()
+	}
+
+	override fun refresh() {
+		mPresenter.getList(path.last(),ctoken,userToken,cloudType)
 	}
 }

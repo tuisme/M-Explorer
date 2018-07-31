@@ -12,15 +12,32 @@
 //
 //= require rails-ujs
 //= require activestorage
-//= require jquery
-//= require jquery_ujs
-//= require bootstrap/custom
-//= require turbolinks
-//= require_tree .
 
-document.addEventListener("turbolinks:load", function() {
-    if ($('li.active').html() != undefined) {
-        $('li.active').removeClass('active');
-    }
-    $('a[href="' + location.pathname + '"]').parent('li').addClass('active');
-});
+//= require core/jquery.min
+//= require core/popper.min
+//= require core/bootstrap-material-design.min
+//= require plugins/perfect-scrollbar.jquery.min
+//= require plugins/moment.min
+//= require plugins/sweetalert2
+//= require plugins/jquery.validate.min
+//= require plugins/jquery.bootstrap-wizard
+//= require plugins/bootstrap-selectpicker
+//= require plugins/bootstrap-datetimepicker.min
+//= require plugins/jquery.dataTables.min
+//= require plugins/bootstrap-tagsinput
+//= require plugins/jasny-bootstrap.min
+//= require plugins/fullcalendar.min
+//= require plugins/jquery-jvectormap
+//= require plugins/nouislider.min
+//= require plugins/core
+//= require plugins/arrive.min
+//= require plugins/maps
+//= require plugins/buttons
+//= require plugins/chartist.min
+//= require plugins/bootstrap-notify
+//= require material-dashboard.min
+
+
+
+//= require demo/demo
+//= require demo/jquery.sharrre

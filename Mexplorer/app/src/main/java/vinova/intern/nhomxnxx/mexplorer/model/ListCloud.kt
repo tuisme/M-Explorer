@@ -17,10 +17,7 @@ data class ListCloud (
 	@SerializedName("message")
 	@Expose
 	var message: String? = null,
-	@SerializedName("user")
-	@Expose
-	var user: User? = null,
-	@SerializedName("clouds")
+	@SerializedName("data")
 	@Expose
 	var clouds: List<Cloud>? = null
 ):Parcelable {
@@ -28,14 +25,12 @@ data class ListCloud (
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readString(),
-			parcel.readParcelable(User::class.java.classLoader),
 			parcel.createTypedArrayList(Cloud))
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeString(time)
 		parcel.writeString(status)
 		parcel.writeString(message)
-		parcel.writeParcelable(user, flags)
 		parcel.writeTypedList(clouds)
 	}
 
@@ -55,35 +50,31 @@ data class ListCloud (
 }
 
 data class Cloud (
-	@SerializedName("cid")
-	@Expose
-	var cid: String? = null,
-	@SerializedName("cname")
-	@Expose
+	var id: String? = null,
+	var croot: String? = null,
 	var cname: String? = null,
-	@SerializedName("ctype")
-	@Expose
 	var ctype: String? = null,
-	@SerializedName("used")
-	@Expose
-	var used: String? = null,
-	@SerializedName("unused")
-	@Expose
-	var unused: String? = null
+	var ctoken: String? = null,
+	var used: Long? = null,
+	var unused: Long? = null
 ):Parcelable {
 	constructor(parcel: Parcel) : this(
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readString(),
-			parcel.readString())
+			parcel.readString(),
+			parcel.readValue(Long::class.java.classLoader) as? Long,
+			parcel.readValue(Long::class.java.classLoader) as? Long)
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
-		parcel.writeString(cid)
+		parcel.writeString(id)
+		parcel.writeString(croot)
 		parcel.writeString(cname)
 		parcel.writeString(ctype)
-		parcel.writeString(used)
-		parcel.writeString(unused)
+		parcel.writeString(ctoken)
+		parcel.writeValue(used)
+		parcel.writeValue(unused)
 	}
 
 	override fun describeContents(): Int {

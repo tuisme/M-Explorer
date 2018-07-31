@@ -12,32 +12,39 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.bottom_view_detail.view.*
 import kotlinx.android.synthetic.main.item_rv.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.local.LocalActivity
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
+import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
+import vinova.intern.nhomxnxx.mexplorer.utils.Support
 
 
-
-
-
-class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
+class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
 	private var listCloud : MutableList<Cloud> = mutableListOf()
 	private val context : Context = ctx
 	private val root : View = view
-
+	private val sup = frag
+	private lateinit var listener: ItemClickListener
+	private val bottomSheetBehave = BottomSheetBehavior.from(root)
+	private val token = DatabaseHandler(context).getToken()
 	fun setData(clouds : List<Cloud>?){
 		if (clouds!=null)
 			this.listCloud = clouds.sortedBy {
 				it.cname
 			}.toMutableList()
 		notifyDataSetChanged()
+	}
+
+	fun setListener(listener: ItemClickListener) {
+		this.listener = listener
 	}
 
 	fun refreshData(clouds : List<Cloud>?){
@@ -61,47 +68,51 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 	override fun onBindViewHolder(holder: ViewHolderCloud, position: Int) {
 		val cl : Cloud = listCloud[position]
 		holder.name.text = cl.cname
-		val use = cl.used?.toFloat()
-		val sum = use?.let { cl.used?.toFloat()?.plus(it) }
-		if (use != null && sum != null) holder.process.progress = (use/sum *100).toInt()
-		val used = "${cl.used} of $sum"
-		holder.used.text = used
+
 		cl.ctype?.let { setIcon(holder.thumb, it) }
-		holder.itemView.setOnClickListener {
-			startActivity(context,Intent(context, LocalActivity::class.java),null)
-		}
 
 		holder.btn.setOnClickListener {
-			val bottomSheetBehave = BottomSheetBehavior.from(root)
 			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
+			val cloud = listCloud[holder.adapterPosition]
+			root.share.setOnClickListener {
+				val sharingIntent = Intent(Intent.ACTION_SEND)
+				sharingIntent.type = "text/plain"
+				val shareBody = "Here is the share content body"
+				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here")
+				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody)
+				ContextCompat.startActivity(context, Intent.createChooser(sharingIntent, "Share via"), null)
+			}
+			root.rename.setOnClickListener {
+				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
+				RenameDialog.newInstanceCloud(cloud.cname!!,cloud.id!!,token!!).show(sup,"halo")
+			}
+			root.copyFile.setOnClickListener {
+
+			}
+			root.moveFile.setOnClickListener {
+
+			}
+			root.openWith.setOnClickListener {
+
+			}
+			root.deleteFile.setOnClickListener {
+				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
+				ConfirmDeleteDialog.newInstanceCloud(cloud.cname!!,cloud.id!!).show(sup,"halo")
+			}
 		}
+
 		if (cl.ctype== "local"){
-			holder.used.text ="free "+getAvailableInternalMemorySize() +" of  " + getTotalInternalMemorySize()
+			holder.used.text = "${getAvailableInternalMemorySize()} of ${getTotalInternalMemorySize()}"
+		}
+		else{
+			val sum = Support.getFileSize(cl.used!! + cl.unused!!)
+			val used = "${Support.getFileSize(cl.used!!)} of $sum"
+			holder.used.text = used
+			holder.process.progress = ((cl.used!!/(cl.used!! + cl.unused!!))*100).toInt()
+			root.share.visibility = View.GONE
+			root.available.visibility = View.GONE
 		}
 
-		root.share.setOnClickListener {
-			val sharingIntent = Intent(android.content.Intent.ACTION_SEND)
-			sharingIntent.type = "text/plain"
-			val shareBody = "Here is the share content body"
-			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here")
-			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody)
-			startActivity(context,Intent.createChooser(sharingIntent, "Share via"),null)
-		}
-		root.rename.setOnClickListener {
-
-		}
-		root.copyFile.setOnClickListener {
-
-		}
-		root.moveFile.setOnClickListener {
-
-		}
-		root.openWith.setOnClickListener {
-
-		}
-		root.deleteFile.setOnClickListener {
-
-		}
 	}
 
 	private fun setIcon(img : ImageView,type:String){
@@ -109,21 +120,27 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 			"dropbox" -> R.drawable.ic_logo_dropbox
 			"googledrive" -> R.drawable.ic_logo_google_drive
 			"local" -> R.drawable.ic_logo_folder
+			"box" -> R.drawable.ic_logo_box
 			else -> R.drawable.ic_logo_onedrive
 		}
 		Glide.with(context)
 				.load(a)
-				.apply(RequestOptions().circleCrop())
 				.into(img)
 	}
 
-	class ViewHolderCloud(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
+	inner class ViewHolderCloud(itemView: View) : RecyclerView.ViewHolder(itemView) , View.OnClickListener{
 		val thumb : ImageView = itemView.imageView
 		val name : TextView = itemView.nameCloud
 		val used : TextView = itemView.used_memory
 		val process : ProgressBar = itemView.percentage
 		val btn : Button = itemView.btnSetting
+		init {
+			itemView.setOnClickListener(this)
+		}
+
+		override fun onClick(p0: View?) {
+			listener.onItemClick(listCloud[adapterPosition])
+		}
 	}
 
 	private fun getAvailableInternalMemorySize(): String {
@@ -165,5 +182,9 @@ class RvHomeAdapter(ctx : Context,view : View): RecyclerView.Adapter<RvHomeAdapt
 
 		if (suffix != null) resultBuffer.append(suffix)
 		return resultBuffer.toString()
+	}
+
+	interface ItemClickListener {
+		fun onItemClick(cloud : Cloud)
 	}
 }

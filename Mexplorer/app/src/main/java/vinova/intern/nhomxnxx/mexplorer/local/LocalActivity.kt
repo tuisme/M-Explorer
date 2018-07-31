@@ -2,112 +2,140 @@ package vinova.intern.nhomxnxx.mexplorer.local
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.ContentResolver
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment.getExternalStorageDirectory
-import android.util.Log
+import android.view.MenuItem
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import es.dmoral.toasty.Toasty
+import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.update_item_dialog.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.LocalAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
+import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
+import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 
-class LocalActivity :BaseActivity(), AddItemsDialog.DialogListener,
+class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogListener,
         LocalAdapter.OnFileItemListener,
         UpdateItemDialog.DialogListener,
         NewFolderDialog.DialogListener,
         NewTextFileDialog.DialogListener,
         ConfirmDeleteDialog.ConfirmListener,
         RenameDialog.DialogListener{
-    override fun onNewFolder(name: String) {
-        val currentPath = adapter.path
-        val folderPath = currentPath + File.separator + name
-        val created:Boolean =
-            if (File(folderPath).exists()) {
-                false
-            }
-            else File(folderPath).mkdirs()
+    override fun onConfirmDeleteFile(name: String, id: String, type: String, token: String) {
 
-        if (created) {
-            adapter.setData()
-            adapter.notifyDataSetChanged()
-            Toast.makeText(this,"New folder created: $name",Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this,"Failed create folder: $name",Toast.LENGTH_SHORT).show()
+    }
+
+    private var mPresenter :LocalInterface.Presenter= LocalPresenter(this)
+    var mMovingPath:String? = null
+    var mCopy:Boolean =false
+    lateinit var adapter: LocalAdapter
+
+    override fun openFile(url: File) {
+        try {
+            val uri = Uri.fromFile(url)
+            val intent = Intent(Intent.ACTION_VIEW)
+            val apkURI = FileProvider.getUriForFile(this, applicationContext
+                    .packageName + ".provider", url)
+            intent.setDataAndType(apkURI, getMimeType(uri))
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            startActivity(intent)
+        }
+        catch (e: ActivityNotFoundException){
+            Toasty.info(this,"No support this file", Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onNewFile(name: String, content: String, encrypt: Boolean) {
-        val currentPath = adapter.path
-        val folderPath = currentPath + File.separator + name
-        createFile(folderPath, content.toByteArray())
-        adapter.setData()
-        adapter.notifyDataSetChanged()
-        Toast.makeText(this,"New file created: $name",Toast.LENGTH_SHORT).show()
+    override fun setPresenter(presenter: LocalInterface.Presenter) {
+        this.mPresenter = presenter
+    }
+
+    override fun showToast(mes: String) {
+        Toast.makeText(this, mes, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showLoading(isShow: Boolean) {
+        if (isShow) CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+        else CustomDiaglogFragment.hideLoadingDialog()
+    }
+
+    override fun showError(message: String) {
+    }
+
+    override fun onNewFolder(name: String) {
+        mPresenter.newFolder(adapter,name)
+    }
+
+    override fun onNewFile(name: String, content: String) {
+        mPresenter.newFile(adapter.path, name, content)
+        adapter.refreshData()
     }
 
     override fun onRename(fromPath: String, toPath: String) {
-        val file = File(fromPath)
-        val newFile = File(toPath)
-        file.renameTo(newFile)
-        adapter.setData()
-        adapter.notifyDataSetChanged()
-        Toast.makeText(this,"Renamed",Toast.LENGTH_SHORT).show()
+        mPresenter.rename(fromPath, toPath)
+        adapter.refreshData()
+    }
+
+    override fun onReNameCloud(newName: String, id: String, token: String) {
+
     }
 
     override fun onClick(file: File) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mPresenter.openFileOrFolder(adapter,file)
     }
 
     override fun onLongClick(file: File) {
         UpdateItemDialog.newInstance(file.absolutePath).show(supportFragmentManager, "update_item")
-
     }
 
     override fun onOptionClick(which: Int, path: String?) {
+        offline.visibility = View.GONE
         when (which) {
             R.id.new_file -> NewTextFileDialog.newInstance().show(supportFragmentManager, "new_file_dialog")
             R.id.new_folder -> NewFolderDialog.newInstance().show(supportFragmentManager, "new_folder_dialog")
             R.id.delete -> ConfirmDeleteDialog.newInstance(path.toString()).show(supportFragmentManager, "confirm_delete")
             R.id.rename -> RenameDialog.newInstance(path.toString()).show(supportFragmentManager, "rename")
-//            R.id.move -> {
-//                mo.setText(getString(R.string.moving_file, mStorage?.getFile(path).getName()))
-//                mMovingPath = path
-//                mCopy = false
-//                mMovingLayout.setVisibility(View.VISIBLE)
-//            }
-//            R.id.copy -> {
-//                mMovingText.setText(getString(R.string.copy_file, mStorage.getFile(path).getName()))
-//                mMovingPath = path
-//                mCopy = true
-//                mMovingLayout.setVisibility(View.VISIBLE)
-//            }
-        }    }
-
-    override fun onConfirmDelete(path: String?) {
-        if (File(path).isDirectory) {
-            deleteDirectoryImpl(path.toString())
-            Toast.makeText(this,"Folder was deleted", Toast.LENGTH_SHORT).show()
-        } else {
-            val file = File(path)
-            file.delete()
-            Toast.makeText(this,"File was deleted", Toast.LENGTH_SHORT).show()
+            R.id.move -> {
+                moving_file_name.text = getString(R.string.moving_file, File(path).name)
+                mMovingPath = path
+                mCopy = false
+                moving_layout.visibility = View.VISIBLE
+            }
+            R.id.copy -> {
+                moving_file_name.text = getString(R.string.copy_file, File(path).name)
+                mMovingPath = path
+                mCopy = true
+                moving_layout.visibility = View.VISIBLE
+            }
         }
-        adapter.setData()
-        adapter.notifyDataSetChanged()
     }
 
-    lateinit var adapter: LocalAdapter
+    override fun onConfirmDelete(path: String?) {
+        mPresenter.delete(path.toString())
+        adapter.refreshData()
+    }
+
+    override fun onConfirmDeleteCloud(name: String, id: String) {
+
+    }
+
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,8 +145,8 @@ class LocalActivity :BaseActivity(), AddItemsDialog.DialogListener,
         rvContent.adapter = adapter
         adapter.setListener(this)
         if (isStoragePermissionGranted()){
-            adapter.setData()
-            adapter.notifyDataSetChanged()
+            adapter.refreshData()
+            super.showUser()
         }
         fab_add.visibility = View.VISIBLE
         fab_add.setOnClickListener {
@@ -126,21 +154,28 @@ class LocalActivity :BaseActivity(), AddItemsDialog.DialogListener,
         }
         swipeContent.isEnabled =false
 
+        accept_move.setOnClickListener {
+            moving_layout.visibility = View.GONE
+            mPresenter.moveOrCopy(mMovingPath,mCopy,adapter)
+            mMovingPath = null
+        }
+
+        decline_move.setOnClickListener {
+            moving_layout.visibility = View.GONE
+            mMovingPath = null
+        }
     }
 
-    fun isStoragePermissionGranted(): Boolean {
+    private fun isStoragePermissionGranted(): Boolean {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                Log.v("ABCD", "Permission is granted")
                 return true
             } else {
 
-                Log.v("ABCD", "Permission is revoked")
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
                 return false
             }
         } else { //permission is automatically granted on sdk<23 upon installation
-            Log.v("ABCD", "Permission is granted")
             return true
         }
     }
@@ -148,54 +183,58 @@ class LocalActivity :BaseActivity(), AddItemsDialog.DialogListener,
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-            Log.v("ABCD","Permission: "+permissions[0]+ "was "+grantResults[0])
             //resume tasks needing this permission
-            adapter.setData()
-            adapter.notifyDataSetChanged()
+            adapter.refreshData()
         }
     }
 
 
     override fun onBackPressed() {
         if (adapter.path == getExternalStorageDirectory().absolutePath)
-        super.onBackPressed()
+            super.onBackPressed()
         else {
             if(error_nothing.visibility == View.VISIBLE)
                 error_nothing.visibility = View.GONE
             adapter.path = File(adapter.path).parent
-            adapter.setData()
-            adapter.notifyDataSetChanged()
+            adapter.refreshData()
         }
     }
 
-    private fun deleteDirectoryImpl(path: String): Boolean {
-        val directory = File(path)
 
-        // If the directory exists then delete
-        if (directory.exists()) {
-            val files = directory.listFiles() ?: return true
-        // Run on all sub files and folders and delete them
-            for (i in files.indices) {
-                if (files[i].isDirectory) {
-                    deleteDirectoryImpl(files[i].absolutePath)
-                } else {
-                    files[i].delete()
-                }
+    private fun getMimeType(uri: Uri): String? {
+        val mimeType: String?
+        mimeType = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+            val cr = this.contentResolver
+            cr.getType(uri)
+        } else {
+            val regex = Regex("[^A-Za-z0-9 .]")
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString().replace(regex, ""))
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase())
+        }
+        return mimeType
+    }
+
+    override fun onNavigationItemSelected(p0: MenuItem): Boolean {
+        when(p0.itemId){
+            R.id.home->{
+
+            }
+            R.id.signout->{
+                CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+                mPresenter.logout(this, DatabaseHandler(this).getToken())
+            }
+            R.id.bookmark->{
+
             }
         }
-        return directory.delete()
+        drawer_layout?.closeDrawer(GravityCompat.START)
+        return true
     }
 
-    private fun createFile(path: String, content_: ByteArray): Boolean {
-        val content = content_
-        try {
-            val stream = FileOutputStream(File(path))
-            stream.write(content)
-            stream.flush()
-            stream.close()
-        } catch (e: IOException) {
-            return false
-        }
-        return true
+    override fun logoutSuccess() {
+        CustomDiaglogFragment.hideLoadingDialog()
+        startActivity(Intent(this, LogActivity::class.java))
+        finish()
     }
 }

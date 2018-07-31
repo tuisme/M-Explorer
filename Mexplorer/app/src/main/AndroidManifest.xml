@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <application
         android:allowBackup="true"
@@ -48,9 +51,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".log_in_out.LogActivity"/>
+        <activity android:name=".log_in_out.LogActivity"
+            android:theme="@style/AppTheme_"/>
 
         <activity android:name=".home.HomeActivity"
+            android:theme="@style/AppTheme_"
+            />
+        <activity android:name=".device.DeviceActivity"
             android:theme="@style/AppTheme_"
             />
         <activity android:name=".local.LocalActivity"
@@ -66,6 +73,24 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
+
+        <activity android:name=".cloud.CloudActivity"
+            android:theme="@style/AppTheme_"/>
+
+        <activity
+            android:name="com.dropbox.core.android.AuthActivity"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|keyboard">
+            <intent-filter>
+                <!-- Change this to be db- followed by your app key -->
+                <data android:scheme="db-mzbf7iesot0oc5u" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".service.DownloadService" />
     </application>
 
 </manifest>

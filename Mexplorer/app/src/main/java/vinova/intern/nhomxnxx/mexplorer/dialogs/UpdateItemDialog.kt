@@ -4,14 +4,18 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
+import android.widget.Switch
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import java.io.File
 
 class UpdateItemDialog : DialogFragment() {
@@ -22,7 +26,12 @@ class UpdateItemDialog : DialogFragment() {
 
         val dialog = BottomSheetDialog(context!!, theme)
         val path = arguments?.getString(PATH)
-        val isDirectory = File(path).isDirectory
+        val file = arguments?.getParcelable<FileSec>(FILE)
+        val isDirectory:Boolean
+        if(path != null) {
+            isDirectory = File(path).isDirectory
+        }
+        else isDirectory = file?.mime_type?.contains("folder")!!
         val view = LayoutInflater.from(activity).inflate(R.layout.update_item_dialog, null)
         dialog.setContentView(view)
         dialog.setCancelable(true)
@@ -35,10 +44,11 @@ class UpdateItemDialog : DialogFragment() {
         val delete = view.findViewById<View>(R.id.delete)
         val move = view.findViewById<View>(R.id.move)
         val copy = view.findViewById<View>(R.id.copy)
+        val offline = view.findViewById<Switch>(R.id.offline)
 
         rename.setOnClickListener {
             dialog.dismiss()
-            mListener?.onOptionClick(R.id.rename, path)
+            mListener?.onOptionClick(R.id.rename, if (path !=null) path else file?.id)
         }
 
         delete.setOnClickListener {
@@ -59,6 +69,20 @@ class UpdateItemDialog : DialogFragment() {
         } else {
             move.visibility = View.GONE
             copy.visibility = View.GONE
+        }
+        val fileTemp = File(Environment.getExternalStorageDirectory().path + File.separator + "Temp" +File.separator +file?.name)
+        if(fileTemp.exists()){
+            offline.isChecked = true
+            offline.isClickable = false
+
+        }
+        offline.setOnCheckedChangeListener { p0, isChecked ->
+
+                if (isChecked) {
+                    mListener?.onOptionClick(R.id.offline, path ?: file?.id)
+                    offline.isClickable = false
+                }
+
         }
 
         // control dialog width on different devices
@@ -94,11 +118,20 @@ class UpdateItemDialog : DialogFragment() {
     companion object {
 
         private val PATH = "path"
+        private val FILE = "file"
 
         fun newInstance(path: String): UpdateItemDialog {
             val fragment = UpdateItemDialog()
             val args = Bundle()
             args.putString(PATH, path)
+            fragment.arguments = args
+            return fragment
+        }
+
+        fun newInstanceCloud(file: FileSec):UpdateItemDialog{
+            val fragment = UpdateItemDialog()
+            val args = Bundle()
+            args.putParcelable(FILE,file)
             fragment.arguments = args
             return fragment
         }

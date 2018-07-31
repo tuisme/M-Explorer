@@ -67,5 +67,4 @@ class User() : Parcelable {
             return arrayOfNulls(size)
         }
     }
-
 }

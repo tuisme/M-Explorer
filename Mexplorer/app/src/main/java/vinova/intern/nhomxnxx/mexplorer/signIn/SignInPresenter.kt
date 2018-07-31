@@ -2,24 +2,19 @@ package vinova.intern.nhomxnxx.mexplorer.signIn
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
+import com.facebook.AccessToken
+import com.facebook.GraphRequest
 import com.facebook.login.LoginResult
-import okhttp3.OkHttpClient
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.provider.Settings
-import com.facebook.GraphRequest
-import com.facebook.GraphResponse
-import org.json.JSONObject
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.model.User
-import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
-import com.facebook.AccessToken
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import vinova.intern.nhomxnxx.mexplorer.model.Request
 
 
@@ -32,23 +27,25 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     @SuppressLint("HardwareIds")
     override fun signIn(context: Context?, email:String, password:String){
         val databaseAccess = DatabaseHandler(context)
-        val api = CallApi.createService()
+        val api = CallApi.getInstance()
         val androidName = android.os.Build.MODEL
         val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
-        api.logIn(email, password, androidName, androidId)
+        api.logIn(email, password, androidId, androidName)
                 .enqueue(object:Callback<Request>{
                     override fun onFailure(call: Call<Request>?, t: Throwable?) {
+                        Log.e("ABCD",t.toString())
                     }
 
                     override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                         if(response?.body()?.status.toString() == "success"){
-                            val user = response?.body()?.user
+                            val user = response?.body()?.data
                             if (user != null) {
                                 if (databaseAccess.getUserLoggedIn() != null) {
                                     databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                 }
                                 databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                        user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN)
+                                        user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+                                        user.avatarUrl,user.isVip,user.used,user.verified)
                                 mView.signInSuccess(user)
 
                             }
@@ -64,31 +61,36 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     @SuppressLint("HardwareIds")
     override fun handleFacebookAccessToken(result: LoginResult, context: Context?) {
         val request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken()) { obj, _ ->
+            val provider = "facebook"
             val databaseAccess = DatabaseHandler(context)
             val email = obj?.getString("email").toString()
-            val id = obj?.getString("id").toString()
             val firstName = obj?.getString("first_name").toString()
             val lastName = obj?.getString("last_name").toString()
             val androidName = android.os.Build.MODEL
             val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
-            val api = CallApi.createService()
-            api.logInWithFB(email,id,firstName,lastName,androidId,androidName)
+            val api = CallApi.getInstance()
+            api.logInProvider(provider, email,firstName,lastName,androidId,androidName)
                     .enqueue(object:Callback<Request>{
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
-                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                         }
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                             if(response?.body()?.status.toString() == "success"){
-                                val user = response?.body()?.user
+                                val user = response?.body()?.data
                                 if (user != null) {
                                     if (databaseAccess.getUserLoggedIn() != null) {
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                     }
                                     databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                            user.lastName, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN)
+                                            user.lastName, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN,
+                                            user.avatarUrl
+                                            ,user.isVip,user.used,user.verified)
                                     mView.signInSuccess(user)
 
+                                }
+                                else{
+                                    mView.showError("can find user")
                                 }
                             }
                             else {
@@ -103,8 +105,9 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
         request.parameters = parameters
         request.executeAsync()
     }
+
     @SuppressLint("HardwareIds")
-    override fun handleGoogleSignInResult(result: GoogleSignInResult, context: Context?){
+    override fun handleGoogleSignInResult(result: GoogleSignInResult, context:Context ){
         if (result.isSuccess){
             val databaseAccess = DatabaseHandler(context)
             val account: GoogleSignInAccount = result.signInAccount!!
@@ -112,9 +115,9 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val first_name = account.familyName
             val last_name = account.givenName
             val androidName = android.os.Build.MODEL
-            val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
-            val api = CallApi.createService()
-            api.logInGoogle(email.toString(), first_name.toString(), last_name.toString(),androidId,androidName)
+            val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            val api = CallApi.getInstance()
+            api.logInProvider("google",email!!, first_name.toString(), last_name.toString(),androidId,androidName)
                     .enqueue(object:Callback<Request> {
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
                             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -122,19 +125,19 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                             if (response?.body()?.status.toString() == "success") {
-                                val user = response?.body()?.user
+                                val user = response?.body()?.data
                                 if (user != null) {
                                     if (databaseAccess.getUserLoggedIn() != null) {
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
                                     }
                                     databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                            user.lastName, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN)
+                                            user.lastName, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN,user.avatarUrl,
+                                            user.isVip,user.used,user.verified)
                                     mView.signInSuccess(user)
                                 }
-                        else {
-                            mView.showError(response?.body()?.message.toString())
-                        }
-
+                                else {
+                                    mView.showError(response?.body()?.message.toString())
+                                }
                             }
                             Log.d("email", account.email)
                             Log.d("name", account.displayName)

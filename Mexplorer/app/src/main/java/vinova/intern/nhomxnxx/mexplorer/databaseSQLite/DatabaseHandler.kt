@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import vinova.intern.nhomxnxx.mexplorer.model.User
 
 
 class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -13,7 +14,9 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         val script = ("CREATE TABLE If not exists " + DBTable.USER.TABLE_NAME + "("
                 + DBTable.USER.TOKEN.COLUMN_NAME + " TEXT PRIMARY KEY," + DBTable.USER.FIRST_NAME.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.LAST_NAME.COLUMN_NAME + " TEXT," + DBTable.USER.EMAIL.COLUMN_NAME + " TEXT,"
-                + DBTable.USER.TYPE.COLUMN_NAME + " TEXT," + DBTable.USER.STATUS.COLUMN_NAME + " TEXT" +")")
+                + DBTable.USER.TYPE.COLUMN_NAME + " TEXT," + DBTable.USER.STATUS.COLUMN_NAME + " TEXT,"
+                + DBTable.USER.AVATAR.COLUMN_NAME + " TEXT," + DBTable.USER.USED.COLUMN_NAME + " TEXT,"
+                + DBTable.USER.ISVIP.COLUMN_NAME + " TEXT," + DBTable.USER.VERI.COLUMN_NAME + " TEXT" +")")
         // Chạy lệnh tạo bảng.
         db.execSQL(script)
     }
@@ -34,7 +37,8 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         val NORMAL = "NORMAL"
     }
 
-    fun insertUserData(token:String?,email: String?, first_name: String?, last_name: String?, type: String, status: Int) {
+    fun insertUserData(token:String?,email: String?, first_name: String?, last_name: String?,
+                       type: String, status: Int,avatar: String?,isvip : String? , used:String?, veri : String?) {
         val db = this.writableDatabase
         val values_user = ContentValues()
         values_user.put(DBTable.USER.TOKEN.COLUMN_NAME,token)
@@ -43,6 +47,10 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         values_user.put(DBTable.USER.LAST_NAME.COLUMN_NAME, last_name)
         values_user.put(DBTable.USER.TYPE.COLUMN_NAME, type)
         values_user.put(DBTable.USER.STATUS.COLUMN_NAME, status)
+        values_user.put(DBTable.USER.AVATAR.COLUMN_NAME,avatar)
+        values_user.put(DBTable.USER.ISVIP.COLUMN_NAME,isvip)
+        values_user.put(DBTable.USER.USED.COLUMN_NAME,used)
+        values_user.put(DBTable.USER.VERI.COLUMN_NAME,veri)
 
         db?.insert(DBTable.USER.TABLE_NAME, null, values_user)
     }
@@ -104,7 +112,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         )
         cursor?.moveToFirst()
         return if (cursor?.count!! > 0) {
-            cursor.getString(DBTable.USER.EMAIL.COLUMN_NUMBER)
+            cursor.getString(DBTable.USER.TOKEN.COLUMN_NUMBER)
         } else null
     }
 
@@ -133,4 +141,25 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
     }
 
 
+    @SuppressLint("Recycle")
+    fun getUser():User{
+        val db = this.writableDatabase
+        val cursor = db?.rawQuery(
+                "SELECT * FROM " + DBTable.USER.TABLE_NAME, null
+        )
+        val user = User()
+        cursor?.moveToFirst()
+        if (cursor != null)
+            if (cursor.count > 0) {
+                user.token = cursor.getString(DBTable.USER.TOKEN.COLUMN_NUMBER)
+                user.email = cursor.getString(DBTable.USER.EMAIL.COLUMN_NUMBER)
+                user.firstName = cursor.getString(DBTable.USER.FIRST_NAME.COLUMN_NUMBER)
+                user.lastName = cursor.getString(DBTable.USER.LAST_NAME.COLUMN_NUMBER)
+                user.isVip = cursor.getString(DBTable.USER.ISVIP.COLUMN_NUMBER)
+                user.verified = cursor.getString(DBTable.USER.VERI.COLUMN_NUMBER)
+                user.used = cursor.getString(DBTable.USER.USED.COLUMN_NUMBER)
+                user.avatarUrl = cursor.getString(DBTable.USER.AVATAR.COLUMN_NUMBER)
+            }
+        return user
+    }
 }

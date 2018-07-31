@@ -30,8 +30,7 @@ class ConfirmDeleteDialog : DialogFragment() {
             if (isLocal)
                 (activity as ConfirmListener).onConfirmDelete(path)
             else
-//                (activity as ConfirmListener).onConfirmDeleteCloud(path!!,id!!)
-                (activity as ConfirmListener).onConfirmDeleteFile(path!!, id!!, type!!, token!!)
+                (activity as ConfirmListener).onConfirmDeleteCloud(path!!,id!!)
         }
         builder.setNegativeButton(R.string.label_cancel, null)
         return builder.create()

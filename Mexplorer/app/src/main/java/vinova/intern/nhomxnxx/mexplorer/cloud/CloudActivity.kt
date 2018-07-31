@@ -19,6 +19,7 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.UpdateItemDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.UploadFileDialog
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
@@ -26,8 +27,10 @@ import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import java.io.File
 
-class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener {
+class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener,
+		RenameDialog.DialogListener {
 
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
@@ -38,6 +41,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	val path : ArrayList<String> = arrayListOf()
 	val namePath : ArrayList<String> = arrayListOf()
 	val PICKFILE_REQUEST_CODE = 1997
+	val READ_REQUEST_CODE = 2511
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -46,7 +50,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		userToken = DatabaseHandler(this).getToken()!!
 	}
 
-	fun setRv(){
+	private fun setRv(){
 		adapter = CloudAdapter(this,error_nothing,bottom_sheet_detail,supportFragmentManager)
 		rvContent.layoutManager = LinearLayoutManager(this)
 		rvContent.adapter = adapter
@@ -86,14 +90,24 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
-		if (requestCode == PICKFILE_REQUEST_CODE){
-			if (data!=null) {
-				val uri : Uri = data.data
-				mPresenter.upLoadFile(userToken, path.last().toString(),uri,cloudType,ctoken)
+		when(requestCode){
+			PICKFILE_REQUEST_CODE -> {
+				if (data!=null) {
+					val uri : Uri = data.data
+					mPresenter.upLoadFile(userToken, path.last().toString(),uri,cloudType,ctoken)
+				}
+			}
+			READ_REQUEST_CODE -> {
+				if (data!=null) {
+					val uri: Uri = data.data
+					val a = File(uri.path)
+
+				}
 			}
 		}
 	}
 
+	// for floating button
 	override fun onOptionClick(type: String) {
 		when(type){
 			"upload file" ->{
@@ -102,7 +116,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 				startActivityForResult(Intent.createChooser(intent,"select a file to upload"),PICKFILE_REQUEST_CODE)
 			}
 			"upload folder" -> {
-
+				val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+				startActivityForResult(intent, READ_REQUEST_CODE)
 			}
 			"upload image" -> {
 
@@ -110,15 +125,30 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		}
 	}
 
+	// for on long click
 	override fun onOptionClick(which: Int, path: String?) {
 		when(which){
 			R.id.offline ->{
 				path?.let { mPresenter.download(it, ctoken,userToken,cloudType) }
 
 			}
+			R.id.delete -> {
+
+			}
+			R.id.rename -> {
+				val name = path?.split("/")!!
+				RenameDialog.newInstanceCloud(name[0],name[1],ctoken).show(supportFragmentManager,"fragment")
+			}
 		}
 	}
 
+	override fun onReNameCloud(newName: String, id: String, token: String) {
+		mPresenter.renameFile(userToken,id,newName,cloudType,ctoken)
+	}
+
+	override fun onRename(fromPath: String, toPath: String) {
+
+	}
 
 	override fun showList(files: List<FileSec>) {
 		swipeContent.isRefreshing = false
@@ -202,8 +232,6 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		startService(intent)
 	}
 
-
-
 	private fun checkPermission(): Boolean {
 		val result = ContextCompat.checkSelfPermission(this,
 				Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -215,6 +243,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 2)
 
 	}
+
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
 		when (requestCode) {
 			2 -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

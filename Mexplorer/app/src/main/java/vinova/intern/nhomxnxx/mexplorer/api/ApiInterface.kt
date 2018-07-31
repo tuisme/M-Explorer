@@ -63,4 +63,14 @@ interface ApiInterface {
     fun uploadFile(@Header("Access-Token") user_token: String,
                    @Query("id") id: String, @Part file : MultipartBody.Part, @Query("ctype") ctype: String,
                    @Query("ctoken") ctoken : String) : Call<BaseResponse>
+
+	@PUT("/api/v2/files")
+	fun renameFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
+	               @Query("fname") fname : String, @Query("ctype") ctype: String,
+	               @Query("ctoken") ctoken: String) : Call<BaseResponse>
+
+    @POST("/api/v2/folders")
+    fun createFolder(@Header("Access-Token") user_token: String,@Query("fname") fname: String,
+                     @Query("parent") parent : String,@Query("ctype") ctype: String,
+                     @Query("ctoken") ctoken: String) : Call<BaseResponse>
 }

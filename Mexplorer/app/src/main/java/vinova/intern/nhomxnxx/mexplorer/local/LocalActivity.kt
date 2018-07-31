@@ -146,7 +146,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         adapter.setListener(this)
         if (isStoragePermissionGranted()){
             adapter.refreshData()
-            super.showUser()
         }
         fab_add.visibility = View.VISIBLE
         fab_add.setOnClickListener {

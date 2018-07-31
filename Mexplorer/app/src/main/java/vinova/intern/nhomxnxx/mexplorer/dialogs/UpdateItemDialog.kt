@@ -8,12 +8,10 @@ import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.Switch
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
-
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import java.io.File
@@ -48,7 +46,7 @@ class UpdateItemDialog : DialogFragment() {
 
         rename.setOnClickListener {
             dialog.dismiss()
-            mListener?.onOptionClick(R.id.rename, if (path !=null) path else file?.id)
+            mListener?.onOptionClick(R.id.rename, if (path !=null) path else "${file?.name}/${file?.id}")
         }
 
         delete.setOnClickListener {

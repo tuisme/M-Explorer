@@ -23,5 +23,7 @@ interface CloudInterface {
 		fun getUrlFile(id : String,ctoken:String,user_token:String,ctype : String)
 		fun upLoadFile(user_token: String,id: String,uri: Uri,ctype: String,ctoken : String)
 		fun download(id : String,ctoken:String,user_token:String,ctype : String)
+		fun renameFile(user_token: String,id: String,fname: String,ctype: String,ctoken: String)
+		fun createFolder(user_token: String,fname: String,parent: String,ctype: String,ctoken: String)
 	}
 }

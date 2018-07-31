@@ -3,7 +3,7 @@
     <!--sign in/up-->
     <string name="user_name">User Name</string>
     <string name="password">PassWord</string>
-    <string name="forget_password">Forget Password</string>
+    <string name="forget_password">Forgot password?</string>
     <string name="sign_in">Sign in</string>
     <string name="login_with">Login With</string>
     <string name="email">Email</string>
@@ -78,4 +78,5 @@
     <string name="copy">Copy</string>
     <string name="avaiable_offline">Avaiable offline</string>
     <string name="share">Share</string>
+    <string name="device_connected">Device connected</string>
 </resources>

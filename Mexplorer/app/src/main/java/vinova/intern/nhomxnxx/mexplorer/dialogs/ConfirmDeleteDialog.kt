@@ -17,6 +17,8 @@ class ConfirmDeleteDialog : DialogFragment() {
         val msg: String
         val path = arguments?.getString(PATH)
         val id = arguments?.getString("id")
+        val type = arguments?.getString("ctype")
+        val token = arguments?.getString("ctoken")
         val file = File(path)
         if (file.isDirectory) {
             msg = "You are about to delete the folder with all it's content for real."
@@ -28,7 +30,8 @@ class ConfirmDeleteDialog : DialogFragment() {
             if (isLocal)
                 (activity as ConfirmListener).onConfirmDelete(path)
             else
-                (activity as ConfirmListener).onConfirmDeleteCloud(path!!,id!!)
+//                (activity as ConfirmListener).onConfirmDeleteCloud(path!!,id!!)
+                (activity as ConfirmListener).onConfirmDeleteFile(path!!, id!!, type!!, token!!)
         }
         builder.setNegativeButton(R.string.label_cancel, null)
         return builder.create()
@@ -37,6 +40,7 @@ class ConfirmDeleteDialog : DialogFragment() {
     interface ConfirmListener {
         fun onConfirmDelete(path: String?)
         fun onConfirmDeleteCloud(name :String,id:String)
+        fun onConfirmDeleteFile(name: String, id: String, type: String, token: String)
     }
 
     companion object {
@@ -57,6 +61,16 @@ class ConfirmDeleteDialog : DialogFragment() {
             val args = Bundle()
             args.putString(PATH, path)
             args.putString("id",id)
+            fragment.arguments = args
+            return fragment
+        }
+        fun newInstanceFile(path: String,id: String, type: String, token: String): ConfirmDeleteDialog{
+            val fragment = ConfirmDeleteDialog()
+            val args = Bundle()
+            args.putString(PATH,path)
+            args.putString("id",id)
+            args.putString("ctype",type)
+            args.putString("ctoken",token)
             fragment.arguments = args
             return fragment
         }

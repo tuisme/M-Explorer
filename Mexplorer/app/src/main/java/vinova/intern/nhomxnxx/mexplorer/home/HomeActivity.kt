@@ -44,6 +44,9 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		RenameDialog.DialogListener, GoogleApiClient.OnConnectionFailedListener,
 		ConfirmDeleteDialog.ConfirmListener,
 		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener {
+	override fun onConfirmDeleteFile(name: String, id: String, type: String, token: String) {
+
+	}
 
 	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 	private lateinit var adapter : RvHomeAdapter

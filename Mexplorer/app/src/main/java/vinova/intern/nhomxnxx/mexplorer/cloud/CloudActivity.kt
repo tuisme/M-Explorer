@@ -27,7 +27,8 @@ import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
-class CloudActivity : BaseActivity(),CloudInterface.View,UploadFileDialog.DialogListener, UpdateItemDialog.DialogListener {
+class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener {
+
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
 	lateinit var ctoken : String

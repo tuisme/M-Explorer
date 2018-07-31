@@ -43,19 +43,25 @@ class DeviceAdapter(context: Context ): RecyclerView.Adapter<DeviceAdapter.Devic
         holder.location.text = devices.location
         if (devices.type == "android"){
             Glide.with(ctx)
-                    .load(R.mipmap.ic_launcher_round)
+                    .load(R.drawable.ic_android)
                     .apply(RequestOptions().circleCrop())
                     .into(holder.image)
         }
         else if (devices.type == "ios"){
             Glide.with(ctx)
-                    .load(R.drawable.ic_logo_folder)
+                    .load(R.drawable.ic_ios)
+                    .apply(RequestOptions().circleCrop())
+                    .into(holder.image)
+        }
+        else if(devices.type == "windows") {
+            Glide.with(ctx)
+                    .load(R.drawable.ic_windows)
                     .apply(RequestOptions().circleCrop())
                     .into(holder.image)
         }
         else {
             Glide.with(ctx)
-                    .load(R.drawable.ic_logo_folder)
+                    .load(R.drawable.ic_emulator)
                     .apply(RequestOptions().circleCrop())
                     .into(holder.image)
         }

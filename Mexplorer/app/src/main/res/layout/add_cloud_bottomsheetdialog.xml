@@ -9,64 +9,131 @@
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp">
 
-
     <RadioGroup
         android:id="@+id/radioGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:gravity="end"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <RadioButton
-            android:id="@+id/checkggDrive"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_logo_google_drive"
-            android:drawablePadding="8dp"
-            android:layoutDirection="rtl"
-            android:padding="8dp"
-            android:text="@string/google_drive" />
+            tools:ignore="UselessParent">
 
-        <RadioButton
-            android:id="@+id/checkDropbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_logo_dropbox"
-            android:drawablePadding="8dp"
-            android:layoutDirection="rtl"
-            android:padding="8dp"
-            android:text="@string/drop_box" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:ignore="ScrollViewSize">
 
-        <RadioButton
-            android:id="@+id/checkOneDrive"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_logo_onedrive"
-            android:drawablePadding="8dp"
-            android:layoutDirection="rtl"
-            android:checked="true"
-            android:padding="8dp"
-            android:text="@string/one_drive" />
+                <ImageView
+                    android:id="@+id/checkggDrive"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_logo_google_drive"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
 
-        <RadioButton
-            android:id="@+id/checkBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_logo_box"
-            android:drawablePadding="8dp"
-            android:layoutDirection="rtl"
-            android:padding="8dp"
-            android:text="@string/box" />
+                <TextView
+                    android:id="@+id/googledrivetext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/google_drive"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/checkggDrive"
+                    app:layout_constraintHorizontal_bias="0.4"
+                    app:layout_constraintStart_toStartOf="@+id/checkggDrive"
+                    app:layout_constraintTop_toBottomOf="@+id/checkggDrive" />
+
+                <ImageView
+                    android:id="@+id/checkDropbox"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_logo_dropbox"
+                    app:layout_constraintBottom_toTopOf="@+id/googledrivetext"
+                    app:layout_constraintStart_toEndOf="@+id/checkggDrive"
+                    app:layout_constraintTop_toTopOf="@+id/checkggDrive"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/dropboxText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/drop_box"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/checkDropbox"
+                    app:layout_constraintStart_toStartOf="@+id/checkDropbox"
+                    app:layout_constraintTop_toBottomOf="@+id/checkDropbox" />
+
+                <ImageView
+                    android:id="@+id/checkOneDrive"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_logo_onedrive"
+                    app:layout_constraintBottom_toTopOf="@+id/dropboxText"
+                    app:layout_constraintStart_toEndOf="@+id/checkDropbox"
+                    app:layout_constraintTop_toTopOf="@+id/checkDropbox"
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/oneDriveText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/one_drive"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/checkOneDrive"
+                    app:layout_constraintStart_toStartOf="@+id/checkOneDrive"
+                    app:layout_constraintTop_toBottomOf="@+id/checkOneDrive" />
+
+                <ImageView
+                    android:id="@+id/checkBox"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_logo_box"
+                    app:layout_constraintBottom_toTopOf="@+id/oneDriveText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/checkOneDrive"
+                    app:layout_constraintTop_toTopOf="@+id/checkOneDrive"
+                    app:layout_constraintVertical_bias="1.0"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/boxText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/box"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/checkBox"
+                    app:layout_constraintStart_toStartOf="@+id/checkBox"
+                    app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </HorizontalScrollView>
     </RadioGroup>
-
     <Button
-        android:id="@+id/googledrive"
+        android:id="@+id/add_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -82,7 +149,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:inputType="text"
-        app:layout_constraintEnd_toStartOf="@+id/googledrive"
+        app:layout_constraintEnd_toStartOf="@+id/add_item"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/radioGroup"
         tools:ignore="Autofill,LabelFor" />

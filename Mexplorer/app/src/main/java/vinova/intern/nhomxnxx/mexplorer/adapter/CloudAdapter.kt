@@ -22,6 +22,7 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
+import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 
@@ -33,6 +34,7 @@ class CloudAdapter(ctx : Context,view : TextView,rot : View,frag : FragmentManag
 	private val sup = frag
 	private val bottomSheetBehave = BottomSheetBehavior.from(root)
 	var files: List<FileSec> = mutableListOf()
+	private var listCloud : MutableList<Cloud> = mutableListOf()
 	private lateinit var listener: CloudAdapter.ItemClickListener
 	private val token = DatabaseHandler(context).getToken()
 
@@ -107,7 +109,12 @@ class CloudAdapter(ctx : Context,view : TextView,rot : View,frag : FragmentManag
 			holder.size.visibility = View.VISIBLE
 			holder.size.text = file.size?.toLong()?.let { Support.getFileSize(it)}
 		}
-
+//		root.deleteFile.setOnClickListener {
+//			val fileSec = files[holder.adapterPosition]
+//			val cloud = listCloud[holder.adapterPosition]
+//			bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
+//			ConfirmDeleteDialog.newInstanceFile(fileSec.name!!,fileSec.id!!,cloud.ctype!!,cloud.ctoken!!).show(sup,"halo")
+//			}
 //
 //		holder.btn.setOnClickListener {
 //			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
@@ -152,7 +159,11 @@ class CloudAdapter(ctx : Context,view : TextView,rot : View,frag : FragmentManag
 
 	}
 
-	inner class ViewHolderCloudFolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+	inner class ViewHolderCloudFolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+		override fun onClick(p0: View?) {
+			listener.onLongClick(files[adapterPosition])
+		}
+
 		val logo : ImageView = itemView.iv_logo
 		val name : TextView = itemView.tv_name
 		val size : TextView = itemView.tv_size

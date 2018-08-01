@@ -19,6 +19,7 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.UpdateItemDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.UploadFileDialog
@@ -30,7 +31,13 @@ import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import java.io.File
 
 class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener,
-		RenameDialog.DialogListener {
+		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener {
+	override fun onConfirmDelete(path: String?) {
+	}
+
+	override fun onConfirmDeleteCloud(name: String, id: String) {
+		mPresenter.deleteFile(userToken,id,cloudType,ctoken)
+	}
 
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
@@ -133,7 +140,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 			}
 			R.id.delete -> {
-
+				val name = path?.split("/")!!
+				ConfirmDeleteDialog.newInstanceCloud( name[0],name[1]).show(supportFragmentManager,"fragment")
 			}
 			R.id.rename -> {
 				val name = path?.split("/")!!
@@ -254,6 +262,5 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			}
 		}
 	}
-
 
 }

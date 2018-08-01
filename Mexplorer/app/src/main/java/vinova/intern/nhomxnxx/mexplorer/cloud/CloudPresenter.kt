@@ -208,4 +208,20 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 						}
 					})
 	}
+	override fun deleteFile(user_token: String, id: String, ctype: String, ctoken: String) {
+			CallApi.getInstance().deleteFile(user_token, id, ctype, ctoken)
+					.enqueue(object : Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
+
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success"))
+								mView.refresh()
+							else
+								mView.showError(response?.errorBody()?.string()!!)
+						}
+
+					})
+	}
 }

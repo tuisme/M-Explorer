@@ -51,7 +51,7 @@ class UpdateItemDialog : DialogFragment() {
 
         delete.setOnClickListener {
             dialog.dismiss()
-            mListener?.onOptionClick(R.id.delete, path)
+            mListener?.onOptionClick(R.id.delete, if (path !=null) path else "${file?.name}/${file?.id}")
         }
 
         if (!isDirectory) {

@@ -73,4 +73,8 @@ interface ApiInterface {
     fun createFolder(@Header("Access-Token") user_token: String,@Query("fname") fname: String,
                      @Query("parent") parent : String,@Query("ctype") ctype: String,
                      @Query("ctoken") ctoken: String) : Call<BaseResponse>
+    @DELETE("/api/v2/files")
+    fun deleteFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
+                   @Query("ctype") ctype: String,
+                   @Query("ctoken") ctoken: String) : Call<BaseResponse>
 }

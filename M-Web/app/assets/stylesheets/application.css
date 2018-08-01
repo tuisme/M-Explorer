@@ -12,8 +12,8 @@
  *
  */
 
- @import "css";
+ @import "css.css";
  @import "font-awesome";
- @import "material-dashboard.min";
- @import "demo/demo";
- @import "demo/docs.min";
+ @import "material-dashboard.min.css";
+ @import "demo/demo.css";
+ @import "demo/docs.min.css";

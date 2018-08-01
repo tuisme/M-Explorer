@@ -188,6 +188,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 			"googledrive" -> {
 				val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
 				startActivityForResult(signInIntent, RC_SIGN_IN)
+				Auth.GoogleSignInApi.signOut(mGoogleApiClient)
 			}
 			"dropbox" ->{
 				firstTime = true

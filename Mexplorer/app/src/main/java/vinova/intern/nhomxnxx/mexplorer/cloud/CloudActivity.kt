@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
@@ -32,12 +33,6 @@ import java.io.File
 
 class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener,
 		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener {
-	override fun onConfirmDelete(path: String?) {
-	}
-
-	override fun onConfirmDeleteCloud(name: String, id: String) {
-		mPresenter.deleteFile(userToken,id,cloudType,ctoken)
-	}
 
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
@@ -61,6 +56,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		adapter = CloudAdapter(this,error_nothing,bottom_sheet_detail,supportFragmentManager)
 		rvContent.layoutManager = LinearLayoutManager(this)
 		rvContent.adapter = adapter
+		rvContent.addItemDecoration(DividerItemDecoration(rvContent.context, DividerItemDecoration.VERTICAL))
 		ctoken = intent.getStringExtra("token")
 		cloudType = intent.getStringExtra("type")
 		cloudId = intent.getStringExtra("id")
@@ -91,6 +87,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		}
 
 		swipeContent.setOnRefreshListener {
+			rvContent.showShimmerAdapter()
 			mPresenter.getList(path.last(),ctoken,userToken,cloudType)
 		}
 	}
@@ -160,6 +157,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 	override fun showList(files: List<FileSec>) {
 		swipeContent.isRefreshing = false
+		rvContent.hideShimmerAdapter()
 		CustomDiaglogFragment.hideLoadingDialog()
 		super.showUser()
 		adapter.setData(files)
@@ -261,6 +259,13 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 			}
 		}
+	}
+	override fun onConfirmDelete(path: String?) {
+	}
+
+	override fun onConfirmDeleteCloud(name: String, id: String) {
+		CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+		mPresenter.deleteFile(userToken,id,cloudType,ctoken)
 	}
 
 }

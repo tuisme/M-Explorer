@@ -122,6 +122,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 
 	override fun showList(list: ListCloud?) {
+		rvContent.hideShimmerAdapter()
 		this.listCloud = list!!
 		adapter.setData(list.clouds)
 	}
@@ -131,19 +132,20 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		val manager = LinearLayoutManager(this)
 		rvContent.layoutManager = manager
 		rvContent.adapter = adapter
+        rvContent.showShimmerAdapter()
 		swipeContent.setOnRefreshListener {
 			mPresenter.refreshList(DatabaseHandler(this).getToken())
 			swipeContent.isRefreshing = false
 		}
 		adapter.setListener(object : RvHomeAdapter.ItemClickListener{
 			override fun onItemClick(cloud: Cloud) {
-				if (cloud.ctype.equals("local"))
+				if (cloud.type.equals("local"))
 					startActivity(Intent(this@HomeActivity,LocalActivity::class.java)
-							.putExtra("name",cloud.cname))
+							.putExtra("name",cloud.name))
 				else {
 					val intent = Intent(this@HomeActivity, CloudActivity::class.java)
-					intent.putExtra("id", cloud.croot).putExtra("token",cloud.ctoken)
-							.putExtra("type",cloud.ctype).putExtra("name",cloud.cname)
+					intent.putExtra("id", cloud.root).putExtra("token",cloud.token)
+							.putExtra("type",cloud.type).putExtra("name",cloud.name)
 					startActivity(intent)
 				}
 			}

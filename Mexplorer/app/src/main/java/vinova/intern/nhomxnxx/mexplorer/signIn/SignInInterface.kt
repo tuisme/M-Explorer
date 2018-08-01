@@ -12,8 +12,8 @@ interface SignInInterface {
     }
 
     interface Presenter{
-        fun signIn(context: Context?, email:String, password:String)
-        fun handleFacebookAccessToken(result: LoginResult, context: Context?)
-        fun handleGoogleSignInResult(result: GoogleSignInResult,context: Context)
+        fun signIn(context: Context?, email:String, password:String,location : String)
+        fun handleFacebookAccessToken(result: LoginResult, context: Context?,location : String)
+        fun handleGoogleSignInResult(result: GoogleSignInResult,context: Context,location : String)
     }
 }

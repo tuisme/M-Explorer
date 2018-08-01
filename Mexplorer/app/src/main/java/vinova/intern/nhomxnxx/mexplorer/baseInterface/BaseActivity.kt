@@ -6,11 +6,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
-import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 
@@ -83,15 +81,4 @@ open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 		return true
 	}
 
-	fun showUser() {
-		val user = DatabaseHandler(this).getUser()
-		val name = "${user.firstName} ${user.lastName}"
-		user_name.text = name
-		user_email.text = user.email
-		user_have_percentage.text = user.used
-		progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
-		Glide.with(this)
-				.load(user.avatarUrl)
-				.into(img_profile)
-	}
 }

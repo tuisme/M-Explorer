@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.View.GONE
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.adapter.DeviceAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
@@ -18,7 +20,7 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View{
     private var mPresenter: DeviceInterface.Presenter = DevicePresenter(this)
     lateinit var token : String
     override fun showList(devices : List<Devices>?) {
-        super.showUser()
+        showUser()
         adapter.setData(devices!!)
         adapter.notifyDataSetChanged()
     }
@@ -33,6 +35,18 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View{
 
     override fun showError(message: String) {
         Toasty.error(this,message,Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showUser() {
+        val user = DatabaseHandler(this).getUser()
+        val name = "${user.firstName} ${user.lastName}"
+        user_name.text = name
+        user_email.text = user.email
+        user_have_percentage.text = user.used
+        progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
+        Glide.with(this)
+                .load(user.avatarUrl)
+                .into(img_profile)
     }
 
     @SuppressLint("RestrictedApi")

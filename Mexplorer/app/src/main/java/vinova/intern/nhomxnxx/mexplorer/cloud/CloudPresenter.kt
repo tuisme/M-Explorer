@@ -114,7 +114,9 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 							mView.showError("Download error")
 					}
 
-				})	}
+				})
+	}
+
 	override fun getUrlFile(id: String, ctoken: String, user_token: String,ctype:String) {
 		CallApi.getInstance().getUrlFile(id, ctoken, user_token,ctype)
 				.enqueue(object : Callback<SpecificFile>{
@@ -183,7 +185,10 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 					}
 
 					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-						mView.showError("Thằng phương óc chó")
+						if(response?.body()!=null)
+							mView.refresh()
+						else
+							mView.showError("Thằng phương óc chó")
 					}
 				})
 	}
@@ -208,6 +213,7 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 						}
 					})
 	}
+
 	override fun deleteFile(user_token: String, id: String, ctype: String, ctoken: String) {
 			CallApi.getInstance().deleteFile(user_token, id, ctype, ctoken)
 					.enqueue(object : Callback<BaseResponse>{
@@ -224,4 +230,5 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 
 					})
 	}
+
 }

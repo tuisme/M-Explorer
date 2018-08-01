@@ -12,10 +12,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -31,6 +33,7 @@ import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import java.io.File
 
+
 class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener,
 		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener {
 
@@ -40,10 +43,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	lateinit var userToken : String
 	lateinit var cloudType : String
 	lateinit var cloudId : String
-	val path : ArrayList<String> = arrayListOf()
-	val namePath : ArrayList<String> = arrayListOf()
 	val PICKFILE_REQUEST_CODE = 1997
 	val READ_REQUEST_CODE = 2511
+	lateinit var name_ :String
+	var path : ArrayList<ArrayList<String>> = arrayListOf()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -57,22 +60,25 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		rvContent.layoutManager = LinearLayoutManager(this)
 		rvContent.adapter = adapter
 		rvContent.addItemDecoration(DividerItemDecoration(rvContent.context, DividerItemDecoration.VERTICAL))
+		rvContent.showShimmerAdapter()
+
 		ctoken = intent.getStringExtra("token")
 		cloudType = intent.getStringExtra("type")
 		cloudId = intent.getStringExtra("id")
-		path.add(cloudId)
-		namePath.add(intent.getStringExtra("name"))
-		title = namePath.last()
-		CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+		path.add(arrayListOf(cloudId,intent.getStringExtra("name")))
+		title = path.last()[1]
+
 		mPresenter.getList(cloudId,ctoken,DatabaseHandler(this).getToken()!!,cloudType)
+
 		adapter.setListener(object : CloudAdapter.ItemClickListener{
 			override fun onClick(file: FileSec) {
-				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 				if (file.mime_type!!.contains("folder")) {
 					mPresenter.getList(file.id!!, ctoken, DatabaseHandler(this@CloudActivity).getToken()!!, cloudType)
-					namePath.add(file.name!!)
+					rvContent.showShimmerAdapter()
+					path.add(arrayListOf(file.id!!,file.name!!))
 				}
 				else{
+					CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 					mPresenter.getUrlFile(file.id!!,ctoken,userToken,cloudType)
 				}
 			}
@@ -87,8 +93,9 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		}
 
 		swipeContent.setOnRefreshListener {
+			swipeContent.isRefreshing = false
 			rvContent.showShimmerAdapter()
-			mPresenter.getList(path.last(),ctoken,userToken,cloudType)
+			mPresenter.getList(path.last()[0],ctoken,userToken,cloudType)
 		}
 	}
 
@@ -98,14 +105,15 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			PICKFILE_REQUEST_CODE -> {
 				if (data!=null) {
 					val uri : Uri = data.data
-					mPresenter.upLoadFile(userToken, path.last().toString(),uri,cloudType,ctoken)
+					mPresenter.upLoadFile(userToken, path.last()[0],uri,cloudType,ctoken)
 				}
 			}
 			READ_REQUEST_CODE -> {
 				if (data!=null) {
-					val uri: Uri = data.data
-					val a = File(uri.path)
-
+					val uri : Uri = data.data
+					val folder = File(uri.path)
+					mPresenter.createFolder(userToken,folder.name.split(":")[1],path.last()[0],cloudType,ctoken)
+					folder.listFiles()
 				}
 			}
 		}
@@ -156,12 +164,24 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	}
 
 	override fun showList(files: List<FileSec>) {
+		title = path.last()[1]
 		swipeContent.isRefreshing = false
 		rvContent.hideShimmerAdapter()
-		CustomDiaglogFragment.hideLoadingDialog()
-		super.showUser()
+		showUser()
 		adapter.setData(files)
 		adapter.notifyDataSetChanged()
+	}
+
+	private fun showUser() {
+		val user = DatabaseHandler(this).getUser()
+		val name = "${user.firstName} ${user.lastName}"
+		user_name.text = name
+		user_email.text = user.email
+		user_have_percentage.text = user.used
+		progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
+		Glide.with(this)
+				.load(user.avatarUrl)
+				.into(img_profile)
 	}
 
 	override fun showFile(file: FileDetail) {
@@ -178,6 +198,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 	override fun showError(message: String) {
 		CustomDiaglogFragment.hideLoadingDialog()
+		rvContent.hideShimmerAdapter()
 		Toasty.error(this,message,Toast.LENGTH_SHORT).show()
 	}
 
@@ -208,9 +229,9 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		when {
 			drawer_layout?.isDrawerOpen(GravityCompat.END)!! -> drawer_layout?.isDrawerOpen(GravityCompat.START)
 			path.size > 1 -> {
+				rvContent.showShimmerAdapter()
 				path.removeAt(path.size-1)
-				namePath.removeAt(namePath.size-1)
-				val id = path.last()
+				val id = path.last()[0]
 				mPresenter.getList(id,ctoken,userToken,cloudType)
 			}
 			else -> super.onBackPressed()
@@ -218,10 +239,9 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	}
 
 	override fun refresh() {
-		mPresenter.getList(path.last(),ctoken,userToken,cloudType)
+		CustomDiaglogFragment.hideLoadingDialog()
+		mPresenter.getList(path.last()[0],ctoken,userToken,cloudType)
 	}
-
-	lateinit var name_ :String
 
 	override fun downloadFile(name: String) {
 		name_ = name

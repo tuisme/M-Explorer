@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.box.androidsdk.content.BoxConfig
 import com.box.androidsdk.content.auth.BoxAuthentication
 import com.box.androidsdk.content.models.BoxSession
+import com.bumptech.glide.Glide
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -23,6 +24,7 @@ import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -125,6 +127,19 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		rvContent.hideShimmerAdapter()
 		this.listCloud = list!!
 		adapter.setData(list.clouds)
+		showUser()
+	}
+
+	private fun showUser() {
+		val user = DatabaseHandler(this).getUser()
+		val name = "${user.firstName} ${user.lastName}"
+		user_name.text = name
+		user_email.text = user.email
+		user_have_percentage.text = user.used
+		progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
+		Glide.with(this)
+				.load(user.avatarUrl)
+				.into(img_profile)
 	}
 
 	private fun setRecyclerView(){

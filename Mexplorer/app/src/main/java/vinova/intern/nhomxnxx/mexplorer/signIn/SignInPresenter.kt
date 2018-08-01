@@ -24,13 +24,14 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     init {
         mView.setPresenter(this)
     }
+
     @SuppressLint("HardwareIds")
-    override fun signIn(context: Context?, email:String, password:String){
+    override fun signIn(context: Context?, email:String, password:String,location : String){
         val databaseAccess = DatabaseHandler(context)
         val api = CallApi.getInstance()
         val androidName = android.os.Build.MODEL
         val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
-        api.logIn(email, password, androidId, androidName)
+        api.logIn(email, password, androidId, androidName,"android",location)
                 .enqueue(object:Callback<Request>{
                     override fun onFailure(call: Call<Request>?, t: Throwable?) {
                         Log.e("ABCD",t.toString())
@@ -59,7 +60,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     }
 
     @SuppressLint("HardwareIds")
-    override fun handleFacebookAccessToken(result: LoginResult, context: Context?) {
+    override fun handleFacebookAccessToken(result: LoginResult, context: Context?,location : String) {
         val request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken()) { obj, _ ->
             val provider = "facebook"
             val databaseAccess = DatabaseHandler(context)
@@ -69,7 +70,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val androidName = android.os.Build.MODEL
             val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
             val api = CallApi.getInstance()
-            api.logInProvider(provider, email,firstName,lastName,androidId,androidName)
+            api.logInProvider(provider, email,firstName,lastName,androidId,androidName,"android",location)
                     .enqueue(object:Callback<Request>{
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
 
@@ -107,7 +108,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     }
 
     @SuppressLint("HardwareIds")
-    override fun handleGoogleSignInResult(result: GoogleSignInResult, context:Context ){
+    override fun handleGoogleSignInResult(result: GoogleSignInResult, context:Context ,location : String){
         if (result.isSuccess){
             val databaseAccess = DatabaseHandler(context)
             val account: GoogleSignInAccount = result.signInAccount!!
@@ -117,7 +118,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val androidName = android.os.Build.MODEL
             val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
             val api = CallApi.getInstance()
-            api.logInProvider("google",email!!, first_name.toString(), last_name.toString(),androidId,androidName)
+            api.logInProvider("google",email!!, first_name.toString(), last_name.toString(),androidId,androidName,"android",location)
                     .enqueue(object:Callback<Request> {
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
                             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

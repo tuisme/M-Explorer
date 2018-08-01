@@ -5,12 +5,12 @@ module Api::V2
       #GET FILE INFO
       params do
         requires :id, type: String
-        requires :ctype, type: String
-        requires :ctoken, type: String
+        requires :type, type: String
+        requires :token, type: String
       end
       get do
-        token = params[:ctoken]
-        if params[:ctype] == 'googledrive'
+        token = params[:token]
+        if params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
           client_id: "389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",
           client_secret: "zhKkS-8vI_RNqReXOjAx4c5r",
@@ -23,7 +23,7 @@ module Api::V2
           },
           redirect_uri: "http://localhost:3000")
           @credentials.refresh_token = token
-          token = @credentials.fetch_access_token!
+          @credentials.fetch_access_token!
           session = GoogleDrive::Session.from_credentials(@credentials)
           file = session.file_by_id(params[:id])
 
@@ -46,7 +46,7 @@ module Api::V2
             }
           }
 
-        elsif params[:ctype] == 'dropbox'
+        elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id.to_s}/file")
           FileUtils.mkdir_p(dir) unless File.directory?(dir)
@@ -68,11 +68,11 @@ module Api::V2
               size: size
             }
           }
-        elsif params[:ctype] == 'box'
-          cloud = current_user.clouds.find_by_ctoken(token)
+        elsif params[:type] == 'box'
+          cloud = current_user.clouds.find_by(access_token: token)
           access_token = Boxr::refresh_tokens(token, client_id: "i9jieqavbpuutnbbrqdyeo44m0imegpk", client_secret: "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F").access_token
           refresh_token= Boxr::refresh_tokens(token, client_id: "i9jieqavbpuutnbbrqdyeo44m0imegpk", client_secret: "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F").refresh_token
-          cloud.update(ctoken:  refresh_token)
+          cloud.update(token:  refresh_token)
 
           client = Boxr::Client.new(access_token)
           title = client.file(params[:id]).name
@@ -104,17 +104,17 @@ module Api::V2
       params do
         requires :id, type: String
         requires :file, type: File
-        requires :ctype, type: String
-        requires :ctoken, type: String
+        requires :type, type: String
+        requires :token, type: String
       end
       post do
-        token = params[:ctoken]
+        token = params[:token]
         dir = params[:file][:tempfile].path
         title = params[:file][:filename].to_s
         type = params[:file][:type]
 
         # UPLOAD GOOGLE DRIVE
-        if params[:ctype] == "googledrive"
+        if params[:type] == "googledrive"
           @credentials = Google::Auth::UserRefreshCredentials.new(
           client_id: "389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",
           client_secret: "zhKkS-8vI_RNqReXOjAx4c5r",
@@ -138,7 +138,7 @@ module Api::V2
           present :data, nil
 
        # UPLOAD DROPBOX
-        elsif params[:ctype] == "dropbox"
+        elsif params[:type] == "dropbox"
           dbx = Dropbox::Client.new(token)
           if params[:id] == 'root'
             dbx.upload("/sJPG.jpg" ,"/home/kyle/Project/M_Explorer_1/public/files/1/JPG.jpg")
@@ -157,17 +157,17 @@ module Api::V2
       # RENAME A FIELD IN CLOUD
       params do
         requires :id, type: String
-        requires :fname, type: String
-        requires :ctype, type: String
-        requires :ctoken, type: String
+        requires :name, type: String
+        requires :type, type: String
+        requires :token, type: String
       end
       put do
-        token = params[:ctoken]
-        name = params[:fname]
+        token = params[:token]
+        name = params[:name]
 
 
         # RENAME A FIELD IN GOOGLE DRIVE
-        if params[:ctype] == "googledrive"
+        if params[:type] == "googledrive"
           @credentials = Google::Auth::UserRefreshCredentials.new(
           client_id: "389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",
           client_secret: "zhKkS-8vI_RNqReXOjAx4c5r",
@@ -191,7 +191,7 @@ module Api::V2
           present :message ,"Update Successfully!"
           present :data, nil
        # RENAME A FIELD IN DROPBOX
-        elsif params[:ctype] == "dropbox"
+        elsif params[:type] == "dropbox"
           dbx = Dropbox::Client.new(token)
           if params[:fid] == 'root'
             dbx.upload("/sJPG.jpg" ,"/home/kyle/Project/M_Explorer_1/public/files/1/JPG.jpg")
@@ -211,14 +211,14 @@ module Api::V2
       # DELETE A FIELD IN CLOUD
       params do
         requires :id, type: String
-        requires :ctype, type: String
-        requires :ctoken, type: String
+        requires :type, type: String
+        requires :token, type: String
       end
       delete do
-        token = params[:ctoken]
+        token = params[:token]
 
         # DELETE A FIELD IN GOOGLE DRIVE
-        if params[:ctype] == "googledrive"
+        if params[:type] == "googledrive"
           @credentials = Google::Auth::UserRefreshCredentials.new(
           client_id: "389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",
           client_secret: "zhKkS-8vI_RNqReXOjAx4c5r",
@@ -243,7 +243,7 @@ module Api::V2
           present :data, nil
 
        # RENAME A FIELD IN DROPBOX
-        elsif params[:ctype] == "dropbox"
+        elsif params[:type] == "dropbox"
           dbx = Dropbox::Client.new(token)
           if params[:fid] == 'root'
             dbx.upload("/sJPG.jpg" ,"/home/kyle/Project/M_Explorer_1/public/files/1/JPG.jpg")

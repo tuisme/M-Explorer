@@ -37,9 +37,10 @@ class FileController < ApplicationController
     # @credentials.refresh_token = "1/UJjjZ1MdDbT4iHNpWsx8FPMqCAUIT16HNyqHH2u23hQ"
     # @credentials.fetch_access_token!
     # session = GoogleDrive::Session.from_credentials(@credentials)
+    gg
     # rf
 
-    render plain: ActionController::Base.helpers.asset_path('/images/default-avatar.png')
+    # render plain: ActionController::Base.helpers.asset_path('/images/default-avatar.png')
 
     # render plain: dir = "#{Rails.root}/public/files/1/JPG.jpg"
     # session.upload_from_file(dir,"aaa.aa")

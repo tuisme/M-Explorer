@@ -59,6 +59,9 @@ ActiveRecord::Schema.define(version: 2018_07_18_065533) do
     t.string "last_name"
     t.string "provider"
     t.string "uid"
+    t.string "vip"
+    t.string "used"
+    t.string "allocated"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

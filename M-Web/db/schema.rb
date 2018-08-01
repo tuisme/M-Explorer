@@ -17,13 +17,14 @@ ActiveRecord::Schema.define(version: 2018_07_18_065533) do
 
   create_table "clouds", force: :cascade do |t|
     t.bigint "user_id"
-    t.string "croot"
-    t.string "cname"
-    t.string "ctype"
-    t.string "ctoken"
+    t.string "cloud_root"
+    t.string "cloud_name"
+    t.string "cloud_type"
+    t.string "access_token"
+    t.string "refresh_token"
     t.string "used"
-    t.string "unused"
-    t.string "cident"
+    t.string "allocated"
+    t.string "provider_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_clouds_on_user_id"
@@ -58,6 +59,9 @@ ActiveRecord::Schema.define(version: 2018_07_18_065533) do
     t.string "last_name"
     t.string "provider"
     t.string "uid"
+    t.string "vip"
+    t.string "used"
+    t.string "allocated"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

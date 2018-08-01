@@ -87,6 +87,6 @@ test:
 production:
   <<: *default
   database: M_Explorer_development
-  username: m_explorer
   host: localhost
+  username: m_explorer
   password: "123456"

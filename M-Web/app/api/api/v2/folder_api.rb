@@ -4,13 +4,13 @@ module Api::V2
 
       params do
         requires :id, type: String
-        requires :ctype, type: String
-        requires :ctoken, type: String
+        requires :type, type: String
+        requires :token, type: String
       end
 
       get  do
-        token = params[:ctoken]
-        if    params[:ctype] == 'googledrive'
+        token = params[:token]
+        if    params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
           client_id: "389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",
           client_secret: "zhKkS-8vI_RNqReXOjAx4c5r",
@@ -25,7 +25,7 @@ module Api::V2
 
 
           @credentials.refresh_token = token
-          token = @credentials.fetch_access_token!
+          @credentials.fetch_access_token!
           session = GoogleDrive::Session.from_credentials(@credentials)
 
           temp = session.file_by_id(params[:id])
@@ -38,7 +38,7 @@ module Api::V2
               present :data ,@files, with: Api::Entities::GoogleDriveFolderEntity
 
           end
-        elsif params[:ctype] == 'dropbox'
+        elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
           if params[:id] == 'root'
             files = dbx.list_folder("")
@@ -50,11 +50,11 @@ module Api::V2
           present :status, "success"
           present :message ,nil
           present :data, files.entries, with: Api::Entities::DropboxFolderEntity
-        elsif params[:ctype] == 'box'
-          cloud = current_user.clouds.find_by_ctoken(token)
+        elsif params[:type] == 'box'
+          cloud = current_user.clouds.find_by_token(token)
           access_token = Boxr::refresh_tokens(token, client_id: "i9jieqavbpuutnbbrqdyeo44m0imegpk", client_secret: "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F").access_token
           refresh_token= Boxr::refresh_tokens(token, client_id: "i9jieqavbpuutnbbrqdyeo44m0imegpk", client_secret: "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F").refresh_token
-          cloud.update(ctoken:  refresh_token)
+          cloud.update(token:  refresh_token)
 
           client = Boxr::Client.new(access_token)
 
@@ -75,15 +75,15 @@ module Api::V2
 
 
       params do
-        requires :fname, type: String
+        requires :name, type: String
         requires :parent, type: String
-        requires :ctype, type: String
-        requires :ctoken, type: String
+        requires :type, type: String
+        requires :token, type: String
       end
 
       post  do
-        token = params[:ctoken]
-        if    params[:ctype] == 'googledrive'
+        token = params[:token]
+        if    params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
           client_id: "389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",
           client_secret: "zhKkS-8vI_RNqReXOjAx4c5r",
@@ -101,7 +101,7 @@ module Api::V2
           session = GoogleDrive::Session.from_credentials(@credentials)
 
           parent = session.file_by_id(params[:parent])
-          parent.create_subcollection(params[:fname])
+          parent.create_subcollection(params[:name])
 
           present :time, Time.now.to_s
           present :status, "success"

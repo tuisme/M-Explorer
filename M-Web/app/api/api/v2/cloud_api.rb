@@ -3,23 +3,21 @@ module Api::V2
     namespace :clouds do
 
       get do
-        {
-          time: Time.now.to_s,
-          status: 'success',
-          message: nil,
-          data: current_user.clouds
-        }
+        present :time, Time.now.to_s
+        present :status, "success"
+        present :message ,nil
+        present :data, current_user.clouds, with: Api::Entities::CloudEntity
       end
 
       params do
         requires :code, type: String
         requires :provider, type: String
-        requires :cname, type: String
+        requires :name, type: String
       end
 
       post do
-        cname = params[:cname]
-        token = params[:code]
+        name = params[:name]
+        code = params[:code]
 
         if params[:provider] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
@@ -34,40 +32,41 @@ module Api::V2
           },
           redirect_uri: "http://localhost:3000/api/v2/clouds")
 
-          @credentials.code = token
-          access_temp = @credentials.fetch_access_token!
+          @credentials.code = code
+          access_token = @credentials.fetch_access_token!['access_token']
           session = GoogleDrive::Session.from_credentials(@credentials)
 
           root = session.root_collection.id.to_s
-          token = @credentials.refresh_token
-          ctype = 'googledrive'
+          refresh_token = @credentials.refresh_token
+          type = 'googledrive'
 
-          @result = HTTParty.get('https://www.googleapis.com/drive/v2/about?access_token='+ access_temp['access_token'])
+          @result = HTTParty.get('https://www.googleapis.com/drive/v2/about?access_token='+ access_token)
           parsed_json = JSON.parse(@result.body)
 
           used = parsed_json['quotaBytesUsed'].to_i
-          unused = parsed_json['quotaBytesTotal'].to_i - parsed_json['quotaBytesUsed'].to_i
+          allocated = parsed_json['quotaBytesTotal'].to_i
 
         elsif params[:provider] == 'dropbox'
-          ctype = 'dropbox'
+          type = 'dropbox'
           root = "root"
           dbx = Dropbox::Client.new(token)
           used = dbx.get_space_usage.used
-          unused = dbx.get_space_usage.allocated - dbx.get_space_usage.used
+          allocated = dbx.get_space_usage.allocated
+          refresh_token =  params[:code]
+          access_token =  params[:code]
         elsif params[:provider] == 'onedrive'
-          ctype = 'onedrive'
+          type = 'onedrive'
           root = ""
           used = 0
-          unused = 0
+          allocated = 0
         elsif params[:provider] == 'box'
-          ctype = 'box'
+          type = 'box'
           root = "root"
           access_token = Boxr::refresh_tokens(token, client_id: "i9jieqavbpuutnbbrqdyeo44m0imegpk", client_secret: "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F").access_token
-          token= Boxr::refresh_tokens(token, client_id: "i9jieqavbpuutnbbrqdyeo44m0imegpk", client_secret: "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F").refresh_token
-
+          refresh_token = Boxr::refresh_tokens(token, client_id: "i9jieqavbpuutnbbrqdyeo44m0imegpk", client_secret: "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F").refresh_token
           client = Boxr::Client.new(access_token)
           used = client.me.space_used
-          unused = client.me.space_amount - client.me.space_used
+          allocated = client.me.space_amount
         else
           {
             time: Time.now.to_s,
@@ -80,7 +79,7 @@ module Api::V2
 
 
 
-        if current_user.clouds.create!(croot: root,cname: cname, ctype: ctype,ctoken:  token, used: used, unused: unused)
+        if current_user.clouds.create!(cloud_root: root,cloud_name: name, cloud_type: type,refresh_token:  refresh_token, access_token: access_token, used: used, allocated: allocated)
           {
             time: Time.now.to_s,
             status: 'success',
@@ -99,12 +98,12 @@ module Api::V2
 
 
       params do
-        requires :cname, type: String
+        requires :name, type: String
       end
 
       put ':id' do
         cloud = current_user.clouds.find_by_id(params[:id])
-        if cloud.update(declared(params))
+        if cloud.update(cloud_name: params[:name])
           {
             time: Time.now.to_s,
             status: 'success',

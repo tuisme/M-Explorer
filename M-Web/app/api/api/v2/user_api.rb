@@ -77,9 +77,6 @@ module Api::V2
       post :signin do
         user = User.find_by(email: params[:email])
         raise ActiveRecord::RecordNotFound.new("User not found!") unless user
-        unless user.clouds.find_by_ctype("local")
-          user.clouds.create(croot: "/", cname: params[:device_name], ctype: "local")
-        end
         if user.valid_password?(params[:password])
           token = loop do
             random_token = SecureRandom.urlsafe_base64(nil, true)

@@ -93,7 +93,7 @@ object FileUtils {
 		val projection = arrayOf(column)
 
 		try {
-			cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null)
+			cursor = context.contentResolver.query(uri, projection, selection, selectionArgs, null)
 			if (cursor != null && cursor.moveToFirst()) {
 				if (DEBUG)
 					DatabaseUtils.dumpCursor(cursor)

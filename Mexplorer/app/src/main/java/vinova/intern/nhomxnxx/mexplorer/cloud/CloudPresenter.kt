@@ -114,7 +114,9 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 							mView.showError("Download error")
 					}
 
-				})	}
+				})
+	}
+
 	override fun getUrlFile(id: String, ctoken: String, user_token: String,ctype:String) {
 		CallApi.getInstance().getUrlFile(id, ctoken, user_token,ctype)
 				.enqueue(object : Callback<SpecificFile>{
@@ -157,6 +159,40 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 				})
 	}
 
+	override fun renameFile(user_token: String, id: String, fname: String, ctype: String, ctoken: String) {
+		if (fname != "")
+			CallApi.getInstance().renameFile(user_token, id, fname, ctype, ctoken)
+					.enqueue(object : Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
+
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success"))
+								mView.refresh()
+							else
+								mView.showError(response?.errorBody()?.string()!!)
+						}
+
+					})
+	}
+
+	override fun createFolder(user_token: String, fname: String, parent: String, ctype: String, ctoken: String) {
+		CallApi.getInstance().createFolder(user_token, fname, parent, ctype, ctoken)
+				.enqueue(object : Callback<BaseResponse>{
+					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+						mView.showError(t.toString())
+					}
+
+					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+						if(response?.body()!=null)
+							mView.refresh()
+						else
+							mView.showError("Thằng phương óc chó")
+					}
+				})
+	}
+
 	override fun logout(context: Context?, token: String?) {
 		val db = DatabaseHandler(context)
 		if (token!=null)
@@ -177,4 +213,22 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 						}
 					})
 	}
+
+	override fun deleteFile(user_token: String, id: String, ctype: String, ctoken: String) {
+			CallApi.getInstance().deleteFile(user_token, id, ctype, ctoken)
+					.enqueue(object : Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
+
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success"))
+								mView.refresh()
+							else
+								mView.showError(response?.errorBody()?.string()!!)
+						}
+
+					})
+	}
+
 }

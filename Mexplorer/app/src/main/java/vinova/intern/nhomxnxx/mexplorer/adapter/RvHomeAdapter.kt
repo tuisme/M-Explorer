@@ -38,7 +38,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 	fun setData(clouds : List<Cloud>?){
 		if (clouds!=null)
 			this.listCloud = clouds.sortedBy {
-				it.cname
+				it.name
 			}.toMutableList()
 		notifyDataSetChanged()
 	}
@@ -49,7 +49,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 
 	fun refreshData(clouds : List<Cloud>?){
 		this.listCloud = clouds?.sortedBy {
-			it.cname
+			it.name
 		}?.toMutableList()!!
 		notifyDataSetChanged()
 	}
@@ -67,9 +67,9 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 	@SuppressLint("SetTextI18n")
 	override fun onBindViewHolder(holder: ViewHolderCloud, position: Int) {
 		val cl : Cloud = listCloud[position]
-		holder.name.text = cl.cname
+		holder.name.text = cl.name
 
-		cl.ctype?.let { setIcon(holder.thumb, it) }
+		cl.type?.let { setIcon(holder.thumb, it) }
 
 		holder.btn.setOnClickListener {
 			bottomSheetBehave.state = BottomSheetBehavior.STATE_EXPANDED
@@ -84,7 +84,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			}
 			root.rename.setOnClickListener {
 				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
-				RenameDialog.newInstanceCloud(cloud.cname!!,cloud.id!!,token!!).show(sup,"halo")
+				RenameDialog.newInstanceCloud(cloud.name!!,cloud.id!!,token!!).show(sup,"halo")
 			}
 			root.copyFile.setOnClickListener {
 
@@ -97,18 +97,18 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			}
 			root.deleteFile.setOnClickListener {
 				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
-				ConfirmDeleteDialog.newInstanceCloud(cloud.cname!!,cloud.id!!).show(sup,"halo")
+				ConfirmDeleteDialog.newInstanceCloud(cloud.name!!,cloud.id!!).show(sup,"halo")
 			}
 		}
 
-		if (cl.ctype== "local"){
+		if (cl.type== "local"){
 			holder.used.text = "${getAvailableInternalMemorySize()} of ${getTotalInternalMemorySize()}"
 		}
 		else{
-			val sum = Support.getFileSize(cl.used!! + cl.unused!!)
+			val sum = Support.getFileSize(cl.used!! + cl.allocated!!)
 			val used = "${Support.getFileSize(cl.used!!)} of $sum"
 			holder.used.text = used
-			holder.process.progress = ((cl.used!!/(cl.used!! + cl.unused!!))*100).toInt()
+			holder.process.progress = ((cl.used!!/(cl.used!! + cl.allocated!!))*100).toInt()
 			root.share.visibility = View.GONE
 			root.available.visibility = View.GONE
 		}

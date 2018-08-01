@@ -51,12 +51,12 @@ data class ListCloud (
 
 data class Cloud (
 	var id: String? = null,
-	var croot: String? = null,
-	var cname: String? = null,
-	var ctype: String? = null,
-	var ctoken: String? = null,
+	var root: String? = null,
+	var name: String? = null,
+	var type: String? = null,
+	var token: String? = null,
 	var used: Long? = null,
-	var unused: Long? = null
+	var allocated: Long? = null
 ):Parcelable {
 	constructor(parcel: Parcel) : this(
 			parcel.readString(),
@@ -65,16 +65,17 @@ data class Cloud (
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readValue(Long::class.java.classLoader) as? Long,
-			parcel.readValue(Long::class.java.classLoader) as? Long)
+			parcel.readValue(Long::class.java.classLoader) as? Long) {
+	}
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeString(id)
-		parcel.writeString(croot)
-		parcel.writeString(cname)
-		parcel.writeString(ctype)
-		parcel.writeString(ctoken)
+		parcel.writeString(root)
+		parcel.writeString(name)
+		parcel.writeString(type)
+		parcel.writeString(token)
 		parcel.writeValue(used)
-		parcel.writeValue(unused)
+		parcel.writeValue(allocated)
 	}
 
 	override fun describeContents(): Int {

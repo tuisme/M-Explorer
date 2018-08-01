@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.box.androidsdk.content.BoxConfig
 import com.box.androidsdk.content.auth.BoxAuthentication
 import com.box.androidsdk.content.models.BoxSession
+import com.bumptech.glide.Glide
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -23,6 +24,7 @@ import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -44,9 +46,6 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		RenameDialog.DialogListener, GoogleApiClient.OnConnectionFailedListener,
 		ConfirmDeleteDialog.ConfirmListener,
 		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener {
-	override fun onConfirmDeleteFile(name: String, id: String, type: String, token: String) {
-
-	}
 
 	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 	private lateinit var adapter : RvHomeAdapter
@@ -125,8 +124,22 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 
 	override fun showList(list: ListCloud?) {
+		rvContent.hideShimmerAdapter()
 		this.listCloud = list!!
 		adapter.setData(list.clouds)
+		showUser()
+	}
+
+	private fun showUser() {
+		val user = DatabaseHandler(this).getUser()
+		val name = "${user.firstName} ${user.lastName}"
+		user_name.text = name
+		user_email.text = user.email
+		user_have_percentage.text = user.used
+		progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
+		Glide.with(this)
+				.load(user.avatarUrl)
+				.into(img_profile)
 	}
 
 	private fun setRecyclerView(){
@@ -134,19 +147,20 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		val manager = LinearLayoutManager(this)
 		rvContent.layoutManager = manager
 		rvContent.adapter = adapter
+        rvContent.showShimmerAdapter()
 		swipeContent.setOnRefreshListener {
 			mPresenter.refreshList(DatabaseHandler(this).getToken())
 			swipeContent.isRefreshing = false
 		}
 		adapter.setListener(object : RvHomeAdapter.ItemClickListener{
 			override fun onItemClick(cloud: Cloud) {
-				if (cloud.ctype.equals("local"))
+				if (cloud.type.equals("local"))
 					startActivity(Intent(this@HomeActivity,LocalActivity::class.java)
-							.putExtra("name",cloud.cname))
+							.putExtra("name",cloud.name))
 				else {
 					val intent = Intent(this@HomeActivity, CloudActivity::class.java)
-					intent.putExtra("id", cloud.croot).putExtra("token",cloud.ctoken)
-							.putExtra("type",cloud.ctype).putExtra("name",cloud.cname)
+					intent.putExtra("id", cloud.root).putExtra("token",cloud.token)
+							.putExtra("type",cloud.type).putExtra("name",cloud.name)
 					startActivity(intent)
 				}
 			}
@@ -191,6 +205,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 			"googledrive" -> {
 				val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
 				startActivityForResult(signInIntent, RC_SIGN_IN)
+				Auth.GoogleSignInApi.signOut(mGoogleApiClient)
 			}
 			"dropbox" ->{
 				firstTime = true

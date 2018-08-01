@@ -39,9 +39,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         NewTextFileDialog.DialogListener,
         ConfirmDeleteDialog.ConfirmListener,
         RenameDialog.DialogListener{
-    override fun onConfirmDeleteFile(name: String, id: String, type: String, token: String) {
-
-    }
 
     private var mPresenter :LocalInterface.Presenter= LocalPresenter(this)
     var mMovingPath:String? = null
@@ -146,7 +143,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         adapter.setListener(this)
         if (isStoragePermissionGranted()){
             adapter.refreshData()
-            super.showUser()
         }
         fab_add.visibility = View.VISIBLE
         fab_add.setOnClickListener {

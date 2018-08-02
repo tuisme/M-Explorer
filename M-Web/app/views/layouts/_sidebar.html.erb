@@ -1,6 +1,7 @@
 <div class="sidebar" data-color="rose" data-background-color="black">
-    <div class="logo"><a href="http://www.creative-tim.com" class="simple-text logo-mini">M</a>
-      <a href="http://www.creative-tim.com" class="simple-text logo-normal">M Explorer</a>
+    <div class="logo">
+      <a href="" class="simple-text logo-mini"><%= asset_path 'logo.svg' %></a>
+      <%= link_to "M Explorer",root_path, class: "simple-text logo-normal"  %>
     </div>
     <div class="sidebar-wrapper">
         <div class="user">
@@ -9,29 +10,28 @@
             </div>
             <div class="user-info">
                 <a data-toggle="collapse" href="#collapseExample" class="username">
-                    <span>
-               Minh Tú Phạm
-              <b class="caret"></b>
-            </span>
+                    <span>Minh Tú Phạm
+                      <b class="caret"></b>
+                    </span>
                 </a>
                 <div class="collapse" id="collapseExample">
                     <ul class="nav">
                         <li class="nav-item">
                             <a class="nav-link" href="#">
-                                <span class="sidebar-mini"> MP </span>
+                                <span class="sidebar-mini"><i class="fa fa-user"></i></span>
                                 <span class="sidebar-normal"> My Profile </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">
-                                <span class="sidebar-mini"> EP </span>
-                                <span class="sidebar-normal"> Edit Profile </span>
+                                <span class="sidebar-mini"><i class="fa fa-cog"></i></span>
+                                <span class="sidebar-normal"> Settings </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">
-                                <span class="sidebar-mini"> S </span>
-                                <span class="sidebar-normal"> Settings </span>
+                                <span class="sidebar-mini"><i class="fa fa-sign-out"></i></span>
+                                <span class="sidebar-normal"> Logout </span>
                             </a>
                         </li>
                     </ul>
@@ -47,72 +47,16 @@
                 </a>
             </li>
             <li class="nav-item ">
-                <a class="nav-link" data-toggle="collapse" href="#mapsExamples">
-                    <i class="material-icons">supervised_user_circle</i>
-                    <p> Admin Tools
-                        <b class="caret"></b>
-                    </p>
+                <a class="nav-link" href="../examples/dashboard.html">
+                    <i class="material-icons">assignment_turned_in</i>
+                    <p> Admin Tools </p>
                 </a>
-
-                <div class="collapse" id="mapsExamples">
-                    <ul class="nav">
-                        <li class="nav-item ">
-                            <a class="nav-link" href="../examples/maps/google.html">
-                                <span class="sidebar-mini"> U </span>
-                                <span class="sidebar-normal"> Users </span>
-                            </a>
-                        </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="../examples/maps/fullscreen.html">
-                                <span class="sidebar-mini"> C </span>
-                                <span class="sidebar-normal"> Clouds </span>
-                            </a>
-                        </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="../examples/maps/vector.html">
-                                <span class="sidebar-mini"> D </span>
-                                <span class="sidebar-normal"> Devices </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
             <li class="nav-item ">
-                <a class="nav-link" data-toggle="collapse" href="#formsExamples">
+                <a class="nav-link" href="../examples/dashboard.html">
                     <i class="material-icons">cloud</i>
-                    <p> Forms
-                        <b class="caret"></b>
-                    </p>
+                    <p> My Cloud </p>
                 </a>
-
-                <div class="collapse" id="formsExamples">
-                    <ul class="nav">
-                        <li class="nav-item ">
-                            <a class="nav-link" href="../examples/forms/regular.html">
-                                <span class="sidebar-mini"> RF </span>
-                                <span class="sidebar-normal"> Regular Forms </span>
-                            </a>
-                        </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="../examples/forms/extended.html">
-                                <span class="sidebar-mini"> EF </span>
-                                <span class="sidebar-normal"> Extended Forms </span>
-                            </a>
-                        </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="../examples/forms/validation.html">
-                                <span class="sidebar-mini"> VF </span>
-                                <span class="sidebar-normal"> Validation Forms </span>
-                            </a>
-                        </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="../examples/forms/wizard.html">
-                                <span class="sidebar-mini"> W </span>
-                                <span class="sidebar-normal"> Wizard </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
 
 

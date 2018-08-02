@@ -22,8 +22,35 @@ class CallApi {
 					.baseUrl(Base_URL)
 					.build()
 		}
+
 		fun createService(): ApiInterface {
 			return builder().create(ApiInterface::class.java)
 		}
 	}
+}
+class CallApiFaceAuth{
+	companion object {
+
+		val Base_URL :String = "https://api-us.faceplusplus.com"
+		private var api : ApiFaceAuthInterface? = null
+
+		fun getInstance():ApiFaceAuthInterface{
+			if (api == null)
+				api = createService()
+			return api as ApiFaceAuthInterface
+		}
+
+		fun builder(): Retrofit {
+			val gson = GsonBuilder().setLenient().create()
+			return Retrofit.Builder()
+					.addConverterFactory(GsonConverterFactory.create(gson))
+					.baseUrl(Base_URL)
+					.build()
+		}
+
+		fun createService(): ApiFaceAuthInterface {
+			return builder().create(ApiFaceAuthInterface::class.java)
+		}
+	}
+
 }

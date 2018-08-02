@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.local
 
 import android.content.Context
+import android.content.Intent
 import vinova.intern.nhomxnxx.mexplorer.adapter.LocalAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseView
 import java.io.File
@@ -20,6 +21,7 @@ interface LocalInterface {
         fun newFolder(adapter: LocalAdapter, name: String)
         fun openFileOrFolder(adapter: LocalAdapter, file: File)
         fun logout(context: Context?, token: String?)
+        fun saveImage(data: Intent?, adapter: LocalAdapter)
 
     }
 }

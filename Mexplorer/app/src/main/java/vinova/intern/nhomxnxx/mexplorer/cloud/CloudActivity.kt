@@ -1,12 +1,16 @@
 package vinova.intern.nhomxnxx.mexplorer.cloud
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -47,6 +51,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	val READ_REQUEST_CODE = 2511
 	lateinit var name_ :String
 	var path : ArrayList<ArrayList<String>> = arrayListOf()
+	val CAPTURE_IMAGE_REQUEST = 20
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -101,25 +106,33 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
-		when(requestCode){
+		when(requestCode) {
 			PICKFILE_REQUEST_CODE -> {
-				if (data!=null) {
-					val uri : Uri = data.data
-					mPresenter.upLoadFile(userToken, path.last()[0],uri,cloudType,ctoken)
+				if (data != null) {
+					val uri: Uri = data.data
+					mPresenter.upLoadFile(userToken, path.last()[0], uri, cloudType, ctoken)
 				}
 			}
 			READ_REQUEST_CODE -> {
-				if (data!=null) {
-					val uri : Uri = data.data
+				if (data != null) {
+					val uri: Uri = data.data
 					val folder = File(uri.path)
-					mPresenter.createFolder(userToken,folder.name.split(":")[1],path.last()[0],cloudType,ctoken)
+					mPresenter.createFolder(userToken, folder.name.split(":")[1], path.last()[0], cloudType, ctoken)
 					folder.listFiles()
+				}
+			}
+
+			CAPTURE_IMAGE_REQUEST -> {
+				if (data != null) {
+					mPresenter.saveImage(data, userToken, path.last().toString(), cloudType, ctoken)
 				}
 			}
 		}
 	}
 
 	// for floating button
+	@SuppressLint("ObsoleteSdkInt")
+	@TargetApi(Build.VERSION_CODES.M)
 	override fun onOptionClick(type: String) {
 		when(type){
 			"upload file" ->{
@@ -133,6 +146,9 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			}
 			"upload image" -> {
 
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+						captureImage()
+					}
 			}
 		}
 	}
@@ -286,6 +302,20 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onConfirmDeleteCloud(name: String, id: String) {
 		CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 		mPresenter.deleteFile(userToken,id,cloudType,ctoken)
+	}
+
+
+
+
+	@RequiresApi(Build.VERSION_CODES.M)
+	private fun captureImage() {
+		if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+			requestPermissions(arrayOf(Manifest.permission.CAMERA),0)
+		}
+		else {
+			val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+			startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
+		}
 	}
 
 }

@@ -79,4 +79,5 @@
     <string name="avaiable_offline">Avaiable offline</string>
     <string name="share">Share</string>
     <string name="device_connected">Device connected</string>
+    <string name="face_authentication">Face Authentication</string>
 </resources>

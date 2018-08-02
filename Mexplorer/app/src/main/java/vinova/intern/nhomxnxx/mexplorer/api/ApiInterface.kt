@@ -88,3 +88,18 @@ interface ApiInterface {
                    @Query("type") type: String,
                    @Query("token") token: String) : Call<BaseResponse>
 }
+
+interface ApiFaceAuthInterface
+{
+    @POST("/facepp/v3/detect")
+    @Multipart
+    fun getFace(@Query("api_key") apiKey :String,
+                @Query("api_secret") apiSec: String,
+                @Part file: MultipartBody.Part) :Call<AuthenticationFace>
+
+    @POST("/facepp/v3/compare")
+    fun compare(@Query("api_key") apiKey :String,
+                @Query("api_secret") apiSec: String,
+                @Query("face_token1") ft1: String,
+                @Query("face_token2") ft2:String) :Call<Compare>
+}

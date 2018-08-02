@@ -46,7 +46,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                 }
                                 databaseAccess.insertUserData(user.token, user.email, user.firstName,
                                         user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
-                                        user.avatarUrl,user.isVip,user.used,user.verified)
+                                        user.avatarUrl,user.isVip,user.used,user.verified,0)
                                 mView.signInSuccess(user)
 
                             }
@@ -86,7 +86,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     databaseAccess.insertUserData(user.token, user.email, user.firstName,
                                             user.lastName, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN,
                                             user.avatarUrl
-                                            ,user.isVip,user.used,user.verified)
+                                            ,user.isVip,user.used,user.verified,0)
                                     mView.signInSuccess(user)
 
                                 }
@@ -133,7 +133,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     }
                                     databaseAccess.insertUserData(user.token, user.email, user.firstName,
                                             user.lastName, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN,user.avatarUrl,
-                                            user.isVip,user.used,user.verified)
+                                            user.isVip,user.used,user.verified,0)
                                     mView.signInSuccess(user)
                                 }
                                 else {

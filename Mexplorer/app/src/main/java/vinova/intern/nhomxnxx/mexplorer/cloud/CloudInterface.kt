@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.cloud
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BasePresenter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseView
@@ -26,5 +27,6 @@ interface CloudInterface {
 		fun renameFile(user_token: String,id: String,fname: String,ctype: String,ctoken: String)
 		fun createFolder(user_token: String,fname: String,parent: String,ctype: String,ctoken: String)
 		fun deleteFile(user_token: String, id: String, ctype: String, ctoken: String)
+		fun saveImage(data: Intent?, user_token: String, id: String, ctype: String, ctoken : String)
 	}
 }

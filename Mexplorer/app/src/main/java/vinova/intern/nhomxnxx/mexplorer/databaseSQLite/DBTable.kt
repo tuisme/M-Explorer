@@ -54,6 +54,10 @@ class DBTable {
             val COLUMN_NAME = "verified"
             val COLUMN_NUMBER = 9
         }
+        object FACEAUTH{
+            val COLUMN_NAME = "isFaceAuth"
+            val COLUMN_NUMBER = 10
+        }
     }
 
 }

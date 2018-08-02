@@ -24,6 +24,11 @@
             app:showAsAction="always"
             android:title="@string/device_connected" />
         <item
+            android:id="@+id/auth"
+            app:actionLayout="@layout/switch_layout"
+            app:showAsAction="always"
+            android:title="@string/face_authentication" />
+        <item
             android:id="@+id/signout"
             android:icon="@drawable/ic_sign_out"
             app:showAsAction="always"

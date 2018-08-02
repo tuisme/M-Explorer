@@ -1,10 +1,18 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
+import android.Manifest
+import android.annotation.TargetApi
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.box.androidsdk.content.BoxConfig
@@ -25,6 +33,7 @@ import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
 import kotlinx.android.synthetic.main.nav_bar_header.*
+import kotlinx.android.synthetic.main.switch_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -42,12 +51,13 @@ import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import java.lang.Exception
 
 
+@Suppress("DEPRECATION", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class HomeActivity : BaseActivity(),HomeInterface.View ,
 		RenameDialog.DialogListener, GoogleApiClient.OnConnectionFailedListener,
 		ConfirmDeleteDialog.ConfirmListener,
 		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener {
 
-	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
+    private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 	private lateinit var adapter : RvHomeAdapter
 	private var listCloud : ListCloud = ListCloud()
 	val RC_SIGN_IN = 9001
@@ -57,6 +67,13 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	lateinit var userToken : String
 	lateinit var boxSession: BoxSession
 	var firstTime = false
+	val CAPTURE_IMAGE_REQUEST = 20
+	val CAPTURE_IMAGE_REQUEST_2 = 22
+    val CAPTURE_IMAGE_REQUEST_3 = 24
+    var isAuth:Boolean = false
+    lateinit var cloud:Cloud
+
+    val db = DatabaseHandler(this@HomeActivity)
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
 		startActivity(Intent(this,LogActivity::class.java))
@@ -68,7 +85,8 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 
 	override fun showLoading(isShow: Boolean) {
-
+        if(isShow) CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+        else CustomDiaglogFragment.hideLoadingDialog()
 	}
 
 	override fun showError(message: String) {
@@ -76,6 +94,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		Toasty.error(this,message,Toast.LENGTH_SHORT).show()
 	}
 
+	@TargetApi(Build.VERSION_CODES.M)
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		super.onCreateDrawer()
@@ -94,8 +113,45 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				.build()
 		mGoogleApiClient?.connect()
 		setBox()
-	}
+		val sw_auth = MenuItemCompat.getActionView(nav_view.menu.findItem(R.id.auth)).findViewById<SwitchCompat>(R.id.sw_auth)
+		if (db.getIsFaceAuth() == 1){
+			sw_auth.isChecked = true
+		}
+        else if (db.getIsFaceAuth() == 0) {
+            sw_auth.isChecked = false
+        }
+            sw_auth.setOnCheckedChangeListener { _, isChecked ->
+			if (isChecked) {
+				val ad = AlertDialog.Builder(this)
+				ad.create()
+				ad.setCancelable(false)
+				ad.setTitle(title)
+				ad.setMessage("Do you want to turn on face authentication?")
+				ad.setPositiveButton("Yes") { p0, p1 ->
+					captureImage(CAPTURE_IMAGE_REQUEST)
+				}
+				ad.setNegativeButton("No") { p0, p1 -> Toasty.success(this@HomeActivity,"KO",Toast.LENGTH_SHORT).show() }
+				ad.show()
+			}
+			else {
+				val ad = AlertDialog.Builder(this)
+				ad.create()
+				ad.setCancelable(false)
+				ad.setTitle(title)
+				ad.setMessage("Please face authentication to turn off")
+				ad.setPositiveButton("Yes") { p0, p1 ->
+					captureImage(CAPTURE_IMAGE_REQUEST_2)
+				}
+				ad.setNegativeButton("No") { p0, p1 ->  }
+				ad.show()
+			}
+		}
 
+
+	}
+    override fun setSwitch(isChecked: Boolean) {
+        sw_auth.isChecked = isChecked
+    }
 	private fun setBox(){
 		BoxConfig.CLIENT_ID = "i9jieqavbpuutnbbrqdyeo44m0imegpk"
 		BoxConfig.CLIENT_SECRET = "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F"
@@ -153,15 +209,21 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 			swipeContent.isRefreshing = false
 		}
 		adapter.setListener(object : RvHomeAdapter.ItemClickListener{
-			override fun onItemClick(cloud: Cloud) {
+            override fun onItemClick(cloud: Cloud) {
+                this@HomeActivity.cloud = cloud
 				if (cloud.type.equals("local"))
 					startActivity(Intent(this@HomeActivity,LocalActivity::class.java)
 							.putExtra("name",cloud.name))
 				else {
-					val intent = Intent(this@HomeActivity, CloudActivity::class.java)
-					intent.putExtra("id", cloud.root).putExtra("token",cloud.token)
-							.putExtra("type",cloud.type).putExtra("name",cloud.name)
-					startActivity(intent)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && db.getIsFaceAuth() == 1 && !isAuth) {
+                        captureImage(CAPTURE_IMAGE_REQUEST_3)
+                    }
+                    else {
+                        val intent = Intent(this@HomeActivity, CloudActivity::class.java)
+                        intent.putExtra("id", cloud.root).putExtra("token", cloud.token)
+                                .putExtra("type", cloud.type).putExtra("name", cloud.name)
+                        startActivity(intent)
+                    }
 				}
 			}
 		})
@@ -172,14 +234,33 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
-		if (requestCode == 9001){
-			val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-			if(result.isSuccess){
-				val account: GoogleSignInAccount = result.signInAccount!!
-				val authCode = account.serverAuthCode
-				mPresenter.sendCode(authCode!!,newName,userToken,providerName)
+		when (requestCode){
+			9001 -> {
+				val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+				if(result.isSuccess){
+					val account: GoogleSignInAccount = result.signInAccount!!
+					val authCode = account.serverAuthCode
+					mPresenter.sendCode(authCode!!,newName,userToken,providerName)
+				}
 			}
+			CAPTURE_IMAGE_REQUEST -> {
+				if (data != null) {
+                    mPresenter.encryptFile(this@HomeActivity,data)
+
+                }
+			}
+			CAPTURE_IMAGE_REQUEST_2 -> {
+				if (data != null) {
+					mPresenter.authentication(this@HomeActivity, data,true)
+				}
+			}
+            CAPTURE_IMAGE_REQUEST_3 -> {
+                if (data != null) {
+                    mPresenter.authentication(this@HomeActivity, data,false)
+                }
+            }
 		}
+
 	}
 
 	override fun onRename(fromPath: String, toPath: String) {
@@ -277,4 +358,35 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	override fun onAuthFailure(info: BoxAuthentication.BoxAuthenticationInfo?, ex: Exception?) {
 
 	}
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            2222 -> {
+                val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+                startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
+            }
+        }
+    }
+
+	@RequiresApi(Build.VERSION_CODES.M)
+	private fun captureImage(code:Int) {
+		if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+			requestPermissions(arrayOf(Manifest.permission.CAMERA),2222)
+		}
+		else {
+			val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+			startActivityForResult(cameraIntent, code)
+		}
+	}
+
+    override fun isAuth(isAuth: Boolean) {
+        this@HomeActivity.isAuth = isAuth
+        if (isAuth){
+            val intent = Intent(this@HomeActivity, CloudActivity::class.java)
+            intent.putExtra("id", cloud.root).putExtra("token", cloud.token)
+                    .putExtra("type", cloud.type).putExtra("name", cloud.name)
+            startActivity(intent)
+        }
+    }
 }

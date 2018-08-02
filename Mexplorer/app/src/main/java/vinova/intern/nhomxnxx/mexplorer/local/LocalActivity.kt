@@ -2,6 +2,8 @@ package vinova.intern.nhomxnxx.mexplorer.local
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.Intent
@@ -14,6 +16,7 @@ import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
@@ -44,6 +47,8 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     var mMovingPath:String? = null
     var mCopy:Boolean =false
     lateinit var adapter: LocalAdapter
+    val CAPTURE_IMAGE_REQUEST = 20
+
 
     override fun openFile(url: File) {
         try {
@@ -102,11 +107,18 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         UpdateItemDialog.newInstance(file.absolutePath).show(supportFragmentManager, "update_item")
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    @SuppressLint("ObsoleteSdkInt")
     override fun onOptionClick(which: Int, path: String?) {
         offline.visibility = View.GONE
         when (which) {
             R.id.new_file -> NewTextFileDialog.newInstance().show(supportFragmentManager, "new_file_dialog")
             R.id.new_folder -> NewFolderDialog.newInstance().show(supportFragmentManager, "new_folder_dialog")
+            R.id.new_image -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    captureImage()
+                }
+            }
             R.id.delete -> ConfirmDeleteDialog.newInstance(path.toString()).show(supportFragmentManager, "confirm_delete")
             R.id.rename -> RenameDialog.newInstance(path.toString()).show(supportFragmentManager, "rename")
             R.id.move -> {
@@ -163,16 +175,16 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     }
 
     private fun isStoragePermissionGranted(): Boolean {
-        if (Build.VERSION.SDK_INT >= 23) {
+        return if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                return true
+                true
             } else {
 
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
-                return false
+                false
             }
         } else { //permission is automatically granted on sdk<23 upon installation
-            return true
+            true
         }
     }
 
@@ -210,6 +222,26 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         }
         return mimeType
     }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
+            mPresenter.saveImage(data, adapter)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun captureImage() {
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA),0)
+        }
+        else {
+            val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
+        }
+    }
+
 
     override fun onNavigationItemSelected(p0: MenuItem): Boolean {
         when(p0.itemId){

@@ -12,6 +12,7 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.android.synthetic.main.update_item_dialog.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import java.io.File
@@ -26,10 +27,10 @@ class UpdateItemDialog : DialogFragment() {
         val path = arguments?.getString(PATH)
         val file = arguments?.getParcelable<FileSec>(FILE)
         val isDirectory:Boolean
-        if(path != null) {
-            isDirectory = File(path).isDirectory
+        isDirectory = if(path != null) {
+            File(path).isDirectory
         }
-        else isDirectory = file?.mime_type?.contains("folder")!!
+        else file?.mime_type?.contains("folder")!!
         val view = LayoutInflater.from(activity).inflate(R.layout.update_item_dialog, null)
         dialog.setContentView(view)
         dialog.setCancelable(true)
@@ -43,6 +44,7 @@ class UpdateItemDialog : DialogFragment() {
         val move = view.findViewById<View>(R.id.move)
         val copy = view.findViewById<View>(R.id.copy)
         val offline = view.findViewById<Switch>(R.id.offline)
+        if (path!=null) offline.visibility = View.GONE
 
         rename.setOnClickListener {
             dialog.dismiss()

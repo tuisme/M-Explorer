@@ -1,6 +1,9 @@
 package vinova.intern.nhomxnxx.mexplorer.local
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
 import com.facebook.login.LoginManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -10,6 +13,8 @@ import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.model.Request
 import java.io.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class LocalPresenter(view:LocalInterface.View):LocalInterface.Presenter{
     override fun openFileOrFolder(adapter: LocalAdapter, file: File) {
@@ -20,6 +25,37 @@ class LocalPresenter(view:LocalInterface.View):LocalInterface.Presenter{
         } else if (file.isFile) {
             mView.openFile(file)
         }
+    }
+    override fun saveImage(data: Intent?, adapter: LocalAdapter) {
+        val extras = data?.extras
+        val imageBitmap = extras?.get("data") as Bitmap
+        val bytes = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes)
+        val file = createImageFile(adapter)
+        try {
+            file.createNewFile()
+            val fo = FileOutputStream(file)
+            fo.write(bytes.toByteArray())
+            fo.close()
+            adapter.refreshData()
+        }catch (e:IOException){
+            e.printStackTrace()
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    @Throws(IOException::class)
+    private fun createImageFile(adapter:LocalAdapter): File {
+        // Create an image file name
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "IMG_" + timeStamp + "_"
+
+        // Save a file: path for use with ACTION_VIEW intents
+        return File.createTempFile(
+                imageFileName, /* prefix */
+                ".png", /* suffix */
+                File(adapter.path)      /* directory */
+        )
     }
 
     override fun newFolder(adapter: LocalAdapter, name: String) {

@@ -1,9 +1,12 @@
 package vinova.intern.nhomxnxx.mexplorer.cloud
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import com.facebook.login.LoginManager
@@ -21,6 +24,12 @@ import vinova.intern.nhomxnxx.mexplorer.model.Request
 import vinova.intern.nhomxnxx.mexplorer.model.SpecificCloud
 import vinova.intern.nhomxnxx.mexplorer.model.SpecificFile
 import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface.Presenter {
@@ -230,5 +239,65 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 
 					})
 	}
+
+	override fun saveImage(data: Intent?, user_token: String, id: String, ctype: String, ctoken: String) {
+		val extras = data?.extras
+		val imageBitmap = extras?.get("data") as Bitmap
+		val bytes = ByteArrayOutputStream()
+		imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes)
+		val file = createImageFile()
+		try {
+			file.createNewFile()
+			val fo = FileOutputStream(file)
+			fo.write(bytes.toByteArray())
+			fo.close()
+			uploadImage(user_token,id,file,ctype,ctoken)
+			mView.refresh()
+		}catch (e: IOException){
+			e.printStackTrace()
+		}
+	}
+
+	@SuppressLint("SimpleDateFormat")
+	@Throws(IOException::class)
+	private fun createImageFile(): File {
+		// Create an image file name
+		val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+		val imageFileName = "IMG_" + timeStamp + "_"
+
+		// Save a file: path for use with ACTION_VIEW intents
+		return File.createTempFile(
+				imageFileName, /* prefix */
+				".png", /* suffix */
+				File(Environment.getExternalStorageDirectory().path + File.separator + "Temp")      /* directory */
+		)
+	}
+
+
+	fun uploadImage(user_token: String, id: String, file: File, ctype: String, ctoken: String){
+		val requestBody = RequestBody.create(
+				MediaType.parse("file/*"),
+				file)
+		val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+
+		CallApi.getInstance().uploadFile(user_token, id, body, ctype, ctoken)
+				.enqueue(object : Callback<BaseResponse>{
+					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+						mView.showError(t.toString())
+						Log.e("ABCD",t.toString())
+					}
+
+					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+						if (response?.body()?.status.equals("success"))
+							mView.refresh()
+						else {
+							Log.e("ABCD",response?.errorBody()?.string()!!)
+							mView.showError(response.errorBody()?.string()!!)
+						}
+					}
+				})
+	}
+
+
 
 }

@@ -5,7 +5,11 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import vinova.intern.nhomxnxx.mexplorer.R.string.email
 import vinova.intern.nhomxnxx.mexplorer.model.User
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DBTable.USER.EMAIL
+
+
 
 
 class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -16,7 +20,8 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
                 + DBTable.USER.LAST_NAME.COLUMN_NAME + " TEXT," + DBTable.USER.EMAIL.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.TYPE.COLUMN_NAME + " TEXT," + DBTable.USER.STATUS.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.AVATAR.COLUMN_NAME + " TEXT," + DBTable.USER.USED.COLUMN_NAME + " TEXT,"
-                + DBTable.USER.ISVIP.COLUMN_NAME + " TEXT," + DBTable.USER.VERI.COLUMN_NAME + " TEXT" +")")
+                + DBTable.USER.ISVIP.COLUMN_NAME + " TEXT," + DBTable.USER.VERI.COLUMN_NAME + " TEXT,"
+                + DBTable.USER.FACEAUTH.COLUMN_NAME + " TEXT" + ")")
         // Chạy lệnh tạo bảng.
         db.execSQL(script)
     }
@@ -29,7 +34,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
 
     companion object {
         private val DATABASE_NAME = "database"
-        private val DATABASE_VERSION = 1
+        private val DATABASE_VERSION = 2
         val LOGGING_IN = 1
         val NOT_LOGGING_IN = 0
         val GOOGLE = "GOOGLE"
@@ -38,7 +43,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
     }
 
     fun insertUserData(token:String?,email: String?, first_name: String?, last_name: String?,
-                       type: String, status: Int,avatar: String?,isvip : String? , used:String?, veri : String?) {
+                       type: String, status: Int,avatar: String?,isvip : String? , used:String?, veri : String?, isFaceAuth :Int) {
         val db = this.writableDatabase
         val values_user = ContentValues()
         values_user.put(DBTable.USER.TOKEN.COLUMN_NAME,token)
@@ -51,6 +56,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         values_user.put(DBTable.USER.ISVIP.COLUMN_NAME,isvip)
         values_user.put(DBTable.USER.USED.COLUMN_NAME,used)
         values_user.put(DBTable.USER.VERI.COLUMN_NAME,veri)
+        values_user.put(DBTable.USER.FACEAUTH.COLUMN_NAME,isFaceAuth)
 
         db?.insert(DBTable.USER.TABLE_NAME, null, values_user)
     }
@@ -161,5 +167,30 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
                 user.avatarUrl = cursor.getString(DBTable.USER.AVATAR.COLUMN_NUMBER)
             }
         return user
+    }
+
+    fun updateFaceAuth(isFaceAuth: Int, token: String?): Boolean{
+        val db = this.writableDatabase
+        val args = ContentValues()
+        args.put(DBTable.USER.FACEAUTH.COLUMN_NAME,isFaceAuth)
+
+        return try{
+            db.update(DBTable.USER.TABLE_NAME, args, DBTable.USER.TOKEN.COLUMN_NAME + " = '" + token +"'", null)
+            true
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            false
+        }
+    }
+    @SuppressLint("Recycle")
+    fun getIsFaceAuth():Int {
+        val db = this.writableDatabase
+        val cursor = db?.rawQuery(
+                "SELECT * FROM " + DBTable.USER.TABLE_NAME, null
+        )
+        cursor?.moveToFirst()
+        return if (cursor?.count!! > 0) {
+            cursor.getInt(DBTable.USER.FACEAUTH.COLUMN_NUMBER)
+        } else -1
     }
 }

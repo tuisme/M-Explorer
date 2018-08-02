@@ -30,6 +30,7 @@ gem 'jbuilder', '~> 2.5'
 gem 'pry'
 
 gem 'slim-rails', '3.1.0'
+gem "font-awesome-rails"
 
 
 gem 'devise'
@@ -69,6 +70,7 @@ gem 'unicorn'
 
 
 gem 'whenever', require: false
+gem 'rubyzip', '~> 1.2'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -87,6 +89,7 @@ group :development do
   gem 'listen', '~> 3.0.5'
   gem 'spring'                  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'rubocop', '~> 0.39.0'
 end
 
 group :test do

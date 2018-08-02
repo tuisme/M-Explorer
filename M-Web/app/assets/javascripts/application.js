@@ -37,6 +37,8 @@
 // = require plugins/bootstrap-notify
 // = require material-dashboard.min
 
+// = require custom
+
 
 
 //= require demo/demo

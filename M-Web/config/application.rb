@@ -10,6 +10,7 @@ require 'dropbox'
 
 require 'boxr'
 require "httparty"
+require 'zip'
 
 
 # Require the gems listed in Gemfile, including any gems

@@ -399,7 +399,7 @@ DEPENDENCIES
   coffee-rails (~> 4.1, >= 4.1.1)
   devise
   down (~> 4.4)
-  dropbox-sdk-v2
+  dropbox-sdk-v2 (~> 0.0.2)
   font-awesome-rails
   geocoder
   google-api-client (~> 0.11)
@@ -442,4 +442,4 @@ RUBY VERSION
    ruby 2.5.1p57
 
 BUNDLED WITH
-   1.16.2
+   1.16.3

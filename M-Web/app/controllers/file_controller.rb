@@ -117,6 +117,11 @@ class FileController < ApplicationController
     # @result = HTTParty.get('https://www.googleapis.com/drive/v2/about?access_token=' + access_token)
     # parsed_json = JSON.parse(@result.body)
     # gg
+
+
+
+
+
     # rf
 
     # render plain: ActionController::Base.helpers.asset_path('/images/default-avatar.png')
@@ -128,7 +133,7 @@ class FileController < ApplicationController
     # files = dbx.list_folder("")
     # f
 
-    client = Boxr::Client.new('uu8Rwm7ASSaB9pbwnh7k5SGtIHCpu6Bp')
+    client = Boxr::Client.new('gsSz5dcfQptIhKLYXNcQw1sGnK6vLCE8')
     ss
   end
 

@@ -14,6 +14,7 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import vinova.intern.nhomxnxx.mexplorer.R
 import java.io.File
+import java.util.*
 
 
 class RenameDialog : DialogFragment() {
@@ -28,8 +29,9 @@ class RenameDialog : DialogFragment() {
         // if text is empty, disable the dialog positive button
         val currentNameText = view.findViewById<View>(R.id.current_name) as EditText
         val path = arguments?.getString(PATH)
-        val id = arguments?.getString("id")
-        val token = arguments?.getString("token")
+        val id = arguments?.getString(ID)
+        val isDic = arguments?.getBoolean(DIC)
+        val token = arguments?.getString(TOKEN)
         val file = File(path)
         currentNameText.setText(file.name)
         val parent = file.parent
@@ -53,7 +55,7 @@ class RenameDialog : DialogFragment() {
             if (isLocal)
                 mListener?.onRename(file.path, toPath)
             else
-                mListener?.onReNameCloud(toPath,id!!,token!!)
+                isDic?.let { mListener?.onReNameCloud(toPath, id.toString(), it, token.toString()) }
         }
 
         val dialog = builder.create()
@@ -64,7 +66,7 @@ class RenameDialog : DialogFragment() {
 
     interface DialogListener {
         fun onRename(fromPath: String, toPath: String)
-        fun onReNameCloud(newName: String,id:String,token:String)
+        fun onReNameCloud(newName: String,id:String,isDic:Boolean,token:String)
     }
 
     override fun onAttach(activity: Activity) {
@@ -85,6 +87,9 @@ class RenameDialog : DialogFragment() {
     companion object {
 
         private val PATH = "path"
+        private val ID = "id"
+        private val DIC = "dic"
+        private val TOKEN ="token"
         private var isLocal = false
         fun newInstance(path: String): RenameDialog {
             isLocal = true
@@ -95,12 +100,13 @@ class RenameDialog : DialogFragment() {
             return fragment
         }
 
-        fun newInstanceCloud(name:String,id:String,token :String):RenameDialog{
+        fun newInstanceCloud(name:String,id:String,isDic:Boolean,token :String):RenameDialog{
             val fragment = RenameDialog()
             val args = Bundle()
             args.putString(PATH, name)
-            args.putString("id",id)
-            args.putString("token",token)
+            args.putString(ID,id)
+            args.putBoolean(DIC,isDic)
+            args.putString(TOKEN,token)
             fragment.arguments = args
             return fragment
         }

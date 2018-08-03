@@ -24,6 +24,7 @@ import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.model.*
 import vinova.intern.nhomxnxx.mexplorer.service.NotificationService
+import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
 import java.io.Closeable
 import java.io.File
@@ -122,8 +123,9 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 					}
 					override fun onResponse(call: Call<SpecificFile>?, response: Response<SpecificFile>?) {
 						if (response?.body()?.status.equals("success")) {
+							val url = response?.body()?.data?.url
 							val name = response?.body()?.data?.name
-							mView.downloadFile(name.toString())
+							mView.downloadFile(url.toString(),name.toString(),ctype)
 						}
 						else
 							mView.showError("Download error")
@@ -191,6 +193,27 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 						}
 
 					})
+		else mView.showError("Please fill new name")
+
+	}
+
+	override fun renameFolder(userToken: String, id: String, newName: String, cloudType: String, ctoken: String) {
+		if (newName != "")
+			CallApi.getInstance().renameFile(userToken, id, newName, cloudType, ctoken)
+					.enqueue(object : Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
+
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success"))
+								mView.refresh()
+							else
+								mView.showError(response?.errorBody()?.string()!!)
+						}
+
+					})
+		else mView.showError("Please fill new name")
 	}
 
 	override fun createFolder(user_token: String, fname: String, parent: String, ctype: String, ctoken: String) {
@@ -356,6 +379,22 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 					})
 	}
 
+	override fun deleteFolder(userToken: String, id: String, cloudType: String, ctoken: String) {
+		CallApi.getInstance().deleteFolder(userToken, id, cloudType, ctoken)
+				.enqueue(object : Callback<BaseResponse>{
+					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+						mView.showError(t.toString())
+					}
+
+					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+						if (response?.body()?.status.equals("success"))
+							mView.refresh()
+						else
+							mView.showError(response?.errorBody()?.string()!!)
+					}
+
+				})	}
+
 	override fun saveImage(data: Intent?, user_token: String, id: String, ctype: String, ctoken: String) {
 		val extras = data?.extras
 		val imageBitmap = extras?.get("data") as Bitmap
@@ -400,20 +439,59 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 				.enqueue(object : Callback<BaseResponse>{
 					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
 						mView.showError(t.toString())
-						Log.e("ABCD",t.toString())
 					}
 
 					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
 						if (response?.body()?.status.equals("success"))
 							mView.refresh()
 						else {
-							Log.e("ABCD",response?.errorBody()?.string()!!)
-							mView.showError(response.errorBody()?.string()!!)
+							response?.errorBody()?.string()?.let { mView.showError(it) }
 						}
 					}
 				})
 	}
 
+	override fun moveOrCopy(idItem: String, mCopy: Boolean, user_token: String, cloudType: String, ctoken: String, idDest: String, isDic:Boolean) {
+		val mType: String = if (isDic) "folder"
+		else "file"
+		if (mCopy){
+			CallApi.getInstance().copyFile(user_token,idItem,cloudType,ctoken,idDest,mType)
+					.enqueue(object:Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
+
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success")) {
+								CustomDiaglogFragment.hideLoadingDialog()
+								mView.refresh()
+							}
+							else {
+								response?.errorBody()?.string()?.let { mView.showError(it) }
+							}
+						}
+					})
+		}
+
+		else {
+			CallApi.getInstance().moveFile(user_token,idItem,cloudType,ctoken,idDest,mType)
+					.enqueue(object:Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
+
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success")){
+								CustomDiaglogFragment.hideLoadingDialog()
+								mView.refresh()
+							}
+							else {
+								response?.errorBody()?.string()?.let { mView.showError(it) }
+							}
+						}
+					})
+		}
+	}
 
 
 }

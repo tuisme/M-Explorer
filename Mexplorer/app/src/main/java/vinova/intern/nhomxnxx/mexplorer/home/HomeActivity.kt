@@ -120,8 +120,8 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
         else if (db.getIsFaceAuth() == 0) {
             sw_auth.isChecked = false
         }
-            sw_auth.setOnCheckedChangeListener { _, isChecked ->
-			if (isChecked) {
+            sw_auth.setOnClickListener {
+			if (sw_auth.isChecked) {
 				val ad = AlertDialog.Builder(this)
 				ad.create()
 				ad.setCancelable(false)
@@ -266,7 +266,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	override fun onRename(fromPath: String, toPath: String) {
 	}
 
-	override fun onReNameCloud(newName: String, id: String,token:String) {
+	override fun onReNameCloud(newName: String, id: String, isDic: Boolean, token: String) {
 		mPresenter.renameCloud(id,newName,token,DatabaseHandler(this).getToken()!!)
 	}
 
@@ -274,7 +274,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	}
 
-	override fun onConfirmDeleteCloud(name: String, id: String) {
+	override fun onConfirmDeleteCloud(name: String, isDic: Boolean, id: String) {
 		mPresenter.deleteCloud(id,DatabaseHandler(this@HomeActivity).getToken()!!)
 	}
 

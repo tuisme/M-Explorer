@@ -86,7 +86,7 @@ class CloudAdapter(ctx : Context,view : TextView,rot : View,frag : FragmentManag
 			holder.size.text = file.size?.toLong()?.let { Support.getFileSize(it) }
 		}
 		else if(file.mime_type?.contains("jpeg")!!||file.mime_type?.contains("mp4")!!
-				||file.mime_type?.contains("pdf")!!||file.mime_type?.contains("gif")!!){
+				||file.mime_type?.contains("pdf")!!||file.mime_type?.contains("gif")!!||file.mime_type?.contains("png")!!){
 			Glide.with(context)
 					.load(file.thumbnail_link)
 					.apply ( RequestOptions().circleCrop() )

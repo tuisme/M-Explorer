@@ -8,8 +8,11 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import com.facebook.login.LoginManager
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import es.dmoral.toasty.Toasty
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -19,14 +22,17 @@ import retrofit2.Callback
 import retrofit2.Response
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.model.BaseResponse
-import vinova.intern.nhomxnxx.mexplorer.model.Request
-import vinova.intern.nhomxnxx.mexplorer.model.SpecificCloud
-import vinova.intern.nhomxnxx.mexplorer.model.SpecificFile
+import vinova.intern.nhomxnxx.mexplorer.model.*
+import vinova.intern.nhomxnxx.mexplorer.service.NotificationService
 import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
-import java.io.ByteArrayOutputStream
+import java.io.Closeable
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -144,7 +150,8 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 	}
 
 	override fun upLoadFile(user_token: String, id: String, uri: Uri, ctype: String, ctoken: String) {
-		val file = FileUtils.getFile(ctx,uri)!!
+		val file = FileUtils.getFile(ctx,uri) ?: return mView.showError("Please choose another file")
+
 		val requestBody = RequestBody.create(
 				MediaType.parse(ctx.contentResolver.getType(uri)),
 				file)
@@ -188,18 +195,127 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 
 	override fun createFolder(user_token: String, fname: String, parent: String, ctype: String, ctoken: String) {
 		CallApi.getInstance().createFolder(user_token, fname, parent, ctype, ctoken)
-				.enqueue(object : Callback<BaseResponse>{
+				.enqueue(object : Callback<requestUploadFolder>{
+					override fun onFailure(call: Call<requestUploadFolder>?, t: Throwable?) {
+						mView.showError(t.toString())
+					}
+
+					override fun onResponse(call: Call<requestUploadFolder>?, response: Response<requestUploadFolder>?) {
+						if(response?.body()!=null){
+							mView.refresh()
+						}
+						else
+							mView.showError(response?.message()!!)
+					}
+				})
+	}
+
+	lateinit var folderRoot : String
+	fun listAllFilesAndFilesSubDirectory(path : String):JsonArray{
+		val directory = File(path)
+		val array = JsonArray()
+		val parent = JsonObject()
+		parent.addProperty("parent",directory.name)
+		array.add(parent)
+		for (file : File in directory.listFiles()){
+			when(file.isFile){
+				true -> {
+					val fileObj  = JsonObject()
+					fileObj.addProperty("name",file.name)
+					fileObj.addProperty("path",file.path.substringAfter("$folderRoot/"))
+					array.add(fileObj)
+				}
+				false-> {
+					val fileObj  = JsonObject()
+					fileObj.add(file.name,listAllFilesAndFilesSubDirectory(file.path))
+					array.add(listAllFilesAndFilesSubDirectory(file.path))
+				}
+			}
+		}
+		return array
+	}
+
+	override fun upLoadFolder(user_token: String, ctoken: String, ctype: String, id: String, path : String) {
+		val root = File(Environment.getExternalStorageDirectory().absolutePath+"/$path")
+		folderRoot = root.parent
+		val zipPath = Environment.getExternalStorageDirectory().absolutePath+"/$path.zip"
+
+		zip(root,zipPath)
+		val file = File(zipPath)
+
+		val map = JsonObject()
+		map.add("root",listAllFilesAndFilesSubDirectory(root.path))
+
+		val extension = MimeTypeMap.getFileExtensionFromUrl(file.path.replace(" ",""))
+		val type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+		val requestBody = RequestBody.create(
+				MediaType.parse(type),
+				file)
+		val body = MultipartBody.Part.createFormData("zip", file.name, requestBody)
+
+		CallApi.getInstance().uploadFolder(user_token,id,map.toString(),body,ctype,ctoken)
+				.enqueue(object  : Callback<BaseResponse>{
 					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
 						mView.showError(t.toString())
 					}
 
 					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-						if(response?.body()!=null)
-							mView.refresh()
-						else
-							mView.showError("Thằng phương óc chó")
+						deleteFile(file)
+						mView.refresh()
 					}
 				})
+	}
+
+	private fun zip(directory : File,toLocation: String){
+		val base = directory.toURI()
+		val deque : Deque<File> = LinkedList<File>()
+		deque.push(directory)
+		val fos = FileOutputStream(toLocation)
+		var res : Closeable = fos
+		val buffer = ByteArray(1024)
+		val zos = ZipOutputStream(fos)
+		try{
+			res = zos
+			while (!deque.isEmpty()){
+				val file : File = deque.pop()
+				for (kid in file.listFiles()){
+					var name = base.relativize(kid.toURI()).path
+					if (kid.isDirectory){
+						deque.push(kid)
+						name = if (name.endsWith("/")) name else "$name/"
+						zos.putNextEntry(ZipEntry(name))
+					}
+					else{
+						zos.putNextEntry(ZipEntry(name))
+						val fis = FileInputStream(kid)
+						var count = fis.read(buffer)
+						while (count > 0){
+							zos.write(buffer,0,count)
+							count = fis.read(buffer)
+						}
+						fis.close()
+					}
+				}
+			}
+		}
+		catch (e : Exception){
+
+		}
+		finally {
+			zos.closeEntry()
+			res.close()
+
+		}
+	}
+
+	private fun deleteFile(file : File){
+		file.delete()
+		if (file.exists()){
+			file.canonicalFile.delete()
+			if (file.exists()){
+				ctx.deleteFile(file.name)
+			}
+		}
 	}
 
 	override fun logout(context: Context?, token: String?) {

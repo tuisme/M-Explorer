@@ -25,6 +25,7 @@ import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
+import kotlin.math.roundToInt
 
 
 class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
@@ -105,10 +106,11 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			holder.used.text = "${getAvailableInternalMemorySize()} of ${getTotalInternalMemorySize()}"
 		}
 		else{
-			val sum = Support.getFileSize(cl.used!! + cl.allocated!!)
-			val used = "${Support.getFileSize(cl.used!!)} of $sum"
+			val sum = Support.getFileSize(cl.allocated!!.toLong())
+			val used = "${Support.getFileSize(cl.used!!.toLong())} of $sum"
 			holder.used.text = used
-			holder.process.progress = ((cl.used!!/(cl.used!! + cl.allocated!!))*100).toInt()
+			val a = (cl.used!!/cl.allocated!!)*100
+			holder.process.progress = a.roundToInt()
 			root.share.visibility = View.GONE
 			root.available.visibility = View.GONE
 		}

@@ -7,36 +7,28 @@ import android.app.IntentService
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.os.Build
 import android.os.Environment
+import android.provider.Settings
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Streaming
+import vinova.intern.nhomxnxx.mexplorer.R
+import vinova.intern.nhomxnxx.mexplorer.model.Download
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import okhttp3.ResponseBody
-
-import retrofit2.Call
-import retrofit2.Retrofit
-import retrofit2.http.GET
-import retrofit2.http.Streaming
-import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
-import vinova.intern.nhomxnxx.mexplorer.model.Download
-import android.content.IntentFilter
-import android.graphics.Color
-import android.os.Build
-import android.provider.Settings
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.http.Path
 
 
 class DownloadService : IntentService("Download Service") {
@@ -154,6 +146,7 @@ class DownloadService : IntentService("Download Service") {
         bis.close()
 
     }
+
     private fun sendNotification(download: Download) {
 
         notificationBuilder!!.setProgress(100, download.progress, false)

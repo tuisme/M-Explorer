@@ -12,7 +12,6 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.update_item_dialog.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import java.io.File
@@ -76,7 +75,7 @@ class UpdateItemDialog : DialogFragment() {
             offline.isClickable = false
 
         }
-        offline.setOnCheckedChangeListener { p0, isChecked ->
+        offline.setOnCheckedChangeListener { _, isChecked ->
 
                 if (isChecked) {
                     mListener?.onOptionClick(R.id.offline, path ?: file?.id)

@@ -134,7 +134,8 @@ object FileUtils {
 			if (isLocalStorageDocument(uri)) {
 				// The path is the id
 				return DocumentsContract.getDocumentId(uri)
-			} else if (isExternalStorageDocument(uri)) {
+			}
+			else if (isExternalStorageDocument(uri)) {
 				val docId = DocumentsContract.getDocumentId(uri)
 				val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 				val type = split[0]
@@ -142,15 +143,18 @@ object FileUtils {
 				if ("primary".equals(type, ignoreCase = true)) {
 					return "${Environment.getExternalStorageDirectory()}" + "/" + split[1]
 				}
+				return "${Environment.getExternalStorageDirectory()}" + "/" + split[1]
 
-			} else if (isDownloadsDocument(uri)) {
+			}
+			else if (isDownloadsDocument(uri)) {
 
 				val id = DocumentsContract.getDocumentId(uri)
 				val contentUri = ContentUris.withAppendedId(
 						Uri.parse("content://downloads/public_downloads"), java.lang.Long.valueOf(id))
 
 				return getDataColumn(context, contentUri, null, null)
-			} else if (isMediaDocument(uri)) {
+			}
+			else if (isMediaDocument(uri)) {
 				val docId = DocumentsContract.getDocumentId(uri)
 				val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 				val type = split[0]

@@ -215,7 +215,6 @@ class LocalPresenter(view:LocalInterface.View):LocalInterface.Presenter{
     }
 
     override fun logout(context: Context?, token: String?) {
-        val token = DatabaseHandler(context).getToken()
         val db = DatabaseHandler(context)
         if (token!=null)
             CallApi.getInstance().logout(token)

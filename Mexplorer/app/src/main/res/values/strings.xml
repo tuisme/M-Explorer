@@ -80,4 +80,8 @@
     <string name="share">Share</string>
     <string name="device_connected">Device connected</string>
     <string name="face_authentication">Face Authentication</string>
+    <string name="new_">New</string>
+    <string name="upload_folder">Upload Folder</string>
+    <string name="upload_file">Upload File</string>
+    <string name="take_photo">Take Photo</string>
 </resources>

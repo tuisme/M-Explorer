@@ -56,7 +56,6 @@ interface ApiInterface {
     fun getUrlFile(@Query("id") id :String, @Query("token") token:String,
                    @Header("Access-Token") user_token : String, @Query("type")type:String) : Call<SpecificFile>
 
-
     @POST("/api/v2/clouds")
     fun getDrive(@Header("Access-Token") user_token : String,
                  @Query("code") serverAuth : String, @Query("name") name : String,
@@ -81,12 +80,20 @@ interface ApiInterface {
                      @Query("name") fname: String,
                      @Query("parent") parent : String,
                      @Query("type") type: String,
-                     @Query("token") token: String) : Call<BaseResponse>
+                     @Query("token") token: String) : Call<requestUploadFolder>
 
     @DELETE("/api/v2/files")
     fun deleteFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
                    @Query("type") type: String,
                    @Query("token") token: String) : Call<BaseResponse>
+
+    @POST("/api/v2/folders/zip")
+    @Multipart
+    fun uploadFolder(@Header("Access-Token") user_token: String,
+                     @Query("id") id: String,
+                     @Query("json") json : String,
+                     @Part zip : MultipartBody.Part, @Query("type") type: String,
+                     @Query("token") token : String) : Call<BaseResponse>
 }
 
 interface ApiFaceAuthInterface

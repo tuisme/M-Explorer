@@ -127,10 +127,10 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				ad.setCancelable(false)
 				ad.setTitle(title)
 				ad.setMessage("Do you want to turn on face authentication?")
-				ad.setPositiveButton("Yes") { p0, p1 ->
+				ad.setPositiveButton("Yes") { _, _ ->
 					captureImage(CAPTURE_IMAGE_REQUEST)
 				}
-				ad.setNegativeButton("No") { p0, p1 -> Toasty.success(this@HomeActivity,"KO",Toast.LENGTH_SHORT).show() }
+				ad.setNegativeButton("No") { _, _ -> Toasty.success(this@HomeActivity,"KO",Toast.LENGTH_SHORT).show() }
 				ad.show()
 			}
 			else {
@@ -139,10 +139,10 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				ad.setCancelable(false)
 				ad.setTitle(title)
 				ad.setMessage("Please face authentication to turn off")
-				ad.setPositiveButton("Yes") { p0, p1 ->
+				ad.setPositiveButton("Yes") { _, _ ->
 					captureImage(CAPTURE_IMAGE_REQUEST_2)
 				}
-				ad.setNegativeButton("No") { p0, p1 ->  }
+				ad.setNegativeButton("No") { _, _ ->  }
 				ad.show()
 			}
 		}

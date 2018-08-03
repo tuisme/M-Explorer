@@ -27,6 +27,7 @@ interface CloudInterface {
 		fun renameFile(user_token: String,id: String,fname: String,ctype: String,ctoken: String)
 		fun createFolder(user_token: String,fname: String,parent: String,ctype: String,ctoken: String)
 		fun deleteFile(user_token: String, id: String, ctype: String, ctoken: String)
+		fun upLoadFolder(user_token: String,ctoken: String,ctype: String,id: String,path : String)
 		fun saveImage(data: Intent?, user_token: String, id: String, ctype: String, ctoken : String)
 	}
 }

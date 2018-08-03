@@ -20,9 +20,14 @@ class UploadFileDialog : DialogFragment() {
 
 		val dialog = BottomSheetDialog(context!!, theme)
 
-		val view = LayoutInflater.from(activity).inflate(R.layout.add_items_dialog, null)
+		val view = LayoutInflater.from(activity).inflate(R.layout.upload_item_dialog, null)
 		dialog.setContentView(view)
 		dialog.setCancelable(true)
+
+		view.findViewById<View>(R.id.create_folder).setOnClickListener{
+			dialog.dismiss()
+			mListener?.onOptionClick("create folder")
+		}
 
 		view.findViewById<View>(R.id.new_folder).setOnClickListener {
 			dialog.dismiss()

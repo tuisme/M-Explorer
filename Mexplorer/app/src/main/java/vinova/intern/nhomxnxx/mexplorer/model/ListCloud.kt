@@ -55,8 +55,8 @@ data class Cloud (
 	var name: String? = null,
 	var type: String? = null,
 	var token: String? = null,
-	var used: Long? = null,
-	var allocated: Long? = null
+	var used: Double? = null,
+	var allocated: Double? = null
 ):Parcelable {
 	constructor(parcel: Parcel) : this(
 			parcel.readString(),
@@ -64,8 +64,8 @@ data class Cloud (
 			parcel.readString(),
 			parcel.readString(),
 			parcel.readString(),
-			parcel.readValue(Long::class.java.classLoader) as? Long,
-			parcel.readValue(Long::class.java.classLoader) as? Long) {
+			parcel.readValue(Long::class.java.classLoader) as? Double,
+			parcel.readValue(Long::class.java.classLoader) as? Double) {
 	}
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {

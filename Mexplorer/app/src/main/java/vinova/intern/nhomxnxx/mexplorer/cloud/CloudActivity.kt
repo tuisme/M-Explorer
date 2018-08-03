@@ -26,10 +26,7 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.UpdateItemDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.UploadFileDialog
+import vinova.intern.nhomxnxx.mexplorer.dialogs.*
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
@@ -39,7 +36,7 @@ import java.io.File
 
 
 class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener,
-		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener {
+		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener,NewFolderDialog.DialogListener {
 
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
@@ -52,6 +49,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	lateinit var name_ :String
 	var path : ArrayList<ArrayList<String>> = arrayListOf()
 	val CAPTURE_IMAGE_REQUEST = 20
+	lateinit var folder : File
+	var firstLoadUser = true
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -114,11 +113,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 				}
 			}
 			READ_REQUEST_CODE -> {
-				if (data != null) {
-					val uri: Uri = data.data
-					val folder = File(uri.path)
-					mPresenter.createFolder(userToken, folder.name.split(":")[1], path.last()[0], cloudType, ctoken)
-					folder.listFiles()
+				if (data!=null) {
+					val uri : Uri = data.data
+					folder = File(uri.path)
+					mPresenter.upLoadFolder(userToken,ctoken,cloudType,path.last()[0],folder.path.split(":").last())
 				}
 			}
 
@@ -135,6 +133,9 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	@TargetApi(Build.VERSION_CODES.M)
 	override fun onOptionClick(type: String) {
 		when(type){
+			"create folder"->{
+				NewFolderDialog.newInstance().show(supportFragmentManager,"fragment")
+			}
 			"upload file" ->{
 				val intent = Intent(Intent.ACTION_GET_CONTENT)
 				intent.type = "*/*"
@@ -171,6 +172,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		}
 	}
 
+	override fun onNewFolder(name: String) {
+		mPresenter.createFolder(userToken,name,path.last()[0],cloudType,ctoken)
+	}
+
 	override fun onReNameCloud(newName: String, id: String, token: String) {
 		mPresenter.renameFile(userToken,id,newName,cloudType,ctoken)
 	}
@@ -183,9 +188,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		title = path.last()[1]
 		swipeContent.isRefreshing = false
 		rvContent.hideShimmerAdapter()
-		showUser()
 		adapter.setData(files)
 		adapter.notifyDataSetChanged()
+		if (firstLoadUser)
+			showUser()
 	}
 
 	private fun showUser() {
@@ -296,6 +302,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			}
 		}
 	}
+
 	override fun onConfirmDelete(path: String?) {
 	}
 

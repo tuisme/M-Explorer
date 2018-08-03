@@ -8,11 +8,9 @@ module GoogleUploadHelper
       ],
       additional_parameters: {
         'access_type' => 'offline',
-        'prompt' => 'consent',
-        'include_granted_scopes' => 'true'
-
+        'prompt' => 'consent'
       },
-      redirect_uri: "#{request.protocol + request.host + ':' + request.port.to_s}/googledrive_redirect")
+      redirect_uri: "http://localhost:3000")
 
     @credentials.refresh_token = access_token
     access_token = @credentials.fetch_access_token!['access_token']
@@ -24,9 +22,9 @@ module GoogleUploadHelper
       if index == 0
         parent = parent.create_subcollection(up['parent'])
       elsif up.is_a?(Array)
-        upload(parent.id, access_token, up)
+        google_upload(parent.id, access_token, up)
       else
-        parent.upload_from_file(up['path'], up['name'], convert: false)
+        parent.upload_from_file("/home/kyle/Project/M-Explorer/M-Web/public/" + up['path'], up['name'], convert: false)
       end
     end
   end
@@ -147,14 +145,23 @@ module Api::V2
         requires :token, type: String
       end
       post 'zip' do
-        FileUtils.mkdir_p('public/a')
+        parsed_json = JSON.parse(params[:json])
+
+        FileUtils.mkdir_p('public/' + parsed_json['root'][0]['parent'])
         Zip::File.open(params[:zip][:tempfile].path) do |zip_file|
           zip_file.each do |f|
-            fpath = File.join('public/a', f.name)
+            fpath = File.join('public/'+ parsed_json['root'][0]['parent'], f.name)
             zip_file.extract(f, fpath) unless File.exist?(fpath)
           end
         end
-        google_upload(params[:id], params[:token], params[:json])
+
+        google_upload(params[:id], params[:token], parsed_json['root'])
+        
+        present :time, Time.now.to_s
+        present :status, 'success'
+        present :message, nil
+        present :data, nil
+
       end
     end
   end

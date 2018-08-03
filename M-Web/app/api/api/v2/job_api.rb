@@ -4,84 +4,44 @@ module Api::V2
 
       params do
         requires :id, type: String
+        requires :type, type: String
+        requires :token, type: String
+        requires :id_dest, type: String
       end
 
-      get 'transfer' do
-        {
-          time: Time.now.to_s,
-          status: 'success',
-          message: nil,
-          data: [
-            {
-              id: "jpg",
-              name: "File JPG",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "jpg"
-            },
-            {
-              id: "png",
-              name: "File PNG",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "png"
-            },
-            {
-              id: "mp4",
-              name: "File MP4",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "mp4"
-            },
-            {
-              id: "mp3",
-              name: "File MP3",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "mp3"
-            }
-          ]
-        }
+      post 'move_1_cloud' do
+        token = params[:token]
+        if params[:type] == 'box'
+          client = Boxr::Client.new(token)
+          client.move_folder(params[:id], params[:id_dest])
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, nil
+          present :data, nil
+        end
+      end
+
+      params do
+        requires :id, type: String
+        requires :type, type: String
+        requires :token, type: String
+        requires :id_dest, type: String
+      end
+
+      post 'copy_1_cloud' do
+        token = params[:token]
+        if params[:type] == 'box'
+          client = Boxr::Client.new(token)
+          client.copy_folder(params[:id], params[:id_dest])
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, nil
+          present :data, nil
+        end
       end
 
 
-      get 'sync' do
-        {
-          time: Time.now.to_s,
-          status: 'success',
-          message: nil,
-          data: [
-            {
-              id: "jpg",
-              name: "File JPG",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "jpg"
-            },
-            {
-              id: "png",
-              name: "File PNG",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "png"
-            },
-            {
-              id: "mp4",
-              name: "File MP4",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "mp4"
-            },
-            {
-              id: "mp3",
-              name: "File MP3",
-              size: "852",
-              thumbnail: "https://feseuel.com/wp-content/uploads/2018/07/business_02.jpg",
-              type: "mp3"
-            }
-          ]
-        }
-      end
+
 
     end
   end

@@ -56,10 +56,10 @@ class FileController < ApplicationController
   def open
     # @url = Base64.decode64(params[:url])
 
-    # dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgelA7wkZ8OcvU2uXwTZzH0y-0GjI1NQXzvV2sv3ZLDfsF")
+  #   dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgelA7wkZ8OcvU2uXwTZzH0y-0GjI1NQXzvV2sv3ZLDfsF")
   #   @credentials.refresh_token = '1/w-fG1yj9f936nqUsGvj6UHbITfP64plO5ZLWAVPuuIE'
   #   access_token = @credentials.fetch_access_token!['access_token']
-  #
+  # s
   #   session = GoogleDrive::Session.from_credentials(@credentials)
   #   root = session.root_collection.id.to_s
   #   json = '[
@@ -128,7 +128,7 @@ class FileController < ApplicationController
     # files = dbx.list_folder("")
     # f
 
-    client = Boxr::Client.new('0jaCf0DrhTpUz72eBGTbFNKHGEORS4rb')
+    client = Boxr::Client.new('uu8Rwm7ASSaB9pbwnh7k5SGtIHCpu6Bp')
     ss
   end
 

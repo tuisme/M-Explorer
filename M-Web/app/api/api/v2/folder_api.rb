@@ -24,7 +24,7 @@ module GoogleUploadHelper
       elsif up.is_a?(Array)
         google_upload(parent.id, access_token, up)
       else
-        parent.upload_from_file("/home/kyle/Project/M-Explorer/M-Web/public/" + up['path'], up['name'], convert: false)
+        parent.upload_from_file("#{Rails.root}/public/" + up['path'], up['name'], convert: false)
       end
     end
   end
@@ -156,7 +156,7 @@ module Api::V2
         end
 
         google_upload(params[:id], params[:token], parsed_json['root'])
-        
+
         present :time, Time.now.to_s
         present :status, 'success'
         present :message, nil

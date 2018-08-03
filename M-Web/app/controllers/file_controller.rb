@@ -57,52 +57,53 @@ class FileController < ApplicationController
     # @url = Base64.decode64(params[:url])
 
     # dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgelA7wkZ8OcvU2uXwTZzH0y-0GjI1NQXzvV2sv3ZLDfsF")
-    @credentials.refresh_token = '1/w-fG1yj9f936nqUsGvj6UHbITfP64plO5ZLWAVPuuIE'
-    access_token = @credentials.fetch_access_token!['access_token']
-    session = GoogleDrive::Session.from_credentials(@credentials)
-    root = session.root_collection.id.to_s
-    json = '[
-    {
-      "parent": "root"
-    },
-    {
-      "name": "1.png",
-      "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/1.png"
-    },
-    {
-      "name": "2.png",
-      "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/2.png"
-    },
-    [
-      {
-        "parent": "sub"
-      },
-      {
-        "name": "1.png",
-        "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
-      },
-      {
-        "name": "2.png",
-        "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
-      },
-      [
-        {
-          "parent": "sub1"
-        },
-        {
-          "name": "1.png",
-          "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
-        },
-        {
-          "name": "2.png",
-          "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
-        }
-      ]
-    ]
-
-  ]'
-    parsed_json = JSON.parse(json)
-    upload('16V7aFG2FpixD8C06-RZPwQU4kSlqhMOd', access_token, parsed_json)
+  #   @credentials.refresh_token = '1/w-fG1yj9f936nqUsGvj6UHbITfP64plO5ZLWAVPuuIE'
+  #   access_token = @credentials.fetch_access_token!['access_token']
+  #
+  #   session = GoogleDrive::Session.from_credentials(@credentials)
+  #   root = session.root_collection.id.to_s
+  #   json = '[
+  #   {
+  #     "parent": "root"
+  #   },
+  #   {
+  #     "name": "1.png",
+  #     "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/1.png"
+  #   },
+  #   {
+  #     "name": "2.png",
+  #     "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/2.png"
+  #   },
+  #   [
+  #     {
+  #       "parent": "sub"
+  #     },
+  #     {
+  #       "name": "1.png",
+  #       "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
+  #     },
+  #     {
+  #       "name": "2.png",
+  #       "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
+  #     },
+  #     [
+  #       {
+  #         "parent": "sub1"
+  #       },
+  #       {
+  #         "name": "1.png",
+  #         "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
+  #       },
+  #       {
+  #         "name": "2.png",
+  #         "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
+  #       }
+  #     ]
+  #   ]
+  #
+  # ]'
+  #   parsed_json = JSON.parse(json)
+  #   upload('16V7aFG2FpixD8C06-RZPwQU4kSlqhMOd', access_token, parsed_json)
     # parsed_json.each do |a|
     #   if a.kind_of?(Array)
     #     i += 1
@@ -127,8 +128,8 @@ class FileController < ApplicationController
     # files = dbx.list_folder("")
     # f
 
-    # client = Boxr::Client.new('KGXdhg82Cnpf9OmGPjkFnFTGKpEavUzF')
-    # ss
+    client = Boxr::Client.new('0jaCf0DrhTpUz72eBGTbFNKHGEORS4rb')
+    ss
   end
 
   private

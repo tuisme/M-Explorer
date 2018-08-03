@@ -56,10 +56,10 @@ class FileController < ApplicationController
   def open
     # @url = Base64.decode64(params[:url])
 
-    # dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgelA7wkZ8OcvU2uXwTZzH0y-0GjI1NQXzvV2sv3ZLDfsF")
+  #   dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgelA7wkZ8OcvU2uXwTZzH0y-0GjI1NQXzvV2sv3ZLDfsF")
   #   @credentials.refresh_token = '1/w-fG1yj9f936nqUsGvj6UHbITfP64plO5ZLWAVPuuIE'
   #   access_token = @credentials.fetch_access_token!['access_token']
-  #
+  # s
   #   session = GoogleDrive::Session.from_credentials(@credentials)
   #   root = session.root_collection.id.to_s
   #   json = '[
@@ -117,6 +117,11 @@ class FileController < ApplicationController
     # @result = HTTParty.get('https://www.googleapis.com/drive/v2/about?access_token=' + access_token)
     # parsed_json = JSON.parse(@result.body)
     # gg
+
+
+
+
+
     # rf
 
     # render plain: ActionController::Base.helpers.asset_path('/images/default-avatar.png')
@@ -128,7 +133,7 @@ class FileController < ApplicationController
     # files = dbx.list_folder("")
     # f
 
-    client = Boxr::Client.new('0jaCf0DrhTpUz72eBGTbFNKHGEORS4rb')
+    client = Boxr::Client.new('gsSz5dcfQptIhKLYXNcQw1sGnK6vLCE8')
     ss
   end
 

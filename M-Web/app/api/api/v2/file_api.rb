@@ -135,18 +135,23 @@ module Api::V2
         elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
           if params[:id] == 'root'
-            dbx.upload('/sJPG.jpg', '/home/kyle/Project/M_Explorer_1/public/files/1/JPG.jpg')
+            dbx.upload('/' + title, File.open(dir, 'r'))
           else
-            dbx.upload(params[:id] + '/' + title, dir)
+            dbx.upload(params[:id] + '/' + title, File.open(dir, 'r'))
           end
 
-          {
-            a: true
-          }
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, 'Upload Successfully!'
+          present :data, nil
 
         elsif params[:type] == 'box'
           client = Boxr::Client.new(token)
           client.upload_file(dir, parent, name: title)
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, 'Upload Successfully!'
+          present :data, nil
         end
       end
 
@@ -163,43 +168,51 @@ module Api::V2
 
         # RENAME A FIELD IN GOOGLE DRIVE
         if params[:type] == 'googledrive'
-          @credentials = Google::Auth::UserRefreshCredentials.new(
-            client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-            client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
-            scope: [
-              'https://www.googleapis.com/auth/drive'
-            ],
-            additional_parameters: {
-              'access_type' => 'offline',
-              'prompt' => 'consent'
-            },
-            redirect_uri: 'http://localhost:3000')
-          @credentials.refresh_token = token
-          @credentials.fetch_access_token!
-          session = GoogleDrive::Session.from_credentials(@credentials)
+            @credentials = Google::Auth::UserRefreshCredentials.new(
+              client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
+              client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+              scope: [
+                'https://www.googleapis.com/auth/drive'
+              ],
+              additional_parameters: {
+                'access_type' => 'offline',
+                'prompt' => 'consent'
+              },
+              redirect_uri: 'http://localhost:3000')
+            @credentials.refresh_token = token
+            @credentials.fetch_access_token!
+            session = GoogleDrive::Session.from_credentials(@credentials)
 
-          file = session.file_by_id(params[:id])
-          file.rename(name)
+            file = session.file_by_id(params[:id])
+            file.rename(name)
 
-          present :time, Time.now.to_s
-          present :status, 'success'
-          present :message, 'Update Successfully!'
-          present :data, nil
+            present :time, Time.now.to_s
+            present :status, 'success'
+            present :message, 'Update Successfully!'
+            present :data, nil
         # RENAME A FIELD IN DROPBOX
         elsif params[:type] == 'dropbox'
-          dbx = Dropbox::Client.new(token)
-          if params[:id] == 'root'
-            dbx.upload('/sJPG.jpg', '/home/kyle/Project/M_Explorer_1/public/files/1/JPG.jpg')
-          else
-            dbx.upload(params[:fid] + '/' + title, dir)
-          end
+            dbx = Dropbox::Client.new(token)
+            parent = File.dirname(params[:id])
 
-          {
-            a: true
-          }
+            dbx.move(params[:id], parent.to_s + name.to_s)
 
+            present :time, Time.now.to_s
+            present :status, 'success'
+            present :message, 'Update Successfully!'
+            present :data, nil
+        elsif params[:type] == 'box'
+            client = Boxr::Client.new(token)
+            client.update_file(params[:id], name: name)
+
+            present :time, Time.now.to_s
+            present :status, 'success'
+            present :message, 'Delete Successfully!'
+            present :data, nil
         end
       end
+
+
 
       # DELETE A FIELD IN CLOUD
       params do

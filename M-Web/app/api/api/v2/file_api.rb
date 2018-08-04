@@ -73,6 +73,7 @@ module Api::V2
           created_time = client.file(params[:id]).content_created_at
           size = client.file(params[:id]).size
 
+
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id}/file")
           FileUtils.mkdir_p(dir) unless File.directory?(dir)
           Down.download(client.download_url(params[:id]), destination: "#{dir}/#{title}")

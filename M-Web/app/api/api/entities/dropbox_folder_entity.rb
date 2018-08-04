@@ -14,8 +14,6 @@ module Api::Entities
       instance.instance_of?(Dropbox::FileMetadata) ? instance.size : nil
     end
 
-
-
     private
     def has_thumbnail
         false

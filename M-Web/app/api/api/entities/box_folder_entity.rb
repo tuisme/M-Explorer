@@ -15,12 +15,6 @@ module Api::Entities
     def thumbnail_link
         nil
     end
-    def created_time
-        nil
-    end
-    def size
-      nil
-    end
 
 
 

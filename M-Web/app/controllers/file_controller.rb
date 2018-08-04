@@ -128,13 +128,19 @@ class FileController < ApplicationController
 
     # render plain: dir = "#{Rails.root}/public/files/1/JPG.jpg"
     # session.upload_from_file(dir,"aaa.aa")
-    # dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgiEEHMnyL_dc-kxnQZ6BT8TqtOaqpZFt8rw-iJ7xxuB8z")
-    #
-    # files = dbx.list_folder("")
+    dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgiEEHMnyL_dc-kxnQZ6BT8TqtOaqpZFt8rw-iJ7xxuB8z")
+
+    a = ''
+    files = dbx.list_folder("")
+    files.each do |f|
+      a+= f.size
+    end
+
+    aef
     # f
 
-    client = Boxr::Client.new('gsSz5dcfQptIhKLYXNcQw1sGnK6vLCE8')
-    ss
+    # client = Boxr::Client.new('gsSz5dcfQptIhKLYXNcQw1sGnK6vLCE8')
+    # ss
   end
 
   private

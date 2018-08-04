@@ -8,7 +8,8 @@ module Api::Entities
     expose :mime_type do |instance, options|
       instance.instance_of?(Dropbox::FileMetadata) ? "file" : "folder"
     end
-    expose :size
+
+    expose :size, if: { name: :full }
 
     private
     def has_thumbnail
@@ -19,9 +20,6 @@ module Api::Entities
     end
     def created_time
         nil
-    end
-    def size
-      nil
     end
   end
 end

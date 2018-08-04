@@ -10,6 +10,7 @@ module Api::V2
       get do
         token = params[:token]
         file = OpenStruct.new
+        file.id = params[:id]
         # GET A FILE INFO OF GOOGLE DRIVE
         if params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
@@ -26,53 +27,38 @@ module Api::V2
           @credentials.refresh_token = token
           @credentials.fetch_access_token!
           session = GoogleDrive::Session.from_credentials(@credentials)
-          file = session.file_by_id(params[:id])
+          temp_file = session.file_by_id(params[:id])
+          file.name = temp_file.title
+          file.mime_type = temp_file.mime_type
+          file.created_time = temp_file.created_time
 
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id}/file")
           FileUtils.mkdir_p(dir) unless File.directory?(dir)
-          file.download_to_file("#{dir}/#{file.title}")
-          url = request.base_url + '/files/' + current_user.id.to_s + '/' + file.title
+          temp_file.download_to_file("#{dir}/#{file.name}")
+          file.url = request.base_url + '/files/' + current_user.id.to_s + '/' + file.name
 
-          {
-            time: Time.now.to_s,
-            status: 'success',
-            message: nil,
-            data: {
-              id: file.id,
-              name: file.name,
-              url: url,
-              created_time: file.created_time,
-              mime_type: file.mime_type,
-              size: file.size
-            }
-          }
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, 'Get File Successfully!'
+          present :data, file, with: Api::Entities::FileEntity
         # GET A FILE INFO OF DROPBOX
         elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id}/file")
           FileUtils.mkdir_p(dir) unless File.directory?(dir)
-          title = dbx.get_metadata(params[:id]).name
-          size = dbx.get_metadata(params[:id]).size
-          created_time = dbx.get_metadata(params[:id]).client_modified
-          Down.download(dbx.get_temporary_link(params[:id])[1], destination: "#{dir}/#{title}")
-          url = request.base_url + '/files/' + current_user.id.to_s + '/' + title
-          {
-            time: Time.now.to_s,
-            status: 'success',
-            message: nil,
-            data: {
-              id: params[:id],
-              name: title,
-              url: url,
-              created_time: created_time,
-              mime_type: nil,
-              size: size
-            }
-          }
+          file.name = dbx.get_metadata(params[:id]).name
+          file.size = dbx.get_metadata(params[:id]).size
+          file.created_time = dbx.get_metadata(params[:id]).client_modified
+          Down.download(dbx.get_temporary_link(params[:id])[1], destination: "#{dir}/#{file.name}")
+          file.url = request.base_url + '/files/' + current_user.id.to_s + '/' + file.name
+
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, 'Get File Successfully!'
+          present :data, file, with: Api::Entities::FileEntity
         # GET A FILE INFO OF BOX
         elsif params[:type] == 'box'
           client = Boxr::Client.new(token)
-          file.id = params[:id]
           file.mime_type = 'file'
           file.name = client.file(params[:id]).name
           file.created_time = client.file(params[:id]).content_created_at
@@ -81,7 +67,7 @@ module Api::V2
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id}/file")
           FileUtils.mkdir_p(dir) unless File.directory?(dir)
           Down.download(client.download_url(params[:id]), destination: "#{dir}/#{title}")
-          file['url'] = request.base_url + '/files/' + current_user.id.to_s + '/' + file['name']
+          file.url = request.base_url + '/files/' + current_user.id.to_s + '/' + file['name']
 
 
           present :time, Time.now.to_s

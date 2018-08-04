@@ -60,7 +60,7 @@ module Api::V2
 
           temp = session.file_by_id(params[:id])
           if temp.mime_type == 'application/vnd.google-apps.folder'
-            @files = temp.files
+            @files = temp.files(orderBy: 'folder')
 
             present :time, Time.now.to_s
             present :status, 'success'
@@ -223,6 +223,7 @@ module Api::V2
           present :status, 'success'
           present :message, 'Update Successfully!'
           present :data, nil
+        # RENAME A FIELD IN BOX
         elsif params[:type] == 'box'
             client = Boxr::Client.new(token)
             client.update_folder(params[:id], name: name)

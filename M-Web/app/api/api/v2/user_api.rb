@@ -2,7 +2,6 @@ module Api::V2
   class UserApi < Grape::API
     namespace :users do
 
-
       params do
         requires :provider, type: String
         requires :email, type: String
@@ -13,7 +12,6 @@ module Api::V2
         requires :device_name, type: String
         requires :device_location, type: String
       end
-
       post :provider do
         return_user = OpenStruct.new
         default_avatar = 'https://mexplorer.herokuapp.com/default-avatar.png'
@@ -23,10 +21,9 @@ module Api::V2
             break random_token unless Token.exists?(value: random_token)
           end
           user.tokens.create(value: return_user.token, device_id: params[:device_id], device_type: params[:device_type],
-            device_name: params[:device_name], device_location: params[:device_location])
+                             device_name: params[:device_name], device_location: params[:device_location])
           return_user.email = user.email
           return_user.first_name = user.first_name
-          return_user.last_name = user.last_name
           return_user.last_name = user.last_name
           return_user.avatar_url = user.avatar_url
           return_user.used = user.used
@@ -39,12 +36,11 @@ module Api::V2
           present :data, return_user, with: Api::Entities::UserEntity
         else
           password = SecureRandom.urlsafe_base64(nil, true)
-          user = User.create(provider: params[:provider] ,email: params[:email],password: password, uid: params[:uid],
-            first_name: params[:first_name], last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10737418240, vip: 0)
+          user = User.create(provider: params[:provider], email: params[:email], password: password, uid: params[:uid], first_name: params[:first_name],
+                             last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: 0)
 
           return_user.email = user.email
           return_user.first_name = user.first_name
-          return_user.last_name = user.last_name
           return_user.last_name = user.last_name
           return_user.avatar_url = user.avatar_url
           return_user.used = user.used
@@ -54,7 +50,7 @@ module Api::V2
             random_token = SecureRandom.urlsafe_base64(nil, true)
             break random_token unless Token.exists?(value: random_token)
           end
-          user.tokens.create(value: return_user.token, device_id: params[:device_id],device_name: params[:device_name])
+          user.tokens.create(value: return_user.token, device_id: params[:device_id], device_name: params[:device_name])
           present :time, Time.now.to_s
           present :status, 'success'
           present :message, 'Login Successfully!'
@@ -70,21 +66,19 @@ module Api::V2
         requires :device_name, type: String
         requires :device_location, type: String
       end
-
       post :signin do
         return_user = OpenStruct.new
         user = User.find_by(email: params[:email])
-        raise ActiveRecord::RecordNotFound.new("User not found!") unless user
+        raise ActiveRecord::RecordNotFound.new('User not found!') unless user
         if user.valid_password?(params[:password])
           return_user.token = loop do
             random_token = SecureRandom.urlsafe_base64(nil, true)
             break random_token unless Token.exists?(value: random_token)
           end
           user.tokens.create(value: return_user.token, device_id: params[:device_id], device_type: params[:device_type],
-            device_name: params[:device_name], device_location: params[:device_location])
+                             device_name: params[:device_name], device_location: params[:device_location])
           return_user.email = user.email
           return_user.first_name = user.first_name
-          return_user.last_name = user.last_name
           return_user.last_name = user.last_name
           return_user.avatar_url = user.avatar_url
           return_user.used = user.used
@@ -113,8 +107,8 @@ module Api::V2
       end
       post :signup do
         default_avatar = 'https://mexplorer.herokuapp.com/default-avatar.png'
-        if User.create!(email: params[:email],password: params[:password],
-          first_name: params[:first_name], last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10737418240, vip: 0)
+        if User.create!(email: params[:email], password: params[:password],
+                        first_name: params[:first_name], last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: 0)
           {
             time: Time.now.to_s,
             status: 'success',
@@ -123,7 +117,6 @@ module Api::V2
           }
         end
       end
-
 
       params do
         requires :email, type: String

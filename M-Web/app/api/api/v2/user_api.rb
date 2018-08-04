@@ -37,7 +37,7 @@ module Api::V2
         else
           password = SecureRandom.urlsafe_base64(nil, true)
           user = User.create(provider: params[:provider], email: params[:email], password: password, uid: params[:uid], first_name: params[:first_name],
-                             last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: 0)
+                             last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: 'false')
 
           return_user.email = user.email
           return_user.first_name = user.first_name
@@ -108,7 +108,7 @@ module Api::V2
       post :signup do
         default_avatar = 'https://mexplorer.herokuapp.com/default-avatar.png'
         if User.create!(email: params[:email], password: params[:password],
-                        first_name: params[:first_name], last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: 0)
+                        first_name: params[:first_name], last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: 'false')
           {
             time: Time.now.to_s,
             status: 'success',

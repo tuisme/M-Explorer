@@ -215,16 +215,14 @@ module Api::V2
         # RENAME A FIELD IN DROPBOX
         elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
-          if params[:id] == 'root'
-            dbx.upload('/sJPG.jpg', '/home/kyle/Project/M_Explorer_1/public/files/1/JPG.jpg')
-          else
-            dbx.upload(params[:fid] + '/' + title, dir)
-          end
+          parent = File.dirname(params[:id])
 
-          {
-            a: true
-          }
+          dbx.move(params[:id], parent.to_s + name.to_s)
 
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, 'Update Successfully!'
+          present :data, nil
         elsif params[:type] == 'box'
             client = Boxr::Client.new(token)
             client.update_folder(params[:id], name: name)
@@ -270,7 +268,6 @@ module Api::V2
           present :status, 'success'
           present :message, 'Delete Successfully!'
           present :data, nil
-
         # DELETE A FIELD IN DROPBOX
         elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
@@ -280,7 +277,6 @@ module Api::V2
           present :status, 'success'
           present :message, 'Delete Successfully!'
           present :data, nil
-
         # DELETE A FIELD IN BOX
         elsif params[:type] == 'box'
             client = Boxr::Client.new(token)

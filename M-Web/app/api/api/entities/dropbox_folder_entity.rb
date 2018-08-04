@@ -9,7 +9,10 @@ module Api::Entities
       instance.instance_of?(Dropbox::FileMetadata) ? "file" : "folder"
     end
 
-    expose :size, if: { name: :full }
+    expose :size do |instance, options|
+      instance.instance_of?(Dropbox::FileMetadata) ? instance.size : nil
+    end
+
 
     private
     def has_thumbnail

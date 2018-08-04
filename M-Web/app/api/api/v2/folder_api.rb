@@ -94,8 +94,6 @@ module Api::V2
             end
             folder.push({ id: f.id, name: f.name, created_time: created_at, type: f.type, size: size})
           end
-
-
           present :time, Time.now.to_s
           present :status, 'success'
           present :message, nil

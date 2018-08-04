@@ -15,10 +15,5 @@ module Api::Entities
     def thumbnail_link
         nil
     end
-
-
-
-
-
   end
 end

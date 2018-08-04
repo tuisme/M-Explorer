@@ -1,7 +1,7 @@
 module Api::V2
   class FileApi < Grape::API
     namespace :files do
-      # GET FILE INFO
+      # GET A FILE INFO
       params do
         requires :id, type: String
         requires :type, type: String
@@ -9,6 +9,8 @@ module Api::V2
       end
       get do
         token = params[:token]
+        file = OpenStruct.new
+        # GET A FILE INFO OF GOOGLE DRIVE
         if params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
             client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
@@ -44,7 +46,7 @@ module Api::V2
               size: file.size
             }
           }
-
+        # GET A FILE INFO OF DROPBOX
         elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id}/file")
@@ -67,30 +69,25 @@ module Api::V2
               size: size
             }
           }
+        # GET A FILE INFO OF BOX
         elsif params[:type] == 'box'
           client = Boxr::Client.new(token)
-          title = client.file(params[:id]).name
-          created_time = client.file(params[:id]).content_created_at
-          size = client.file(params[:id]).size
-
+          file.id = params[:id]
+          file.mime_type = 'file'
+          file.name = client.file(params[:id]).name
+          file.created_time = client.file(params[:id]).content_created_at
+          file.size = client.file(params[:id]).size
 
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id}/file")
           FileUtils.mkdir_p(dir) unless File.directory?(dir)
           Down.download(client.download_url(params[:id]), destination: "#{dir}/#{title}")
-          url = request.base_url + '/files/' + current_user.id.to_s + '/' + title
-          {
-            time: Time.now.to_s,
-            status: 'success',
-            message: nil,
-            data: {
-              id: params[:id],
-              name: title,
-              url: url,
-              created_time: created_time,
-              mime_type: nil,
-              size: size
-            }
-          }
+          file['url'] = request.base_url + '/files/' + current_user.id.to_s + '/' + file['name']
+
+
+          present :time, Time.now.to_s
+          present :status, 'success'
+          present :message, 'Get File Successfully!'
+          present :data, file, with: Api::Entities::FileEntity
         end
       end
 
@@ -108,7 +105,7 @@ module Api::V2
         title = params[:file][:filename].to_s
         type = params[:file][:type]
 
-        # UPLOAD GOOGLE DRIVE
+        # UPLOAD FILE TO GOOGLE DRIVE
         if params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
             client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
@@ -131,8 +128,7 @@ module Api::V2
           present :status, 'success'
           present :message, 'Upload Successfully!'
           present :data, nil
-
-        # UPLOAD DROPBOX
+        # UPLOAD FILE TO DROPBOX
         elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
           if params[:id] == 'root'
@@ -145,7 +141,7 @@ module Api::V2
           present :status, 'success'
           present :message, 'Upload Successfully!'
           present :data, nil
-
+        # UPLOAD FILE TO BOX
         elsif params[:type] == 'box'
           client = Boxr::Client.new(token)
           client.upload_file(dir, parent, name: title)
@@ -167,7 +163,7 @@ module Api::V2
         token = params[:token]
         name = params[:name]
 
-        # RENAME A FIELD IN GOOGLE DRIVE
+        # RENAME A FILE IN GOOGLE DRIVE
         if params[:type] == 'googledrive'
             @credentials = Google::Auth::UserRefreshCredentials.new(
               client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
@@ -191,7 +187,7 @@ module Api::V2
             present :status, 'success'
             present :message, 'Update Successfully!'
             present :data, nil
-        # RENAME A FIELD IN DROPBOX
+        # RENAME A FILE IN DROPBOX
         elsif params[:type] == 'dropbox'
             dbx = Dropbox::Client.new(token)
             parent = File.dirname(params[:id])
@@ -202,6 +198,7 @@ module Api::V2
             present :status, 'success'
             present :message, 'Update Successfully!'
             present :data, nil
+        # RENAME A FILE IN BOX
         elsif params[:type] == 'box'
             client = Boxr::Client.new(token)
             client.update_file(params[:id], name: name)
@@ -223,8 +220,7 @@ module Api::V2
       end
       delete do
         token = params[:token]
-
-        # DELETE A FIELD IN GOOGLE DRIVE
+        # DELETE A FILE IN GOOGLE DRIVE
         if params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
             client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
@@ -248,8 +244,7 @@ module Api::V2
           present :status, 'success'
           present :message, 'Delete Successfully!'
           present :data, nil
-
-        # DELETE A FIELD IN DROPBOX
+        # DELETE A FILE IN DROPBOX
         elsif params[:type] == 'dropbox'
           dbx = Dropbox::Client.new(token)
           dbx.delete(params[:id])
@@ -258,8 +253,7 @@ module Api::V2
           present :status, 'success'
           present :message, 'Delete Successfully!'
           present :data, nil
-
-        # DELETE A FIELD IN BOX
+        # DELETE A FILE IN BOX
         elsif params[:type] == 'box'
             client = Boxr::Client.new(token)
             client.delete_file(params[:id])

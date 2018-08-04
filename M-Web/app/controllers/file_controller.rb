@@ -139,8 +139,12 @@ class FileController < ApplicationController
     # aef
     # f
 
-    client = Boxr::Client.new('zJ9Tfh1cJ3B672DOTNu4mEcApddcLPZR')
+    client = Boxr::Client.new('eAvtUsUWvzfYMPrJB7Hz0SR9I5zFEilU')
     files = client.root_folder_items
+    # fil = {}
+    # files.each do |f|
+    #   fil
+    # end
 
     ss
   end

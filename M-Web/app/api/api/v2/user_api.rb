@@ -34,7 +34,8 @@ module Api::V2
                   last_name: user.last_name,
                   avatar_url: 'https://mexplorer.herokuapp.com/default-avatar.png',
                   verified: "true",
-                  used: "0.2",
+                  used: "22GB",
+                  allocated: '50GB',
                   is_vip: '0'
             }
           }

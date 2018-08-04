@@ -83,11 +83,21 @@ module Api::V2
         elsif params[:type] == 'box'
           client = Boxr::Client.new(token)
           files = client.folder_items(params[:id])
-
+          folder = []
+          files.each do |f|
+            if f.type == 'folder'
+              size = client.folder(f.id).size
+              created_at = client.folder(f.id).created_at
+            else
+              size = client.file(f.id).size
+              created_at = client.file(f.id).created_at
+            end
+            folder.push({ id: f.id, name: f.name, created_time: created_at, type: f.type, size: size})
+          end
           present :time, Time.now.to_s
           present :status, 'success'
           present :message, nil
-          present :data, files.entries, with: Api::Entities::BoxFolderEntity
+          present :data, folder, with: Api::Entities::BoxFolderEntity
         end
       end
 

@@ -8,15 +8,17 @@ import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.update_item_dialog.*
+import kotlinx.android.synthetic.main.content_home_layout.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import java.io.File
 
+@Suppress("UNUSED_EXPRESSION")
 class UpdateItemDialog : DialogFragment() {
     private var mListener: DialogListener? = null
 
@@ -26,6 +28,7 @@ class UpdateItemDialog : DialogFragment() {
         val dialog = BottomSheetDialog(context!!, theme)
         val path = arguments?.getString(PATH)
         val file = arguments?.getParcelable<FileSec>(FILE)
+        val ctype = arguments?.getString(TYPE)
         val isDirectory:Boolean
         isDirectory = if(path != null) {
             File(path).isDirectory
@@ -44,39 +47,54 @@ class UpdateItemDialog : DialogFragment() {
         val move = view.findViewById<View>(R.id.move)
         val copy = view.findViewById<View>(R.id.copy)
         val offline = view.findViewById<Switch>(R.id.offline)
-        if (path!=null) offline.visibility = View.GONE
+        val download = view.findViewById<View>(R.id.download)
+        if (path!=null) download.visibility = View.GONE
 
         rename.setOnClickListener {
             dialog.dismiss()
-            mListener?.onOptionClick(R.id.rename, if (path !=null) path else "${file?.name}/${file?.id}")
+            mListener?.onOptionClick(R.id.rename, path ?: "${file?.id}/$isDirectory/${file?.name}")
         }
 
         delete.setOnClickListener {
             dialog.dismiss()
-            mListener?.onOptionClick(R.id.delete, if (path !=null) path else "${file?.name}/${file?.id}")
+            mListener?.onOptionClick(R.id.delete, path ?: "${file?.id}/$isDirectory/${file?.name}")
         }
 
-        if (!isDirectory) {
+        if (!isDirectory && path ==null || isDirectory && path ==null) {
             move.setOnClickListener {
                 dialog.dismiss()
-                mListener?.onOptionClick(R.id.move, path)
+                mListener?.onOptionClick(R.id.move, path ?: "${file?.id}/$isDirectory/${file?.name}")
             }
 
             copy.setOnClickListener {
                 dialog.dismiss()
-                mListener?.onOptionClick(R.id.copy, path)
+                mListener?.onOptionClick(R.id.copy, path ?: "${file?.id}/$isDirectory/${file?.name}")
             }
         } else {
             move.visibility = View.GONE
             copy.visibility = View.GONE
         }
-        val fileTemp = File(Environment.getExternalStorageDirectory().path + File.separator + "Temp" +File.separator +file?.name)
-        if(fileTemp.exists()){
+        var folderPath = Environment.getExternalStorageDirectory().path + File.separator + "Temp"
+        when(ctype){
+            "googledrive" -> {
+                folderPath = folderPath +File.separator +"Google Drive"+ File.separator + file?.name
+            }
+            "dropbox" ->{
+                folderPath = folderPath +File.separator +"DropBox"+ File.separator + file?.name
+            }
+            "onedrive" -> {
+                folderPath = folderPath +File.separator +"OneDrive"+ File.separator + file?.name
+            }
+            "box" -> {
+                folderPath = folderPath +File.separator +"Box"+ File.separator + file?.name
+            }
+        }
+        if(File(folderPath).exists()){
             offline.isChecked = true
             offline.isClickable = false
 
         }
-        offline.setOnCheckedChangeListener { p0, isChecked ->
+        offline.setOnCheckedChangeListener { _, isChecked ->
 
                 if (isChecked) {
                     mListener?.onOptionClick(R.id.offline, path ?: file?.id)
@@ -119,6 +137,7 @@ class UpdateItemDialog : DialogFragment() {
 
         private val PATH = "path"
         private val FILE = "file"
+        private val TYPE = "type"
 
         fun newInstance(path: String): UpdateItemDialog {
             val fragment = UpdateItemDialog()
@@ -128,10 +147,11 @@ class UpdateItemDialog : DialogFragment() {
             return fragment
         }
 
-        fun newInstanceCloud(file: FileSec):UpdateItemDialog{
+        fun newInstanceCloud(file: FileSec, ctype:String):UpdateItemDialog{
             val fragment = UpdateItemDialog()
             val args = Bundle()
             args.putParcelable(FILE,file)
+            args.putString(TYPE,ctype)
             fragment.arguments = args
             return fragment
         }

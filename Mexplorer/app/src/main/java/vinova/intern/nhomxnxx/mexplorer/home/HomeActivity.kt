@@ -120,17 +120,17 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
         else if (db.getIsFaceAuth() == 0) {
             sw_auth.isChecked = false
         }
-            sw_auth.setOnCheckedChangeListener { _, isChecked ->
-			if (isChecked) {
+            sw_auth.setOnClickListener {
+			if (sw_auth.isChecked) {
 				val ad = AlertDialog.Builder(this)
 				ad.create()
 				ad.setCancelable(false)
 				ad.setTitle(title)
 				ad.setMessage("Do you want to turn on face authentication?")
-				ad.setPositiveButton("Yes") { p0, p1 ->
+				ad.setPositiveButton("Yes") { _, _ ->
 					captureImage(CAPTURE_IMAGE_REQUEST)
 				}
-				ad.setNegativeButton("No") { p0, p1 -> Toasty.success(this@HomeActivity,"KO",Toast.LENGTH_SHORT).show() }
+				ad.setNegativeButton("No") { _, _ -> Toasty.success(this@HomeActivity,"KO",Toast.LENGTH_SHORT).show() }
 				ad.show()
 			}
 			else {
@@ -139,10 +139,10 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				ad.setCancelable(false)
 				ad.setTitle(title)
 				ad.setMessage("Please face authentication to turn off")
-				ad.setPositiveButton("Yes") { p0, p1 ->
+				ad.setPositiveButton("Yes") { _, _ ->
 					captureImage(CAPTURE_IMAGE_REQUEST_2)
 				}
-				ad.setNegativeButton("No") { p0, p1 ->  }
+				ad.setNegativeButton("No") { _, _ ->  }
 				ad.show()
 			}
 		}
@@ -266,7 +266,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	override fun onRename(fromPath: String, toPath: String) {
 	}
 
-	override fun onReNameCloud(newName: String, id: String,token:String) {
+	override fun onReNameCloud(newName: String, id: String, isDic: Boolean, token: String) {
 		mPresenter.renameCloud(id,newName,token,DatabaseHandler(this).getToken()!!)
 	}
 
@@ -274,7 +274,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	}
 
-	override fun onConfirmDeleteCloud(name: String, id: String) {
+	override fun onConfirmDeleteCloud(name: String, isDic: Boolean, id: String) {
 		mPresenter.deleteCloud(id,DatabaseHandler(this@HomeActivity).getToken()!!)
 	}
 

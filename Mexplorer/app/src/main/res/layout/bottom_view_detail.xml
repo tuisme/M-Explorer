@@ -18,9 +18,8 @@
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_share"
         android:drawablePadding="16dp"
-        android:clickable="true"
-        android:text="Share this content"
-        android:textSize="24sp"
+        android:text="@string/share_this_content"
+        android:textSize="20sp"
         android:padding="16dp"/>
 
     <TextView
@@ -29,8 +28,8 @@
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_rename"
         android:drawablePadding="16dp"
-        android:text="Rename"
-        android:textSize="24sp"
+        android:text="@string/rename"
+        android:textSize="20sp"
         android:padding="16dp"/>
 
 
@@ -40,77 +39,30 @@
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_copy"
         android:drawablePadding="16dp"
-        android:text="Copy"
-        android:textSize="24sp"
+        android:text="@string/copy"
+        android:textSize="20sp"
         android:padding="16dp"/>
 
     <TextView
-        android:clickable="true"
         android:id="@+id/moveFile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_move_folder"
         android:drawablePadding="16dp"
-        android:text="Move"
-        android:textSize="24sp"
+        android:text="@string/move"
+        android:textSize="20sp"
         android:padding="16dp"/>
 
-    <TextView
-        android:clickable="true"
-        android:id="@+id/openWith"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_move_folder"
-        android:drawablePadding="16dp"
-        android:text="Open with..."
-        android:textSize="24sp"
-        android:padding="16dp"/>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/available">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_share"
-            android:drawablePadding="16dp"
-            android:padding="16dp"
-            android:text="Available offline"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/switch1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Switch
-            android:id="@+id/switch1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/textView3"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawablePadding="16dp"
         android:drawableStart="@drawable/ic_delete"
-        android:text="Delete"
+        android:text="@string/delete"
         android:id="@+id/deleteFile"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:padding="16dp"
-        android:clickable="true"/>
+        />
 
 </LinearLayout>

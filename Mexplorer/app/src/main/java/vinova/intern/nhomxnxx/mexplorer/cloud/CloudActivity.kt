@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -26,10 +27,7 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.UpdateItemDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.UploadFileDialog
+import vinova.intern.nhomxnxx.mexplorer.dialogs.*
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
@@ -39,7 +37,7 @@ import java.io.File
 
 
 class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener,
-		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener {
+		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener, NewFolderDialog.DialogListener {
 
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
@@ -49,15 +47,32 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	lateinit var cloudId : String
 	val PICKFILE_REQUEST_CODE = 1997
 	val READ_REQUEST_CODE = 2511
+	lateinit var url_ :String
 	lateinit var name_ :String
+	lateinit var ctype_ :String
 	var path : ArrayList<ArrayList<String>> = arrayListOf()
 	val CAPTURE_IMAGE_REQUEST = 20
+	lateinit var folder : File
+	var firstLoadUser = true
+    lateinit var idItem: String
+    var mCopy:Boolean =false
+    var isDic:Boolean = false
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		super.onCreateDrawer()
 		setRv()
 		userToken = DatabaseHandler(this).getToken()!!
+		accept_move.setOnClickListener {
+			moving_layout.visibility = View.GONE
+            CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+			mPresenter.moveOrCopy(idItem,mCopy,userToken,cloudType,ctoken,path.last()[0],isDic)
+		}
+
+		decline_move.setOnClickListener {
+			moving_layout.visibility = View.GONE
+			idItem = ""
+		}
 	}
 
 	private fun setRv(){
@@ -89,7 +104,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			}
 
 			override fun onLongClick(file: FileSec) {
-				UpdateItemDialog.newInstanceCloud(file).show(supportFragmentManager, "update_item")
+				UpdateItemDialog.newInstanceCloud(file,cloudType).show(supportFragmentManager, "update_item")
 			}
 		})
 
@@ -114,17 +129,16 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 				}
 			}
 			READ_REQUEST_CODE -> {
-				if (data != null) {
-					val uri: Uri = data.data
-					val folder = File(uri.path)
-					mPresenter.createFolder(userToken, folder.name.split(":")[1], path.last()[0], cloudType, ctoken)
-					folder.listFiles()
+				if (data!=null) {
+					val uri : Uri = data.data
+					folder = File(uri.path)
+					mPresenter.upLoadFolder(userToken,ctoken,cloudType,path.last()[0],folder.path.split(":").last())
 				}
 			}
 
 			CAPTURE_IMAGE_REQUEST -> {
 				if (data != null) {
-					mPresenter.saveImage(data, userToken, path.last().toString(), cloudType, ctoken)
+					mPresenter.saveImage(data, userToken, path.last()[0], cloudType, ctoken)
 				}
 			}
 		}
@@ -135,6 +149,9 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	@TargetApi(Build.VERSION_CODES.M)
 	override fun onOptionClick(type: String) {
 		when(type){
+			"create folder"->{
+				NewFolderDialog.newInstance().show(supportFragmentManager,"fragment")
+			}
 			"upload file" ->{
 				val intent = Intent(Intent.ACTION_GET_CONTENT)
 				intent.type = "*/*"
@@ -157,23 +174,49 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onOptionClick(which: Int, path: String?) {
 		when(which){
 			R.id.offline ->{
+                CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 				path?.let { mPresenter.download(it, ctoken,userToken,cloudType) }
-
 			}
 			R.id.delete -> {
 				val name = path?.split("/")!!
-				ConfirmDeleteDialog.newInstanceCloud( name[0],name[1]).show(supportFragmentManager,"fragment")
+				ConfirmDeleteDialog.newInstanceCloud( name[2],name[1].toBoolean(),name[0]).show(supportFragmentManager,"fragment")
 			}
 			R.id.rename -> {
 				val name = path?.split("/")!!
-				RenameDialog.newInstanceCloud(name[0],name[1],ctoken).show(supportFragmentManager,"fragment")
+				RenameDialog.newInstanceCloud(name[2],name[0],name[1].toBoolean(),ctoken).show(supportFragmentManager,"fragment")
 			}
+			R.id.copy ->{
+				idItem = path.toString()
+				moving_layout.visibility = View.VISIBLE
+				val temp = path?.split("/")
+				if(temp != null)
+					idItem= temp[0]
+				isDic = temp?.get(1)?.toBoolean()!!
+                moving_file_name.text = getString(R.string.copy_file,temp[2])
+                mCopy = true
+			}
+            R.id.move ->{
+                moving_layout.visibility = View.VISIBLE
+                val temp = path?.split("/")
+                if(temp != null)
+                    idItem= temp[0]
+                isDic = temp?.get(1)?.toBoolean()!!
+                moving_file_name.text = getString(R.string.moving_file,temp[2])
+                mCopy  = false
+            }
 		}
 	}
 
-	override fun onReNameCloud(newName: String, id: String, token: String) {
-		mPresenter.renameFile(userToken,id,newName,cloudType,ctoken)
+	override fun onNewFolder(name: String) {
+		mPresenter.createFolder(userToken,name,path.last()[0],cloudType,ctoken)
 	}
+
+    override fun onReNameCloud(newName: String, id: String, isDic: Boolean, token: String) {
+        if(isDic)
+            mPresenter.renameFolder(userToken,id,newName,cloudType,ctoken)
+        else
+            mPresenter.renameFile(userToken,id,newName,cloudType,ctoken)
+    }
 
 	override fun onRename(fromPath: String, toPath: String) {
 
@@ -183,9 +226,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		title = path.last()[1]
 		swipeContent.isRefreshing = false
 		rvContent.hideShimmerAdapter()
-		showUser()
 		adapter.setData(files)
 		adapter.notifyDataSetChanged()
+		if (firstLoadUser)
+			showUser()
 	}
 
 	private fun showUser() {
@@ -245,6 +289,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		when {
 			drawer_layout?.isDrawerOpen(GravityCompat.END)!! -> drawer_layout?.isDrawerOpen(GravityCompat.START)
 			path.size > 1 -> {
+                if (adapter.error.visibility == View.VISIBLE)
+                    adapter.error.visibility = View.GONE
 				rvContent.showShimmerAdapter()
 				path.removeAt(path.size-1)
 				val id = path.last()[0]
@@ -259,18 +305,24 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		mPresenter.getList(path.last()[0],ctoken,userToken,cloudType)
 	}
 
-	override fun downloadFile(name: String) {
+	override fun downloadFile(url: String, name: String, ctype: String) {
+		url_ = url
 		name_ = name
+		ctype_ = ctype
+
 		if (checkPermission()) {
-			startDownload(name)
+			startDownload(url,name,ctype)
 		} else {
 			requestPermission()
 		}
 	}
 
-	private fun startDownload(name:String) {
+	private fun startDownload(url:String,name:String,ctype:String) {
 		val intent = Intent(this, DownloadService::class.java)
+		intent.putExtra("url",url)
 		intent.putExtra("name",name)
+		intent.putExtra("ctype",ctype)
+        CustomDiaglogFragment.hideLoadingDialog()
 		startService(intent)
 	}
 
@@ -289,7 +341,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
 		when (requestCode) {
 			2 -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				startDownload(name_)
+				startDownload(url_,name_,ctype_)
 			} else {
 				Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
 
@@ -299,9 +351,12 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onConfirmDelete(path: String?) {
 	}
 
-	override fun onConfirmDeleteCloud(name: String, id: String) {
+	override fun onConfirmDeleteCloud(name: String, isDic: Boolean, id: String) {
 		CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
-		mPresenter.deleteFile(userToken,id,cloudType,ctoken)
+        if(isDic)
+            mPresenter.deleteFolder(userToken,id,cloudType,ctoken)
+        else
+		    mPresenter.deleteFile(userToken,id,cloudType,ctoken)
 	}
 
 

@@ -16,19 +16,20 @@ class ConfirmDeleteDialog : DialogFragment() {
 
         val msg: String
         val path = arguments?.getString(PATH)
-        val id = arguments?.getString("id")
+        val isDic = arguments?.getBoolean(DIC)
+        val id = arguments?.getString(ID)
         val file = File(path)
-        if (file.isDirectory) {
-            msg = "You are about to delete the folder with all it's content for real."
+        msg = if (file.isDirectory) {
+            "You are about to delete the folder with all it's content for real."
         } else {
-            msg = "You are about to delete the file"
+            "You are about to delete the file"
         }
         builder.setMessage(msg)
         builder.setPositiveButton(R.string.label_delete) { _, _ ->
             if (isLocal)
                 (activity as ConfirmListener).onConfirmDelete(path)
             else
-                (activity as ConfirmListener).onConfirmDeleteCloud(path!!,id!!)
+                isDic?.let { (activity as ConfirmListener).onConfirmDeleteCloud(path.toString(), it,id.toString()) }
         }
         builder.setNegativeButton(R.string.label_cancel, null)
         return builder.create()
@@ -36,12 +37,15 @@ class ConfirmDeleteDialog : DialogFragment() {
 
     interface ConfirmListener {
         fun onConfirmDelete(path: String?)
-        fun onConfirmDeleteCloud(name :String,id:String)
+        fun onConfirmDeleteCloud(name :String,isDic:Boolean,id:String)
     }
 
     companion object {
 
         private val PATH = "path"
+        private val ID = "id"
+        private val DIC = "dic"
+
         private var isLocal = false
         fun newInstance(path: String): ConfirmDeleteDialog {
             isLocal = true
@@ -52,11 +56,12 @@ class ConfirmDeleteDialog : DialogFragment() {
             return fragment
         }
 
-        fun newInstanceCloud(path: String,id:String): ConfirmDeleteDialog {
+        fun newInstanceCloud(path: String, isDic:Boolean,id:String): ConfirmDeleteDialog {
             val fragment = ConfirmDeleteDialog()
             val args = Bundle()
             args.putString(PATH, path)
-            args.putString("id",id)
+            args.putBoolean(DIC, isDic)
+            args.putString(ID,id)
             fragment.arguments = args
             return fragment
         }

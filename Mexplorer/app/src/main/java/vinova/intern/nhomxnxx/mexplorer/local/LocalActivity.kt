@@ -95,7 +95,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         adapter.refreshData()
     }
 
-    override fun onReNameCloud(newName: String, id: String, token: String) {
+    override fun onReNameCloud(newName: String, id: String, isDic: Boolean, token: String) {
 
     }
 
@@ -141,7 +141,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         adapter.refreshData()
     }
 
-    override fun onConfirmDeleteCloud(name: String, id: String) {
+    override fun onConfirmDeleteCloud(name: String, isDic: Boolean, id: String) {
 
     }
 

@@ -1,14 +1,19 @@
 package vinova.intern.nhomxnxx.mexplorer.home
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
+import androidx.annotation.MainThread
 import com.facebook.login.LoginManager
 import es.dmoral.toasty.Toasty
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -131,6 +136,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                 })
     }
 
+    @SuppressLint("CheckResult")
     override fun encryptFile(context:Context, data: Intent) {
         val extras = data.extras
         val imageBitmap = extras?.get("data") as Bitmap ?: return
@@ -142,35 +148,37 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         val requestFile = RequestBody.create(MediaType.parse("image/*"), ima)
         val body = MultipartBody.Part.createFormData("image_file","face", requestFile)
         CallApiFaceAuth.getInstance().getFace(api_key,api_secret, body)
-                .enqueue(object : Callback<AuthenticationFace> {
-                    override fun onFailure(call: Call<AuthenticationFace>?, t: Throwable?) {
-                    }
-                    override fun onResponse(call: Call<AuthenticationFace>?, response: Response<AuthenticationFace>?) {
-                        val authFace = response?.body()
-                        when {
-                            authFace?.faces?.size ==0 -> {
-                                mView.showLoading(false)
-                                Toast.makeText(context, "Please capture image again", Toast.LENGTH_SHORT).show()
-                                mView.setSwitch(false)
-                            }
-                            authFace?.faces?.size!! > 1 -> {
-                                mView.showLoading(false)
-                                Toast.makeText(context, "Many face, please capture image again", Toast.LENGTH_SHORT).show()
-                                mView.setSwitch(false)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    when {
+                        it.faces?.size ==0 -> {
+                            mView.showLoading(false)
+                            Toast.makeText(context, "Please capture image again", Toast.LENGTH_SHORT).show()
+                            mView.setSwitch(false)
+                        }
+                        it.faces?.size!! > 1 -> {
+                            mView.showLoading(false)
+                            Toast.makeText(context, "Many face, please capture image again", Toast.LENGTH_SHORT).show()
+                            mView.setSwitch(false)
 
-                            }
-                            else -> {
-                                mView.showLoading(false)
-                                Support.encrypt(Support.keyy, ima).let { Support.saveFile(it, "enimg.jpg") }
-                                Toasty.success(context, "Face authentication active", Toast.LENGTH_SHORT).show()
-                                mView.isAuth(false)
-                                db.updateFaceAuth(1, db.getToken())
-                            }
+                        }
+                        else -> {
+                            mView.showLoading(false)
+                            Support.encrypt(Support.keyy, ima).let { Support.saveFile(it, "enimg.jpg") }
+                            Toasty.success(context, "Face authentication active", Toast.LENGTH_SHORT).show()
+                            mView.isAuth(false)
+                            db.updateFaceAuth(1, db.getToken())
                         }
                     }
-                })    }
+                },
+                        {
+                            Toasty.error(context, "Error " + it.localizedMessage, Toast.LENGTH_SHORT).show()
+                        })
+    }
 
-    override fun authentication(context:Context,data: Intent, isTurnOff:Boolean) {
+    @SuppressLint("CheckResult")
+    override fun authentication(context:Context, data: Intent, isTurnOff:Boolean) {
         var faceId1: String
         val extras = data.extras
         val imageBitmap = extras?.get("data") as Bitmap? ?: return
@@ -182,30 +190,29 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         val requestFile = RequestBody.create(MediaType.parse("image/*"), ima)
         val body = MultipartBody.Part.createFormData("image_file","face1", requestFile)
         CallApiFaceAuth.getInstance().getFace(api_key,api_secret, body)
-                .enqueue(object : Callback<AuthenticationFace>{
-                    override fun onFailure(call: Call<AuthenticationFace>?, t: Throwable?) {
-                    }
-
-                    override fun onResponse(call: Call<AuthenticationFace>?, response: Response<AuthenticationFace>?) {
-                        val authFace = response?.body()
-                        when {
-                            authFace?.faces?.size ==0 -> {
-                                mView.showLoading(false)
-                                Toasty.error(context, "No detect face, please capture image again", Toast.LENGTH_SHORT).show()
-                            }
-                            authFace?.faces?.size!! > 1 -> {
-                                mView.showLoading(false)
-                                Toasty.error(context,"Many face, please capture image again", Toast.LENGTH_SHORT).show()
-                            }
-                            else -> {
-                                faceId1 = authFace.faces!![0].faceToken.toString()
-                                getFaceId2(context, faceId1,isTurnOff)
-                            }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    when {
+                        it.faces?.size ==0 -> {
+                            mView.showLoading(false)
+                            Toasty.error(context, "No detect face, please capture image again", Toast.LENGTH_SHORT).show()
+                        }
+                        it.faces?.size!! > 1 -> {
+                            mView.showLoading(false)
+                            Toasty.error(context,"Many face, please capture image again", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            faceId1 = it.faces!![0].faceToken.toString()
+                            getFaceId2(context, faceId1,isTurnOff)
                         }
                     }
+                },{
+                    Toasty.error(context, "Error " + it.localizedMessage, Toast.LENGTH_SHORT).show()
                 })
     }
 
+    @SuppressLint("CheckResult")
     @TargetApi(Build.VERSION_CODES.O)
     private fun getFaceId2(context:Context, faceId1:String,isTurnOff:Boolean) {
         var faceId2: String
@@ -215,45 +222,40 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
         val requestFile2 = RequestBody.create(MediaType.parse("image/*"), templates)
         val body2 = MultipartBody.Part.createFormData("image_file","face2", requestFile2)
         CallApiFaceAuth.getInstance().getFace(api_key,api_secret, body2)
-                .enqueue(object : Callback<AuthenticationFace> {
-                    override fun onFailure(call: Call<AuthenticationFace>?, t: Throwable?) {
-                    }
-
-                    override fun onResponse(call: Call<AuthenticationFace>?, response: Response<AuthenticationFace>?) {
-                        val authFace = response?.body()
-                        faceId2 = authFace?.faces!![0].faceToken.toString()
-                        compare(context, faceId1,faceId2,isTurnOff)
-                    }
-                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe({
+                    faceId2 = it.faces!![0].faceToken.toString()
+                    compare(context, faceId1,faceId2,isTurnOff)
+                },
+                        {
+                            Toasty.error(context, "Error " + it.localizedMessage, Toast.LENGTH_SHORT).show()
+                        })
     }
 
-    private fun compare(context:Context, faceId1:String,faceId2:String,isTurnOff:Boolean) {
+    @SuppressLint("CheckResult")
+    private fun compare(context:Context, faceId1:String, faceId2:String, isTurnOff:Boolean) {
         val db = DatabaseHandler(context)
         CallApiFaceAuth.getInstance().compare(api_key,api_secret,faceId1,faceId2)
-                .enqueue(object :Callback<Compare>{
-                    override fun onFailure(call: Call<Compare>?, t: Throwable?) {
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    if (it.confidence!! > 80) {
+                        mView.showLoading(false)
+                        if (isTurnOff) {
+                            Toasty.success(context, "OK", Toast.LENGTH_SHORT).show()
+                            db.updateFaceAuth(0, db.getToken())
+                            mView.setSwitch(false)
+                        } else mView.isAuth(true)
+                    } else {
+                        mView.showLoading(false)
+                        Toasty.error(context, "Not match, please check again", Toast.LENGTH_SHORT).show()
                     }
-
-                    override fun onResponse(call: Call<Compare>?, response: Response<Compare>?) {
-                        val authFace = response?.body()
-                        if(authFace?.confidence!! >80) {
-                            mView.showLoading(false)
-                            if (isTurnOff) {
-                                Toasty.success(context, "OK", Toast.LENGTH_SHORT).show()
-                                db.updateFaceAuth(0, db.getToken())
-                                mView.setSwitch(false)
-                            }
-                            else mView.isAuth(true)
-                        }
-                        else {
-                            mView.showLoading(false)
-                            Toasty.error(context, "Not match, please check again", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-
-                })    }
-
-
+                },
+                        {
+                            Toasty.error(context, "Error " + it.localizedMessage, Toast.LENGTH_SHORT).show()
+                        })
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package vinova.intern.nhomxnxx.mexplorer.api
 
+import io.reactivex.Observable
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.*
@@ -56,7 +57,6 @@ interface ApiInterface {
     fun getUrlFile(@Query("id") id :String, @Query("token") token:String,
                    @Header("Access-Token") user_token : String, @Query("type")type:String) : Call<SpecificFile>
 
-
     @POST("/api/v2/clouds")
     fun getDrive(@Header("Access-Token") user_token : String,
                  @Query("code") serverAuth : String, @Query("name") name : String,
@@ -76,17 +76,43 @@ interface ApiInterface {
 	               @Query("name") fname : String, @Query("type") type: String,
 	               @Query("token") token: String) : Call<BaseResponse>
 
+    @PUT("/api/v2/folders")
+    fun renameFolder(@Header("Access-Token") user_token: String, @Query("id") id: String,
+                   @Query("name") fname : String, @Query("type") type: String,
+                   @Query("token") token: String) : Call<BaseResponse>
+
     @POST("/api/v2/folders")
     fun createFolder(@Header("Access-Token") user_token: String,
                      @Query("name") fname: String,
                      @Query("parent") parent : String,
                      @Query("type") type: String,
-                     @Query("token") token: String) : Call<BaseResponse>
+                     @Query("token") token: String) : Call<requestUploadFolder>
 
     @DELETE("/api/v2/files")
     fun deleteFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
                    @Query("type") type: String,
                    @Query("token") token: String) : Call<BaseResponse>
+
+    @POST("/api/v2/folders/zip")
+    @Multipart
+    fun uploadFolder(@Header("Access-Token") user_token: String,
+                     @Query("id") id: String,
+                     @Query("json") json : String,
+                     @Part zip : MultipartBody.Part, @Query("type") type: String,
+                     @Query("token") token : String) : Call<BaseResponse>
+    @DELETE("/api/v2/folders")
+    fun deleteFolder(@Header("Access-Token") user_token: String, @Query("id") id: String,
+                   @Query("type") type: String,
+                   @Query("token") token: String) : Call<BaseResponse>
+    @POST("/api/v2/jobs/copy_1_cloud")
+    fun copyFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
+                 @Query("type") type: String, @Query("token") token: String,
+                 @Query("id_dest") id_dest:String, @Query("mime_type") mime_type:String) : Call<BaseResponse>
+
+    @POST("/api/v2/jobs/move_1_cloud")
+    fun moveFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
+                 @Query("type") type: String, @Query("token") token: String,
+                 @Query("id_dest") id_dest:String, @Query("mime_type") mime_type:String) : Call<BaseResponse>
 }
 
 interface ApiFaceAuthInterface
@@ -95,11 +121,11 @@ interface ApiFaceAuthInterface
     @Multipart
     fun getFace(@Query("api_key") apiKey :String,
                 @Query("api_secret") apiSec: String,
-                @Part file: MultipartBody.Part) :Call<AuthenticationFace>
+                @Part file: MultipartBody.Part) :Observable<AuthenticationFace>
 
     @POST("/facepp/v3/compare")
     fun compare(@Query("api_key") apiKey :String,
                 @Query("api_secret") apiSec: String,
                 @Query("face_token1") ft1: String,
-                @Query("face_token2") ft2:String) :Call<Compare>
+                @Query("face_token2") ft2:String) :Observable<Compare>
 }

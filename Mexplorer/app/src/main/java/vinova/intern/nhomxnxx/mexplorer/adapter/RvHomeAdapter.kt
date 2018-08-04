@@ -25,10 +25,11 @@ import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
 import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
+import kotlin.math.roundToInt
 
 
 class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerView.Adapter<RvHomeAdapter.ViewHolderCloud>() {
-	private var listCloud : MutableList<Cloud> = mutableListOf()
+	private var listCloud : MutableList<Cloud> = mutableListOf(Cloud(null,null,"Local","local",null,null,null))
 	private val context : Context = ctx
 	private val root : View = view
 	private val sup = frag
@@ -37,9 +38,9 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 	private val token = DatabaseHandler(context).getToken()
 	fun setData(clouds : List<Cloud>?){
 		if (clouds!=null)
-			this.listCloud = clouds.sortedBy {
+			this.listCloud.addAll(clouds.sortedBy {
 				it.name
-			}.toMutableList()
+			})
 		notifyDataSetChanged()
 	}
 
@@ -48,9 +49,12 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 	}
 
 	fun refreshData(clouds : List<Cloud>?){
-		this.listCloud = clouds?.sortedBy {
-			it.name
-		}?.toMutableList()!!
+		listCloud = mutableListOf(Cloud(null,null,"Local","local",null,null,null))
+		if (clouds != null) {
+			this.listCloud.addAll(clouds.sortedBy {
+				it.name
+			})
+		}
 		notifyDataSetChanged()
 	}
 
@@ -84,7 +88,7 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			}
 			root.rename.setOnClickListener {
 				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
-				RenameDialog.newInstanceCloud(cloud.name!!,cloud.id!!,token!!).show(sup,"halo")
+				RenameDialog.newInstanceCloud(cloud.name!!,cloud.id!!,false,token!!).show(sup,"halo")
 			}
 			root.copyFile.setOnClickListener {
 
@@ -92,25 +96,28 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			root.moveFile.setOnClickListener {
 
 			}
-			root.openWith.setOnClickListener {
 
-			}
 			root.deleteFile.setOnClickListener {
 				bottomSheetBehave.state = BottomSheetBehavior.STATE_COLLAPSED
-				ConfirmDeleteDialog.newInstanceCloud(cloud.name!!,cloud.id!!).show(sup,"halo")
+				ConfirmDeleteDialog.newInstanceCloud(cloud.name!!,false,cloud.id!!).show(sup,"halo")
 			}
 		}
 
 		if (cl.type== "local"){
-			holder.used.text = "${getAvailableInternalMemorySize()} of ${getTotalInternalMemorySize()}"
+			val free = getAvailableInternalMemorySize()
+			val total = getTotalInternalMemorySize()
+			holder.used.text = "${Support.getFileSize(total - free)} of ${Support.getFileSize(total)}"
+			val a = ((total - free).toDouble()/total.toDouble())*100
+			holder.process.progress = a.roundToInt()
+			holder.itemView.btnSetting.visibility = View.INVISIBLE
 		}
 		else{
-			val sum = Support.getFileSize(cl.used!! + cl.allocated!!)
-			val used = "${Support.getFileSize(cl.used!!)} of $sum"
+			val sum = Support.getFileSize(cl.allocated!!.toLong())
+			val used = "${Support.getFileSize(cl.used!!.toLong())} of $sum"
 			holder.used.text = used
-			holder.process.progress = ((cl.used!!/(cl.used!! + cl.allocated!!))*100).toInt()
+			val a = (cl.used!!/cl.allocated!!)*100
+			holder.process.progress = a.roundToInt()
 			root.share.visibility = View.GONE
-			root.available.visibility = View.GONE
 		}
 
 	}
@@ -143,45 +150,20 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 		}
 	}
 
-	private fun getAvailableInternalMemorySize(): String {
+	private fun getAvailableInternalMemorySize(): Long {
 		val path = Environment.getDataDirectory()
 		val stat = StatFs(path.path)
 		val blockSize = stat.blockSizeLong
 		val availableBlocks = stat.availableBlocksLong
-		return formatSize(availableBlocks * blockSize)
+		return availableBlocks * blockSize
 	}
 
-	private fun getTotalInternalMemorySize(): String {
+	private fun getTotalInternalMemorySize(): Long {
 		val path = Environment.getDataDirectory()
 		val stat = StatFs(path.path)
 		val blockSize = stat.blockSizeLong
 		val totalBlocks = stat.blockCountLong
-		return formatSize(totalBlocks * blockSize)
-	}
-
-	private fun formatSize(size_: Long): String {
-		var size = size_
-		var suffix: String? = null
-
-		if (size >= 1024) {
-			suffix = "KB"
-			size /= 1024
-			if (size >= 1024) {
-				suffix = "MB"
-				size /= 1024
-			}
-		}
-
-		val resultBuffer = StringBuilder(java.lang.Long.toString(size))
-
-		var commaOffset = resultBuffer.length - 3
-		while (commaOffset > 0) {
-			resultBuffer.insert(commaOffset, ',')
-			commaOffset -= 3
-		}
-
-		if (suffix != null) resultBuffer.append(suffix)
-		return resultBuffer.toString()
+		return totalBlocks * blockSize
 	}
 
 	interface ItemClickListener {

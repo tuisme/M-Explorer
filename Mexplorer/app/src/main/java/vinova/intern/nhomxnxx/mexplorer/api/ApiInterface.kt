@@ -64,6 +64,9 @@ interface ApiInterface {
 
     @GET("/api/v2/devices")
     fun getDevices(@Header("Access-Token") token : String) : Call<ListDevice>
+    @DELETE("/api/v2/devices/{id}")
+    fun deleteDevices(@Header("Access-Token") token : String,
+                      @Path("id") id: String) : Call<ListDevice>
 
     @POST("/api/v2/files")
     @Multipart

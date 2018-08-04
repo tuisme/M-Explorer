@@ -171,8 +171,11 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				Auth.GoogleSignInApi.signOut(mGoogleApiClient)
 			}
 			R.id.bookmark->{
-                val intent = Intent(this,DeviceActivity::class.java)
-                startActivity(intent)
+
+			}
+			R.id.device_connected -> {
+				val intent = Intent(this,DeviceActivity::class.java)
+				startActivity(intent)
 			}
 		}
 		drawer_layout?.closeDrawer(GravityCompat.START)

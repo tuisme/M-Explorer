@@ -353,7 +353,8 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 						override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
 							if (response?.body()?.status.equals("success")) {
 								LoginManager.getInstance().logOut()
-
+								mView.showLoading(false)
+								mView.logoutSuccess()
 								db.deleteUserData(token)
 							}
 							else

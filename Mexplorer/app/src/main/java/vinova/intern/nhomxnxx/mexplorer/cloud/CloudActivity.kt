@@ -27,7 +27,9 @@ import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.device.DeviceActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
+import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
@@ -271,7 +273,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
 		when(p0.itemId){
 			R.id.home->{
-
+				val intent = Intent(this,HomeActivity::class.java)
+				startActivity(intent)
 			}
 			R.id.signout->{
 				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
@@ -279,6 +282,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			}
 			R.id.bookmark->{
 
+			}
+			R.id.device_connected -> {
+				val intent = Intent(this, DeviceActivity::class.java)
+				startActivity(intent)
 			}
 		}
 		drawer_layout?.closeDrawer(GravityCompat.START)
@@ -372,5 +379,4 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
 		}
 	}
-
 }

@@ -18,8 +18,8 @@ module Api::V2
         code = params[:code]
         if params[:provider] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
-            client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-            client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+            client_id: ENV['google_client_id'],
+            client_secret: ENV['google_client_secret'],
             scope: [
               'https://www.googleapis.com/auth/drive'
             ],
@@ -61,8 +61,8 @@ module Api::V2
         #   allocated = 0
         elsif params[:provider] == 'box'
           type = 'box'
-          access_token = Boxr.refresh_tokens(code, client_id: 'i9jieqavbpuutnbbrqdyeo44m0imegpk', client_secret: '4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F').access_token
-          refresh_token = Boxr.refresh_tokens(code, client_id: 'i9jieqavbpuutnbbrqdyeo44m0imegpk', client_secret: '4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F').refresh_token
+          access_token = Boxr.refresh_tokens(code, client_id: ENV['box_client_id'], client_secret: ENV['box_client_secret']).access_token
+          refresh_token = Boxr.refresh_tokens(code, client_id: ENV['box_client_id'], client_secret: ENV['box_client_secret']).refresh_token
           client = Boxr::Client.new(access_token)
           root = Boxr::ROOT
           used = client.me.space_used

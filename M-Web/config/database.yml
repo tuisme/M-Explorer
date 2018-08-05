@@ -87,6 +87,6 @@ test:
 production:
   <<: *default
   database: M_Explorer_development
-  host: localhost
-  username: m_explorer
-  password: "123456"
+  url: <%= ENV['DATABASE_URL'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
+  password: "<%= ENV['DATABASE_PASSWORD'] %>"

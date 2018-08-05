@@ -33,8 +33,3 @@
 // = require material-dashboard.min
 
 // = require custom
-
-
-
-//= require demo/demo
-//= require demo/jquery.sharrre

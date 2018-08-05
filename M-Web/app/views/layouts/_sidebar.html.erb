@@ -1,7 +1,7 @@
 <div class="sidebar">
     <div class="logo">
-      <%= link_to "ME",root_path, class: "simple-text logo-mini"  %>
-      <%= link_to "M Explorer",root_path, class: "simple-text logo-normal"  %>
+      <%= link_to image_tag(asset_path('mini-logo.png'), :alt => "mini-logo") ,root_path, class: "simple-text logo-mini"  %>
+      <%= link_to image_tag(asset_path('full-logo.png'), :alt => "full-logo"),root_path, class: "simple-text logo-normal"  %>
     </div>
     <div class="sidebar-wrapper">
         <div class="user">
@@ -9,14 +9,14 @@
                 <%= image_tag("faces/avatar.jpg", :alt => "avatar") %>
             </div>
             <div class="user-info">
-                <a data-toggle="collapse" href="#collapseExample" class="username">
+                <a data-toggle="collapse" href="#user" class="username">
                     <span>Minh Tú Phạm
                       <b class="caret"></b>
                     </span>
                 </a>
-                <div class="collapse" id="collapseExample">
+                <div class="collapse" id="user">
                     <ul class="nav">
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <span class="sidebar-mini"><i class="fa fa-user"></i></span>
                                 <span class="sidebar-normal"> My Profile </span>
@@ -27,10 +27,10 @@
                                 <span class="sidebar-mini"><i class="fa fa-cog"></i></span>
                                 <span class="sidebar-normal"> Settings </span>
                             </a>
-                        </li>
+                        </li> -->
                         <li class="nav-item">
                             <a class="nav-link" href="#">
-                                <span class="sidebar-mini"><i class="fa fa-sign-out"></i></span>
+                                <span class="sidebar-mini"><%= fa_icon('sign-out') %></i></span>
                                 <span class="sidebar-normal"> Logout </span>
                             </a>
                         </li>
@@ -39,28 +39,25 @@
             </div>
         </div>
         <ul class="nav">
-
             <li class="nav-item active ">
-                <a class="nav-link" href="../examples/dashboard.html">
-                    <i class="material-icons">dashboard</i>
+                <%= link_to root_path, class: 'nav-link' do %>
+                    <%= material_icon.dashboard %>
                     <p> Dashboard </p>
+                <% end %>
                 </a>
             </li>
             <li class="nav-item ">
                 <a class="nav-link" href="../examples/dashboard.html">
-                    <i class="material-icons">assignment_turned_in</i>
-                    <p> Admin Tools </p>
+                    <%= material_icon.assignment_turned_in %>
+                    <p> Future </p>
                 </a>
             </li>
-            <li class="nav-item ">
+            <!-- <li class="nav-item ">
                 <a class="nav-link" href="../examples/dashboard.html">
                     <i class="material-icons">cloud</i>
                     <p> My Cloud </p>
                 </a>
-            </li>
-
-
+            </li> -->
         </ul>
-
     </div>
 </div>

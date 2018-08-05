@@ -1,0 +1,12 @@
+li.nav-item.before {
+    background-color: #eef3f6 !important;
+    color: #525252 !important;
+}
+li.nav-item.active {
+  background-color: #3fadde !important;
+  color: #fff !important;
+}
+li.nav-item.hover {
+  background-color: #dee6f1 !important;
+  color: #525252 !important;
+}

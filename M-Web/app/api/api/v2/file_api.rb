@@ -66,8 +66,8 @@ module Api::V2
 
           dir = File.dirname("#{Rails.root}/public/files/#{current_user.id}/file")
           FileUtils.mkdir_p(dir) unless File.directory?(dir)
-          Down.download(client.download_url(params[:id]), destination: "#{dir}/#{title}")
-          file.url = request.base_url + '/files/' + current_user.id.to_s + '/' + file['name']
+          Down.download(client.download_url(params[:id]), destination: "#{dir}/#{file.name}")
+          file.url = request.base_url + '/files/' + current_user.id.to_s + '/' + file.name
 
 
           present :time, Time.now.to_s

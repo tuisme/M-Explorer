@@ -5,10 +5,12 @@ class HardWorker
     case name
     when "b"
       sleep 10
-      puts "aaa"
+      logger.info "Things are happening."
+      logger.debug "Here's some info: #{hash.inspect}"
     else
       sleep 1
-      puts "aaa"
+      logger.info "Things are happening."
+      logger.debug "Here's some info: #{hash.inspect}"
     end
   end
 end

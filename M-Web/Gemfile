@@ -73,6 +73,7 @@ gem 'whenever', require: false
 gem 'rubyzip', '~> 1.2'
 gem 'imgur-api'
 gem 'sidekiq'
+gem 'sidekiq-scheduler', '~> 2.0', '>= 2.0.8'
 gem 'redis'
 gem 'fcm'
 gem "figaro"

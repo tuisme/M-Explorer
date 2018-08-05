@@ -58,6 +58,10 @@ class DBTable {
             val COLUMN_NAME = "isFaceAuth"
             val COLUMN_NUMBER = 10
         }
+        object AllOCATED{
+            val COLUMN_NAME = "allocated"
+            val COLUMN_NUMBER = 11
+        }
     }
 
 }

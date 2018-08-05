@@ -9,6 +9,7 @@ import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 interface HomeInterface {
     interface View: BaseView<Presenter> {
         fun logoutSuccess()
+        fun forceLogOut(message : String)
         fun showList(list : ListCloud?)
         fun refreshList(list : ListCloud?)
         fun refresh()

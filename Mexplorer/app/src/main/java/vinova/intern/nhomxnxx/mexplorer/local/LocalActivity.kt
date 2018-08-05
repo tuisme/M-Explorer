@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
@@ -153,6 +154,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         super.onCreateDrawer()
         rvContent.layoutManager = LinearLayoutManager(this)
         adapter = LocalAdapter(this,error_nothing)
+        rvContent.addItemDecoration(DividerItemDecoration(rvContent.context, DividerItemDecoration.VERTICAL))
         rvContent.adapter = adapter
         adapter.setListener(this)
         if (isStoragePermissionGranted()){
@@ -256,7 +258,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
                 mPresenter.logout(this, DatabaseHandler(this).getToken())
             }
             R.id.bookmark->{
-
+                super.onBackPressed()
             }
             R.id.device_connected -> {
                 val intent = Intent(this, DeviceActivity::class.java)

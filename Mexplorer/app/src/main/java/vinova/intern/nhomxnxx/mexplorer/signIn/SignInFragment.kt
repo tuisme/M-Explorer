@@ -55,8 +55,7 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 	private lateinit var mLocationManager : LocationManager
 
 	private val LOCATION_PERMS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-			Manifest.permission.READ_EXTERNAL_STORAGE)
+			Manifest.permission.ACCESS_COARSE_LOCATION)
 
 	override fun signInSuccess(user: User) {
         CustomDiaglogFragment.hideLoadingDialog()
@@ -156,11 +155,6 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 	override fun onAttach(context: Context?) {
 		super.onAttach(context)
 		mLocationManager = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-	}
-
-	@SuppressLint("MissingPermission")
-	override fun onResume() {
-		super.onResume()
 	}
 
 	override fun onPause() {

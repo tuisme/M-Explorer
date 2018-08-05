@@ -8,12 +8,10 @@ import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.content_home_layout.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import java.io.File
@@ -52,23 +50,23 @@ class UpdateItemDialog : DialogFragment() {
 
         rename.setOnClickListener {
             dialog.dismiss()
-            mListener?.onOptionClick(R.id.rename, path ?: "${file?.id}/$isDirectory/${file?.name}")
+            mListener?.onOptionClick(R.id.rename, path ?: "${file?.id}|$isDirectory|${file?.name}")
         }
 
         delete.setOnClickListener {
             dialog.dismiss()
-            mListener?.onOptionClick(R.id.delete, path ?: "${file?.id}/$isDirectory/${file?.name}")
+            mListener?.onOptionClick(R.id.delete, path ?: "${file?.id}|$isDirectory|${file?.name}")
         }
 
         if (!isDirectory && path ==null || isDirectory && path ==null) {
             move.setOnClickListener {
                 dialog.dismiss()
-                mListener?.onOptionClick(R.id.move, path ?: "${file?.id}/$isDirectory/${file?.name}")
+                mListener?.onOptionClick(R.id.move, path ?: "${file?.id}|$isDirectory|${file?.name}")
             }
 
             copy.setOnClickListener {
                 dialog.dismiss()
-                mListener?.onOptionClick(R.id.copy, path ?: "${file?.id}/$isDirectory/${file?.name}")
+                mListener?.onOptionClick(R.id.copy, path ?: "${file?.id}|$isDirectory|${file?.name}")
             }
         } else {
             move.visibility = View.GONE

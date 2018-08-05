@@ -44,9 +44,9 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                 if (databaseAccess.getUserLoggedIn() != null) {
                                     databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                 }
-                                databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                        user.lastName, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
-                                        user.avatarUrl,user.isVip,user.used,user.verified,0)
+                                databaseAccess.insertUserData(user.token, user.email, user.first_name,
+                                        user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+                                        user.avatar_url,user.is_vip.toString(),user.used,user.verified,0,user.allocated)
                                 mView.signInSuccess(user)
 
                             }
@@ -83,10 +83,10 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     if (databaseAccess.getUserLoggedIn() != null) {
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
                                     }
-                                    databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                            user.lastName, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN,
-                                            user.avatarUrl
-                                            ,user.isVip,user.used,user.verified,0)
+                                    databaseAccess.insertUserData(user.token, user.email, user.first_name,
+                                            user.last_name, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN,
+                                            user.avatar_url
+                                            ,user.is_vip.toString(),user.used,user.verified,0,user.allocated)
                                     mView.signInSuccess(user)
 
                                 }
@@ -131,9 +131,9 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     if (databaseAccess.getUserLoggedIn() != null) {
                                         databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn()!!)
                                     }
-                                    databaseAccess.insertUserData(user.token, user.email, user.firstName,
-                                            user.lastName, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN,user.avatarUrl,
-                                            user.isVip,user.used,user.verified,0)
+                                    databaseAccess.insertUserData(user.token, user.email, user.first_name,
+                                            user.last_name, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN,user.avatar_url,
+                                            user.is_vip.toString(),user.used,user.verified,0,user.allocated)
                                     mView.signInSuccess(user)
                                 }
                                 else {

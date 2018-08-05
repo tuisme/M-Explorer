@@ -7,9 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import android.widget.Toast
-import androidx.annotation.MainThread
 import com.facebook.login.LoginManager
 import es.dmoral.toasty.Toasty
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,13 +21,12 @@ import retrofit2.Response
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.api.CallApiFaceAuth
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.model.*
-import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
+import vinova.intern.nhomxnxx.mexplorer.model.Request
+import vinova.intern.nhomxnxx.mexplorer.model.RequestChangeName
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
 
 @Suppress("NAME_SHADOWING", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
@@ -39,6 +36,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
     init {
         mView.setPresenter(this)
     }
+    var tryGetList = false
 
     override fun logout(context: Context?, token: String?) {
         val token = DatabaseHandler(context).getToken()
@@ -71,7 +69,17 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
 
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
                     if (response?.body()?.status.equals("success")){
+                        tryGetList = false
                         mView.showList(response?.body())
+                    }
+                    else{
+                        if (tryGetList){
+                            mView.forceLogOut("You are not sign in yet")
+                        }
+                        else{
+                            tryGetList = true
+                            mView.refresh()
+                        }
                     }
                 }
             })

@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.box.androidsdk.content.BoxConfig
 import com.box.androidsdk.content.auth.BoxAuthentication
 import com.box.androidsdk.content.models.BoxSession
-import com.bumptech.glide.Glide
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -32,7 +31,6 @@ import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
-import kotlinx.android.synthetic.main.nav_bar_header.*
 import kotlinx.android.synthetic.main.switch_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
@@ -48,6 +46,8 @@ import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
+import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils.Companion.messageNetWork
 import java.lang.Exception
 
 
@@ -74,8 +74,15 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
     lateinit var cloud:Cloud
 
     val db = DatabaseHandler(this@HomeActivity)
+
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
+		startActivity(Intent(this,LogActivity::class.java))
+		finish()
+	}
+
+	override fun forceLogOut(message: String) {
+		Toasty.info(this,message,Toast.LENGTH_SHORT).show()
 		startActivity(Intent(this,LogActivity::class.java))
 		finish()
 	}
@@ -99,28 +106,33 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		super.onCreate(savedInstanceState)
 		super.onCreateDrawer()
 		setRecyclerView()
-		userToken = DatabaseHandler(this).getToken()!!
-		if (savedInstanceState==null)
-			mPresenter.getList(DatabaseHandler(this).getToken())
-		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-				.requestScopes(Scope(Scopes.DRIVE_FULL))
-				.requestServerAuthCode("389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",true)
-				.requestEmail()
-				.build()
-		mGoogleApiClient = GoogleApiClient.Builder(this@HomeActivity)
-				.enableAutoManage(FragmentActivity(), this)
-				.addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-				.build()
-		mGoogleApiClient?.connect()
+		setGoogleAccount()
 		setBox()
+		setSwitchAuth()
+		userToken = DatabaseHandler(this).getToken()!!
+		if (savedInstanceState==null) {
+			if (!NetworkUtils.isConnectedInternet(this)){
+				showError(NetworkUtils.messageNetWork)
+				return
+			}
+			mPresenter.getList(DatabaseHandler(this).getToken())
+		}
+	}
+
+    override fun setSwitch(isChecked: Boolean) {
+        sw_auth.isChecked = isChecked
+    }
+
+	@RequiresApi(Build.VERSION_CODES.M)
+	private fun setSwitchAuth(){
 		val sw_auth = MenuItemCompat.getActionView(nav_view.menu.findItem(R.id.auth)).findViewById<SwitchCompat>(R.id.sw_auth)
 		if (db.getIsFaceAuth() == 1){
 			sw_auth.isChecked = true
 		}
-        else if (db.getIsFaceAuth() == 0) {
-            sw_auth.isChecked = false
-        }
-            sw_auth.setOnClickListener {
+		else if (db.getIsFaceAuth() == 0) {
+			sw_auth.isChecked = false
+		}
+		sw_auth.setOnClickListener {
 			if (sw_auth.isChecked) {
 				val ad = AlertDialog.Builder(this)
 				ad.create()
@@ -146,12 +158,21 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				ad.show()
 			}
 		}
-
-
 	}
-    override fun setSwitch(isChecked: Boolean) {
-        sw_auth.isChecked = isChecked
-    }
+
+	private fun setGoogleAccount(){
+		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+				.requestScopes(Scope(Scopes.DRIVE_FULL))
+				.requestServerAuthCode("389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com",true)
+				.requestEmail()
+				.build()
+		mGoogleApiClient = GoogleApiClient.Builder(this@HomeActivity)
+				.enableAutoManage(FragmentActivity(), this)
+				.addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+				.build()
+		mGoogleApiClient?.connect()
+	}
+
 	private fun setBox(){
 		BoxConfig.CLIENT_ID = "i9jieqavbpuutnbbrqdyeo44m0imegpk"
 		BoxConfig.CLIENT_SECRET = "4LjQ7N3toXIXVozyXOB21tBTcCo2KX6F"
@@ -185,20 +206,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	override fun showList(list: ListCloud?) {
 		rvContent.hideShimmerAdapter()
 		this.listCloud = list!!
-		adapter.setData(list.clouds)
-		showUser()
-	}
-
-	private fun showUser() {
-		val user = DatabaseHandler(this).getUser()
-		val name = "${user.firstName} ${user.lastName}"
-		user_name.text = name
-		user_email.text = user.email
-		user_have_percentage.text = user.used
-		progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
-		Glide.with(this)
-				.load(user.avatarUrl)
-				.into(img_profile)
+		adapter.setData(list.data)
 	}
 
 	private fun setRecyclerView(){
@@ -285,28 +293,35 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 		newName = name
 		providerName = provider
-		when(provider){
-			"googledrive" -> {
-				val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
-				startActivityForResult(signInIntent, RC_SIGN_IN)
-				Auth.GoogleSignInApi.signOut(mGoogleApiClient)
-			}
-			"dropbox" ->{
-				firstTime = true
-				com.dropbox.core.android.Auth.startOAuth2Authentication(this@HomeActivity,getString(R.string.drbx_key))
-			}
-			"onedrive" -> {
+		if (NetworkUtils.isConnectedInternet(this))
+			when(provider){
+				"googledrive" -> {
+					val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
+					startActivityForResult(signInIntent, RC_SIGN_IN)
+					Auth.GoogleSignInApi.signOut(mGoogleApiClient)
+				}
+				"dropbox" ->{
+					firstTime = true
+					com.dropbox.core.android.Auth.startOAuth2Authentication(this@HomeActivity,getString(R.string.drbx_key))
+				}
+				"onedrive" -> {
 
+				}
+				"box" -> {
+					boxSession.authenticate(this@HomeActivity)
+				}
 			}
-			"box" -> {
-				boxSession.authenticate(this@HomeActivity)
-			}
-		}
+		else
+			showError(messageNetWork)
 	}
 
 	override fun onResume() {
 		super.onResume()
 		if (com.dropbox.core.android.Auth.getOAuth2Token() != null && firstTime){
+			if (!NetworkUtils.isConnectedInternet(this)){
+				showError(NetworkUtils.messageNetWork)
+				return
+			}
 			firstTime = false
 			val token = com.dropbox.core.android.Auth.getOAuth2Token()
 			mPresenter.sendCode(token,newName,userToken,providerName)
@@ -319,7 +334,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	override fun refreshList(list: ListCloud?) {
 		this.listCloud = list!!
-		adapter.refreshData(list.clouds)
+		adapter.refreshData(list.data)
 	}
 
 	override fun onBackPressed() {
@@ -337,11 +352,16 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
 		super.onRestoreInstanceState(savedInstanceState)
 		this.listCloud = savedInstanceState?.getParcelable("list_cloud")!!
-		adapter.setData(this.listCloud.clouds)
+		adapter.setData(this.listCloud.data)
 	}
 
 	override fun refresh() {
-		mPresenter.refreshList(userToken)
+		if (!NetworkUtils.isConnectedInternet(this)){
+			showError(NetworkUtils.messageNetWork)
+			return
+		}
+		else
+			mPresenter.refreshList(userToken)
 	}
 
 	//box session
@@ -350,6 +370,10 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 	// get access token of box
 	override fun onAuthCreated(info: BoxAuthentication.BoxAuthenticationInfo?) {
+		if (!NetworkUtils.isConnectedInternet(this)){
+			showError(NetworkUtils.messageNetWork)
+			return
+		}
 		val code = boxSession.authInfo.refreshToken()
 		mPresenter.sendCode(code,newName,userToken,providerName)
 	}

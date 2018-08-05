@@ -86,6 +86,11 @@
     <string name="copy">Copy</string>
     <string name="move">Move</string>
     <string name="delete">Delete</string>
+
+    <string name="ads_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="ads_app">ca-app-pub-9649217325443196~1037520165</string>
+    <string name="ads_id_redeem">ca-app-pub-3940256099942544/5224354917</string>
+
     <string name="time">Time</string>
     <string name="online">Current</string>
 </resources>

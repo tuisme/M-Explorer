@@ -75,6 +75,7 @@ gem 'imgur-api'
 gem 'sidekiq'
 gem 'redis'
 gem 'fcm'
+gem "figaro"
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

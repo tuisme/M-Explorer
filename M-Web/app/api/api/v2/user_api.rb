@@ -15,7 +15,6 @@ module Api::V2
       end
       post :provider do
         return_user = OpenStruct.new
-        default_avatar = 'https://i.imgur.com/loEgeHT.png'
         user = User.find_by(email: params[:email])
         if user.present?
           return_user.token = loop do
@@ -39,7 +38,7 @@ module Api::V2
         else
           password = SecureRandom.urlsafe_base64(nil, true)
           user = User.create(provider: params[:provider], email: params[:email], password: password, uid: params[:uid], first_name: params[:first_name],
-                             last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: :false)
+                             last_name: params[:last_name], avatar_url: ENV['default_avatar'], used: 0, allocated: ENV['default_space'], vip: :false)
           return_user.email = user.email
           return_user.first_name = user.first_name
           return_user.last_name = user.last_name
@@ -106,9 +105,8 @@ module Api::V2
         requires :last_name, type: String
       end
       post :signup do
-        default_avatar = 'https://i.imgur.com/loEgeHT.png'
-        if User.create!(email: params[:email], password: params[:password],
-                        first_name: params[:first_name], last_name: params[:last_name], avatar_url: default_avatar, used: 0, allocated: 10_737_418_240, vip: 'false')
+        if User.create!(email: params[:email], password: params[:password], first_name: params[:first_name],
+           last_name: params[:last_name], avatar_url: ENV['default_avatar'], used: 0, allocated: ENV['default_space'], vip: 'false')
           present :time, Time.now.to_s
           present :status, 'success'
           present :message, 'Registration successful. You can log in now!'
@@ -140,7 +138,7 @@ module Api::V2
       put do
         if current_token
           return_user = OpenStruct.new
-          client = Imgur.new('1160021cb0066c5')
+          client = Imgur.new(ENV['imgur_client_id'])
           title = SecureRandom.urlsafe_base64(nil, true)
           image = Imgur::LocalImage.new(params[:avatar][:tempfile].path, title: title)
           uploaded = client.upload(image)

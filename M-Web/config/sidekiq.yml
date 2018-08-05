@@ -7,6 +7,9 @@ production:
   - mailers
 
 :schedule:
-  hello_world:
-    cron: '0 0 * * * *'   # Runs once per minute
+  refresh_token:
+    cron: '0 */10 * * * *'
     class: RefreshWorker
+  test:
+    cron: '0 * * * * *'  
+    class: TestWorker

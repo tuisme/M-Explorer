@@ -1,0 +1,23 @@
+.logo {
+    background-color: #d53425;
+}
+.sidebar-wrapper {
+    background-color: rgba(#d53425, 0.08);
+}
+li.nav-item.active {
+    background-color: rgba(#d53425, 0.6);
+    border-radius: 5px
+}
+li.nav-item.active:hover {
+    background-color: rgba(#d53425, 0.6);
+}
+li.nav-item:hover {
+    background-color: rgba(#d53425, 0.25);
+    border-radius: 5px
+}
+ul.nav a:hover {
+    background-color: transparent !important;
+}
+span.sidebar-mini {
+    padding-top: 3px;
+}

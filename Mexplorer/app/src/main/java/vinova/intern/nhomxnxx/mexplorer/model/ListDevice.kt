@@ -37,25 +37,30 @@ data class ListDevice(
         }
     }
 }
+class Devices():Parcelable{
+    var id: String? = null
+    var device_id: String? = null
+    var device_name: String? = null
+    var device_type: String? = null
+    var device_location: String? = null
+    var created_at: String? = null
 
-data class Devices(
-        var id: String? = null,
-        var name: String? = null,
-        var type: String? = null,
-        var location: String? = null
-):Parcelable {
-    constructor(parcel: Parcel) : this(
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readString()) {
+    constructor(parcel: Parcel) : this() {
+        id = parcel.readString()
+        device_id = parcel.readString()
+        device_name = parcel.readString()
+        device_type = parcel.readString()
+        device_location = parcel.readString()
+        created_at = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
-        parcel.writeString(name)
-        parcel.writeString(type)
-        parcel.writeString(location)
+        parcel.writeString(device_id)
+        parcel.writeString(device_name)
+        parcel.writeString(device_type)
+        parcel.writeString(device_location)
+        parcel.writeString(created_at)
     }
 
     override fun describeContents(): Int {
@@ -71,4 +76,5 @@ data class Devices(
             return arrayOfNulls(size)
         }
     }
+
 }

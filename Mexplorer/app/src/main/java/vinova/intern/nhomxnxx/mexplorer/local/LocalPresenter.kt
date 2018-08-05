@@ -226,7 +226,8 @@ class LocalPresenter(view:LocalInterface.View):LocalInterface.Presenter{
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
                             if (response?.body()?.status.equals("success")) {
                                 LoginManager.getInstance().logOut()
-
+                                mView.showLoading(false)
+                                mView.logoutSuccess()
                                 db.deleteUserData(token)
                             }
                             else

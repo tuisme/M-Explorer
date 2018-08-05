@@ -86,4 +86,6 @@
     <string name="copy">Copy</string>
     <string name="move">Move</string>
     <string name="delete">Delete</string>
+    <string name="time">Time</string>
+    <string name="online">Current</string>
 </resources>

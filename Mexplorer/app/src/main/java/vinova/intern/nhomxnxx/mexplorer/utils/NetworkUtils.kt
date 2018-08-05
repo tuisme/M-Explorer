@@ -15,6 +15,9 @@ class NetworkUtils {
         private val NETWORK_TYPE_3G = 2
         private val NETWORK_TYPE_4G = 3
         private val NETWORK_TYPE_WIFI = 4
+        val messageNetWork = "No internet connection"
+
+
         fun isUseWifi(context: Context): Boolean {
 
             return NETWORK_TYPE_WIFI === getNetworkType(context)

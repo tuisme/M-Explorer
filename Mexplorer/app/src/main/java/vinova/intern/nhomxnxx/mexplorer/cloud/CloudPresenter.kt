@@ -26,17 +26,12 @@ import vinova.intern.nhomxnxx.mexplorer.model.*
 import vinova.intern.nhomxnxx.mexplorer.service.NotificationService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
-import java.io.Closeable
+import java.io.*
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface.Presenter {
@@ -178,42 +173,37 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 	}
 
 	override fun renameFile(user_token: String, id: String, fname: String, ctype: String, ctoken: String) {
-		if (fname != "")
-			CallApi.getInstance().renameFile(user_token, id, fname, ctype, ctoken)
-					.enqueue(object : Callback<BaseResponse>{
-						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
-							mView.showError(t.toString())
-						}
+		CallApi.getInstance().renameFile(user_token, id, fname, ctype, ctoken)
+				.enqueue(object : Callback<BaseResponse>{
+					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+						mView.showError(t.toString())
+					}
 
-						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-							if (response?.body()?.status.equals("success"))
-								mView.refresh()
-							else
-								mView.showError(response?.errorBody()?.string()!!)
-						}
+					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+						if (response?.body()?.status.equals("success"))
+							mView.refresh()
+						else
+							mView.showError(response?.errorBody()?.string()!!)
+					}
 
-					})
-		else mView.showError("Please fill new name")
-
+				})
 	}
 
 	override fun renameFolder(userToken: String, id: String, newName: String, cloudType: String, ctoken: String) {
-		if (newName != "")
-			CallApi.getInstance().renameFile(userToken, id, newName, cloudType, ctoken)
-					.enqueue(object : Callback<BaseResponse>{
-						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
-							mView.showError(t.toString())
-						}
+		CallApi.getInstance().renameFolder(userToken, id, newName, cloudType, ctoken)
+				.enqueue(object : Callback<BaseResponse>{
+					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+						mView.showError(t.toString())
+					}
 
-						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-							if (response?.body()?.status.equals("success"))
-								mView.refresh()
-							else
-								mView.showError(response?.errorBody()?.string()!!)
-						}
+					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+						if (response?.body()?.status.equals("success"))
+							mView.refresh()
+						else
+							mView.showError(response?.errorBody()?.string()!!)
+					}
 
-					})
-		else mView.showError("Please fill new name")
+				})
 	}
 
 	override fun createFolder(user_token: String, fname: String, parent: String, ctype: String, ctoken: String) {
@@ -276,17 +266,19 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 				file)
 		val body = MultipartBody.Part.createFormData("zip", file.name, requestBody)
 
-		CallApi.getInstance().uploadFolder(user_token,id,map.toString(),body,ctype,ctoken)
-				.enqueue(object  : Callback<BaseResponse>{
-					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
-						mView.showError(t.toString())
-					}
+		Thread(Runnable {
+			CallApi.getInstance().uploadFolder(user_token,id,map.toString(),body,ctype,ctoken)
+					.enqueue(object  : Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							Log.e("ABCD",t.toString())
+						}
 
-					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-						deleteFile(file)
-						mView.refresh()
-					}
-				})
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							deleteFile(file)
+							ctx.startService(Intent(ctx,NotificationService::class.java))
+						}
+					})
+		}).start()
 	}
 
 	private fun zip(directory : File,toLocation: String){
@@ -297,11 +289,13 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 		var res : Closeable = fos
 		val buffer = ByteArray(1024)
 		val zos = ZipOutputStream(fos)
+		var i = 0
 		try{
 			res = zos
 			while (!deque.isEmpty()){
 				val file : File = deque.pop()
 				for (kid in file.listFiles()){
+					i++
 					var name = base.relativize(kid.toURI()).path
 					if (kid.isDirectory){
 						deque.push(kid)
@@ -325,7 +319,8 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 
 		}
 		finally {
-			zos.closeEntry()
+			if (i!=0)
+				zos.closeEntry()
 			res.close()
 
 		}

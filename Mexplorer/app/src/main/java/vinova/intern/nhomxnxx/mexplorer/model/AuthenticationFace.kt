@@ -3,8 +3,6 @@ package vinova.intern.nhomxnxx.mexplorer.model
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-
-
 class AuthenticationFace {
         @SerializedName("image_id")
         @Expose

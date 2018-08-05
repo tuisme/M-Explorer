@@ -67,6 +67,31 @@ class FileSec() :Parcelable {
 	}
 }
 
+data class ListFileSec(
+		var files : List<FileSec>
+):Parcelable {
+	constructor(parcel: Parcel) : this(parcel.createTypedArrayList(FileSec)) {
+	}
+
+	override fun writeToParcel(parcel: Parcel, flags: Int) {
+		parcel.writeTypedList(files)
+	}
+
+	override fun describeContents(): Int {
+		return 0
+	}
+
+	companion object CREATOR : Parcelable.Creator<ListFileSec> {
+		override fun createFromParcel(parcel: Parcel): ListFileSec {
+			return ListFileSec(parcel)
+		}
+
+		override fun newArray(size: Int): Array<ListFileSec?> {
+			return arrayOfNulls(size)
+		}
+	}
+}
+
 data class FileDetail(
 		var id: String? = null,
 		var name: String? = null,

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "389228917380",
+    "firebase_url": "https://marine-access-210006.firebaseio.com",
+    "project_id": "marine-access-210006",
+    "storage_bucket": "marine-access-210006.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389228917380:android:fe42b4664f71c1f4",
+        "android_client_info": {
+          "package_name": "vinova.intern.nhomxnxx.mexplorer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "389228917380-lthim0c1080tvm5ikmbmkpgbcshmj5kv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "vinova.intern.nhomxnxx.mexplorer",
+            "certificate_hash": "4ad8510652086c56772b9a07ec64ecc9eeac5422"
+          }
+        },
+        {
+          "client_id": "389228917380-lr3ne2fepll0ou35m9aaj92n8f4mp98k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2XUku2c0TR_T3bdbcYNHtUVS3xQIoqNo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "389228917380-lr3ne2fepll0ou35m9aaj92n8f4mp98k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

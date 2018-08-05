@@ -14,27 +14,28 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
+import com.google.android.gms.ads.MobileAds
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
-import kotlinx.android.synthetic.main.nav_bar_header.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.device.DeviceActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
-import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
+import vinova.intern.nhomxnxx.mexplorer.model.ListFileSec
 import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import java.io.File
 
 
@@ -56,9 +57,16 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	val CAPTURE_IMAGE_REQUEST = 20
 	lateinit var folder : File
 	var firstLoadUser = true
+	var saveList : ListFileSec = ListFileSec(arrayListOf())
     lateinit var idItem: String
     var mCopy:Boolean =false
     var isDic:Boolean = false
+
+	private val FILE_PERM = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+			Manifest.permission.READ_EXTERNAL_STORAGE)
+	private val FILEREQUESTCODE = 78315
+	private val FOLDERREUESTCODE = 51378
+
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -75,6 +83,15 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			moving_layout.visibility = View.GONE
 			idItem = ""
 		}
+		MobileAds.initialize(this,getString(R.string.ads_app))
+
+		if (savedInstanceState == null) {
+			if (!NetworkUtils.isConnectedInternet(this)){
+				showError(NetworkUtils.messageNetWork)
+				return
+			}
+			mPresenter.getList(cloudId, ctoken, DatabaseHandler(this).getToken()!!, cloudType)
+		}
 	}
 
 	private fun setRv(){
@@ -89,8 +106,6 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		cloudId = intent.getStringExtra("id")
 		path.add(arrayListOf(cloudId,intent.getStringExtra("name")))
 		title = path.last()[1]
-
-		mPresenter.getList(cloudId,ctoken,DatabaseHandler(this).getToken()!!,cloudType)
 
 		adapter.setListener(object : CloudAdapter.ItemClickListener{
 			override fun onClick(file: FileSec) {
@@ -124,12 +139,24 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
 		when(requestCode) {
+			FILEREQUESTCODE->{
+				val intent = Intent(Intent.ACTION_GET_CONTENT)
+				intent.type = "*/*"
+				startActivityForResult(Intent.createChooser(intent, "select a file to upload"), PICKFILE_REQUEST_CODE)
+			}
+
+			FOLDERREUESTCODE->{
+				val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+				startActivityForResult(intent, READ_REQUEST_CODE)
+			}
+
 			PICKFILE_REQUEST_CODE -> {
 				if (data != null) {
 					val uri: Uri = data.data
 					mPresenter.upLoadFile(userToken, path.last()[0], uri, cloudType, ctoken)
 				}
 			}
+
 			READ_REQUEST_CODE -> {
 				if (data!=null) {
 					val uri : Uri = data.data
@@ -154,15 +181,28 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			"create folder"->{
 				NewFolderDialog.newInstance().show(supportFragmentManager,"fragment")
 			}
+
 			"upload file" ->{
-				val intent = Intent(Intent.ACTION_GET_CONTENT)
-				intent.type = "*/*"
-				startActivityForResult(Intent.createChooser(intent,"select a file to upload"),PICKFILE_REQUEST_CODE)
+				if (!canAccessFile()){
+					requestPermissions(FILE_PERM,FILEREQUESTCODE)
+				}
+				else {
+					val intent = Intent(Intent.ACTION_GET_CONTENT)
+					intent.type = "*/*"
+					startActivityForResult(Intent.createChooser(intent, "select a file to upload"), PICKFILE_REQUEST_CODE)
+				}
 			}
+
 			"upload folder" -> {
-				val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-				startActivityForResult(intent, READ_REQUEST_CODE)
+				if (!canAccessFile()){
+					requestPermissions(FILE_PERM,FOLDERREUESTCODE)
+				}
+				else {
+					val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+					startActivityForResult(intent, READ_REQUEST_CODE)
+				}
 			}
+
 			"upload image" -> {
 
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -170,6 +210,15 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 					}
 			}
 		}
+	}
+
+	private fun canAccessFile():Boolean = hasPermission(FILE_PERM)
+
+	private fun hasPermission(perm : Array<String>) : Boolean {
+		for (a in perm)
+			if (PackageManager.PERMISSION_GRANTED != PermissionChecker.checkSelfPermission(this, a))
+				return false
+		return true
 	}
 
 	// for on long click
@@ -180,17 +229,17 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 				path?.let { mPresenter.download(it, ctoken,userToken,cloudType) }
 			}
 			R.id.delete -> {
-				val name = path?.split("/")!!
+				val name = path?.split("|")!!
 				ConfirmDeleteDialog.newInstanceCloud( name[2],name[1].toBoolean(),name[0]).show(supportFragmentManager,"fragment")
 			}
 			R.id.rename -> {
-				val name = path?.split("/")!!
+				val name = path?.split("|")!!
 				RenameDialog.newInstanceCloud(name[2],name[0],name[1].toBoolean(),ctoken).show(supportFragmentManager,"fragment")
 			}
 			R.id.copy ->{
 				idItem = path.toString()
 				moving_layout.visibility = View.VISIBLE
-				val temp = path?.split("/")
+				val temp = path?.split("|")
 				if(temp != null)
 					idItem= temp[0]
 				isDic = temp?.get(1)?.toBoolean()!!
@@ -199,7 +248,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			}
             R.id.move ->{
                 moving_layout.visibility = View.VISIBLE
-                val temp = path?.split("/")
+                val temp = path?.split("|")
                 if(temp != null)
                     idItem= temp[0]
                 isDic = temp?.get(1)?.toBoolean()!!
@@ -210,10 +259,18 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	}
 
 	override fun onNewFolder(name: String) {
+		if (!NetworkUtils.isConnectedInternet(this)){
+			showError(NetworkUtils.messageNetWork)
+			return
+		}
 		mPresenter.createFolder(userToken,name,path.last()[0],cloudType,ctoken)
 	}
 
     override fun onReNameCloud(newName: String, id: String, isDic: Boolean, token: String) {
+	    if (!NetworkUtils.isConnectedInternet(this)){
+		    showError(NetworkUtils.messageNetWork)
+		    return
+	    }
         if(isDic)
             mPresenter.renameFolder(userToken,id,newName,cloudType,ctoken)
         else
@@ -225,25 +282,12 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	}
 
 	override fun showList(files: List<FileSec>) {
+		saveList.files = files
 		title = path.last()[1]
 		swipeContent.isRefreshing = false
 		rvContent.hideShimmerAdapter()
-		adapter.setData(files)
+		adapter.setData(files as java.util.ArrayList<FileSec>)
 		adapter.notifyDataSetChanged()
-		if (firstLoadUser)
-			showUser()
-	}
-
-	private fun showUser() {
-		val user = DatabaseHandler(this).getUser()
-		val name = "${user.firstName} ${user.lastName}"
-		user_name.text = name
-		user_email.text = user.email
-		user_have_percentage.text = user.used
-		progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
-		Glide.with(this)
-				.load(user.avatarUrl)
-				.into(img_profile)
 	}
 
 	override fun showFile(file: FileDetail) {
@@ -273,10 +317,13 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
 		when(p0.itemId){
 			R.id.home->{
-				val intent = Intent(this,HomeActivity::class.java)
-				startActivity(intent)
+				super.onBackPressed()
 			}
 			R.id.signout->{
+				if (!NetworkUtils.isConnectedInternet(this)){
+					showError(NetworkUtils.messageNetWork)
+					return true
+				}
 				CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
 				mPresenter.logout(this, DatabaseHandler(this).getToken())
 			}
@@ -296,6 +343,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		when {
 			drawer_layout?.isDrawerOpen(GravityCompat.END)!! -> drawer_layout?.isDrawerOpen(GravityCompat.START)
 			path.size > 1 -> {
+				if (!NetworkUtils.isConnectedInternet(this)){
+					showError(NetworkUtils.messageNetWork)
+					return
+				}
                 if (adapter.error.visibility == View.VISIBLE)
                     adapter.error.visibility = View.GONE
 				rvContent.showShimmerAdapter()
@@ -308,6 +359,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	}
 
 	override fun refresh() {
+		if (!NetworkUtils.isConnectedInternet(this)){
+			showError(NetworkUtils.messageNetWork)
+			return
+		}
 		CustomDiaglogFragment.hideLoadingDialog()
 		mPresenter.getList(path.last()[0],ctoken,userToken,cloudType)
 	}
@@ -355,6 +410,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			}
 		}
 	}
+
 	override fun onConfirmDelete(path: String?) {
 	}
 
@@ -366,9 +422,6 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		    mPresenter.deleteFile(userToken,id,cloudType,ctoken)
 	}
 
-
-
-
 	@RequiresApi(Build.VERSION_CODES.M)
 	private fun captureImage() {
 		if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -379,4 +432,20 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
 		}
 	}
+
+	override fun onSaveInstanceState(outState: Bundle?) {
+		super.onSaveInstanceState(outState)
+		outState?.putParcelable("saveList",saveList)
+		outState?.putSerializable("path",path)
+	}
+
+	@Suppress("UNCHECKED_CAST")
+	override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+		super.onRestoreInstanceState(savedInstanceState)
+		if (savedInstanceState != null) {
+			adapter.setData(savedInstanceState.getParcelable<ListFileSec>("saveList").files as java.util.ArrayList<FileSec>)
+			path = savedInstanceState.getSerializable("path") as ArrayList<ArrayList<String>>
+		}
+	}
+
 }

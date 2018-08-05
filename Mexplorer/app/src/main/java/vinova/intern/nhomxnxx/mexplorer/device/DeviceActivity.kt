@@ -51,7 +51,6 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
     private var listDevice: MutableList<Devices> = mutableListOf()
     private val p = Paint()
     override fun showList(devices : MutableList<Devices>?) {
-        showUser()
         adapter.setData(devices)
         listDevice = devices!!
         adapter.notifyDataSetChanged()
@@ -71,18 +70,6 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
         CustomDiaglogFragment.hideLoadingDialog()
         rvContent.hideShimmerAdapter()
         Toasty.error(this,message,Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showUser() {
-        val user = DatabaseHandler(this).getUser()
-        val name = "${user.firstName} ${user.lastName}"
-        user_name.text = name
-        user_email.text = user.email
-        user_have_percentage.text = user.used
-        progressBar.progress = (user.used?.toFloat()?.times(100))?.toInt() ?: 0
-        Glide.with(this)
-                .load(user.avatarUrl)
-                .into(img_profile)
     }
 
     @SuppressLint("RestrictedApi")

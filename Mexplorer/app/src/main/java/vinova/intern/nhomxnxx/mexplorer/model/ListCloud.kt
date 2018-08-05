@@ -2,24 +2,13 @@ package vinova.intern.nhomxnxx.mexplorer.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
 
 
 data class ListCloud (
-
-	@SerializedName("time")
-	@Expose
 	var time: String? = null,
-	@SerializedName("status")
-	@Expose
 	var status: String? = null,
-	@SerializedName("message")
-	@Expose
 	var message: String? = null,
-	@SerializedName("data")
-	@Expose
-	var clouds: List<Cloud>? = null
+	var data: List<Cloud>? = null
 ):Parcelable {
 	constructor(parcel: Parcel) : this(
 			parcel.readString(),
@@ -31,7 +20,7 @@ data class ListCloud (
 		parcel.writeString(time)
 		parcel.writeString(status)
 		parcel.writeString(message)
-		parcel.writeTypedList(clouds)
+		parcel.writeTypedList(data)
 	}
 
 	override fun describeContents(): Int {

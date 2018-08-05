@@ -112,7 +112,10 @@ class RvHomeAdapter(ctx : Context,view : View,frag : FragmentManager): RecyclerV
 			holder.itemView.btnSetting.visibility = View.INVISIBLE
 		}
 		else{
-			val sum = Support.getFileSize(cl.allocated!!.toLong())
+			val sum = if (cl.allocated!! > 0)
+				Support.getFileSize(cl.allocated!!.toLong())
+			else
+				"Unlimited"
 			val used = "${Support.getFileSize(cl.used!!.toLong())} of $sum"
 			holder.used.text = used
 			val a = (cl.used!!/cl.allocated!!)*100

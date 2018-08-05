@@ -2,56 +2,40 @@ package vinova.intern.nhomxnxx.mexplorer.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
 
-class User() : Parcelable {
-
-    @SerializedName("token")
-    @Expose
-    var token: String? = null
-    @SerializedName("email")
-    @Expose
-    var email: String? = null
-    @SerializedName("first_name")
-    @Expose
-    var firstName: String? = null
-    @SerializedName("last_name")
-    @Expose
-    var lastName: String? = null
-    @SerializedName("avatar_url")
-    @Expose
-    var avatarUrl: String? = null
-    @SerializedName("verified")
-    @Expose
-    var verified: String? = null
-    @SerializedName("used")
-    @Expose
-    var used: String? = null
-    @SerializedName("is_vip")
-    @Expose
-    var isVip: String? = null
-
-    constructor(parcel: Parcel) : this() {
-        token = parcel.readString()
-        email = parcel.readString()
-        firstName = parcel.readString()
-        lastName = parcel.readString()
-        avatarUrl = parcel.readString()
-        verified = parcel.readString()
-        used = parcel.readString()
-        isVip = parcel.readString()
+data class User (
+        var token: String? = null,
+        var email: String? = null,
+        var first_name: String? = null,
+        var last_name: String? = null,
+        var avatar_url: String? = null,
+        var verified: String? = null,
+        var used: Double? = null,
+        var is_vip: Boolean? = null,
+        var allocated : Double? = null
+):Parcelable {
+    constructor(parcel: Parcel) : this(
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readValue(Double::class.java.classLoader) as? Double,
+            parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+            parcel.readValue(Double::class.java.classLoader) as? Double) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(token)
         parcel.writeString(email)
-        parcel.writeString(firstName)
-        parcel.writeString(lastName)
-        parcel.writeString(avatarUrl)
+        parcel.writeString(first_name)
+        parcel.writeString(last_name)
+        parcel.writeString(avatar_url)
         parcel.writeString(verified)
-        parcel.writeString(used)
-        parcel.writeString(isVip)
+        parcel.writeValue(used)
+        parcel.writeValue(is_vip)
+        parcel.writeValue(allocated)
     }
 
     override fun describeContents(): Int {

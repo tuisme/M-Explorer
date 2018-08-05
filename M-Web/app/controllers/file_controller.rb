@@ -56,54 +56,54 @@ class FileController < ApplicationController
   def open
     # @url = Base64.decode64(params[:url])
 
-  #   dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgelA7wkZ8OcvU2uXwTZzH0y-0GjI1NQXzvV2sv3ZLDfsF")
-  #   @credentials.refresh_token = '1/w-fG1yj9f936nqUsGvj6UHbITfP64plO5ZLWAVPuuIE'
-  #   access_token = @credentials.fetch_access_token!['access_token']
-  # s
-  #   session = GoogleDrive::Session.from_credentials(@credentials)
-  #   root = session.root_collection.id.to_s
-  #   json = '[
-  #   {
-  #     "parent": "root"
-  #   },
-  #   {
-  #     "name": "1.png",
-  #     "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/1.png"
-  #   },
-  #   {
-  #     "name": "2.png",
-  #     "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/2.png"
-  #   },
-  #   [
-  #     {
-  #       "parent": "sub"
-  #     },
-  #     {
-  #       "name": "1.png",
-  #       "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
-  #     },
-  #     {
-  #       "name": "2.png",
-  #       "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
-  #     },
-  #     [
-  #       {
-  #         "parent": "sub1"
-  #       },
-  #       {
-  #         "name": "1.png",
-  #         "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
-  #       },
-  #       {
-  #         "name": "2.png",
-  #         "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
-  #       }
-  #     ]
-  #   ]
-  #
-  # ]'
-  #   parsed_json = JSON.parse(json)
-  #   upload('16V7aFG2FpixD8C06-RZPwQU4kSlqhMOd', access_token, parsed_json)
+    #   dbx = Dropbox::Client.new("EMuhh18IKQAAAAAAAAAgelA7wkZ8OcvU2uXwTZzH0y-0GjI1NQXzvV2sv3ZLDfsF")
+    #   @credentials.refresh_token = '1/w-fG1yj9f936nqUsGvj6UHbITfP64plO5ZLWAVPuuIE'
+    #   access_token = @credentials.fetch_access_token!['access_token']
+    # s
+    #   session = GoogleDrive::Session.from_credentials(@credentials)
+    #   root = session.root_collection.id.to_s
+    #   json = '[
+    #   {
+    #     "parent": "root"
+    #   },
+    #   {
+    #     "name": "1.png",
+    #     "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/1.png"
+    #   },
+    #   {
+    #     "name": "2.png",
+    #     "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/2.png"
+    #   },
+    #   [
+    #     {
+    #       "parent": "sub"
+    #     },
+    #     {
+    #       "name": "1.png",
+    #       "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
+    #     },
+    #     {
+    #       "name": "2.png",
+    #       "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
+    #     },
+    #     [
+    #       {
+    #         "parent": "sub1"
+    #       },
+    #       {
+    #         "name": "1.png",
+    #         "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/1.png"
+    #       },
+    #       {
+    #         "name": "2.png",
+    #         "path": "/home/kyle/Project/M-Explorer/M-Web/public/a/root/sub/2.png"
+    #       }
+    #     ]
+    #   ]
+    #
+    # ]'
+    #   parsed_json = JSON.parse(json)
+    #   upload('16V7aFG2FpixD8C06-RZPwQU4kSlqhMOd', access_token, parsed_json)
     # parsed_json.each do |a|
     #   if a.kind_of?(Array)
     #     i += 1
@@ -112,15 +112,20 @@ class FileController < ApplicationController
 
     # render plain: parsed_json['refresh_token']
 
-    # @credentials.refresh_token = "1/SKgXwN8NyQSJT5Ii6APhzY8HODR7OzrZ7LLC4P8NcqU"
-    # access_token = @credentials.fetch_access_token!['access_token']
+    @credentials.refresh_token = '1/SKgXwN8NyQSJT5Ii6APhzY8HODR7OzrZ7LLC4P8NcqU'
+    @credentials.fetch_access_token!
+    session = GoogleDrive::Session.from_credentials(@credentials)
+
+    temp = session.file_by_id('0ANNKtKq6pCEcUk9PVA')
+    d
+    # page_token = nil
+    # begin
+    #   (files, page_token) = session.files(page_token: page_token)
+    #   p files
+    # end while page_token
     # @result = HTTParty.get('https://www.googleapis.com/drive/v2/about?access_token=' + access_token)
     # parsed_json = JSON.parse(@result.body)
     # gg
-
-
-
-
 
     # rf
 
@@ -139,8 +144,8 @@ class FileController < ApplicationController
     # aef
     # f
 
-    client = Boxr::Client.new('eAvtUsUWvzfYMPrJB7Hz0SR9I5zFEilU')
-    files = client.root_folder_items
+    # client = Boxr::Client.new('eAvtUsUWvzfYMPrJB7Hz0SR9I5zFEilU')
+    # files = client.root_folder_items
     # fil = {}
     # files.each do |f|
     #   fil

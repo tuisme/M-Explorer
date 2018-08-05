@@ -13,6 +13,7 @@ require "httparty"
 require 'zip'
 require 'imgur'
 require 'fcm'
+require 'sidekiq-scheduler'
 
 
 

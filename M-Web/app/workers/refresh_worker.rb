@@ -1,7 +1,7 @@
-class HardWorker
+class RefreshWorker
   include Sidekiq::Worker
 
-  def perform()
+  def perform(*args)
     success = 0
     error = 0
     Cloud.all.each do |cloud|

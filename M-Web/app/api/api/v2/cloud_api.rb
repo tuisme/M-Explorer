@@ -18,8 +18,8 @@ module Api::V2
         code = params[:code]
         if params[:provider] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
-            client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-            client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+            client_id: ENV['google_client_id'],
+            client_secret: ENV['google_client_secret'],
             scope: [
               'https://www.googleapis.com/auth/drive'
             ],

@@ -1,8 +1,8 @@
 module GoogleUploadHelper
   def google_upload(_folder = nil, access_token = nil, json = nil)
     @credentials = Google::Auth::UserRefreshCredentials.new(
-      client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-      client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+      client_id: ENV['google_client_id'],
+      client_secret: ENV['google_client_secret'],
       scope: [
         'https://www.googleapis.com/auth/drive'
       ],
@@ -43,8 +43,8 @@ module Api::V2
         token = params[:token]
         if    params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
-            client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-            client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+            client_id: ENV['google_client_id'],
+            client_secret: ENV['google_client_secret'],
             scope: [
               'https://www.googleapis.com/auth/drive'
             ],
@@ -112,8 +112,8 @@ module Api::V2
         token = params[:token]
         if    params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
-            client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-            client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+            client_id: ENV['google_client_id'],
+            client_secret: ENV['google_client_secret'],
             scope: [
               'https://www.googleapis.com/auth/drive'
             ],
@@ -191,8 +191,8 @@ module Api::V2
         # RENAME A FIELD IN GOOGLE DRIVE
         if params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
-            client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-            client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+            client_id: ENV['google_client_id'],
+            client_secret: ENV['google_client_secret'],
             scope: [
               'https://www.googleapis.com/auth/drive'
             ],
@@ -248,8 +248,8 @@ module Api::V2
         # DELETE A FIELD IN GOOGLE DRIVE
         if params[:type] == 'googledrive'
           @credentials = Google::Auth::UserRefreshCredentials.new(
-            client_id: '389228917380-ek9t84cthihvi8u4apphlojk3knd5geu.apps.googleusercontent.com',
-            client_secret: 'zhKkS-8vI_RNqReXOjAx4c5r',
+            client_id: ENV['google_client_id'],
+            client_secret: ENV['google_client_secret'],
             scope: [
               'https://www.googleapis.com/auth/drive'
             ],

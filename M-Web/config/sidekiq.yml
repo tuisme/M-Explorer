@@ -1,6 +1,2 @@
-development:
-  :concurrency: 5
-production:
-  :concurrency: 22
-:queues:
-  - default
+:logfile: ./log/sidekiq.log
+:concurrency:  25

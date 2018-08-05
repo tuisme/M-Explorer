@@ -1,7 +1,11 @@
 package vinova.intern.nhomxnxx.mexplorer.utils
 
+import android.content.ContentResolver
+import android.content.Context
+import android.net.Uri
 import android.os.Environment
 import android.view.View
+import android.webkit.MimeTypeMap
 import com.google.android.gms.common.util.IOUtils
 import java.io.*
 import java.security.NoSuchAlgorithmException
@@ -28,6 +32,19 @@ class Support{
             return DecimalFormat("#,##0.#").format(size / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
         }
 
+        fun getMimeType(context: Context, uri: Uri): String? {
+            val mimeType: String?
+            mimeType = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                val cr = context.contentResolver
+                cr.getType(uri)
+            } else {
+                val regex = Regex("[^A-Za-z0-9 .]")
+                val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString().replace(regex, ""))
+                MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                        fileExtension.toLowerCase())
+            }
+            return mimeType
+        }
 
         fun readFileToByteArray(file: File): ByteArray {
             val fis: FileInputStream?

@@ -101,7 +101,8 @@
 
         <service android:name=".service.DownloadService" />
 
-        <service android:name=".service.NotificationService"/>
+        <service android:name=".service.UploadFileService"/>
+        <service android:name=".service.UploadFolderService" />
 
         <service android:name=".utils.MessagingService"
             tools:ignore="ExportedService">

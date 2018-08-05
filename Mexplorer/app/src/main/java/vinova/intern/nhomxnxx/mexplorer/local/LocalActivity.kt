@@ -35,6 +35,7 @@ import vinova.intern.nhomxnxx.mexplorer.dialogs.*
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.io.File
 
 
@@ -59,7 +60,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
             val intent = Intent(Intent.ACTION_VIEW)
             val apkURI = FileProvider.getUriForFile(this, applicationContext
                     .packageName + ".provider", url)
-            intent.setDataAndType(apkURI, getMimeType(uri))
+            intent.setDataAndType(apkURI, Support.getMimeType(this, uri))
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             startActivity(intent)
         }
@@ -73,6 +74,8 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     }
 
     override fun showToast(mes: String) {
+        if(error_nothing.visibility == View.VISIBLE)
+            error_nothing.visibility = View.GONE
         Toast.makeText(this, mes, Toast.LENGTH_SHORT).show()
     }
 
@@ -113,7 +116,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     @TargetApi(Build.VERSION_CODES.M)
     @SuppressLint("ObsoleteSdkInt")
     override fun onOptionClick(which: Int, path: String?) {
-        offline.visibility = View.GONE
         when (which) {
             R.id.new_file -> NewTextFileDialog.newInstance().show(supportFragmentManager, "new_file_dialog")
             R.id.new_folder -> NewFolderDialog.newInstance().show(supportFragmentManager, "new_folder_dialog")
@@ -194,9 +196,15 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-            //resume tasks needing this permission
-            adapter.refreshData()
+        when(requestCode){
+            2222-> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
+                } else {
+                    Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -212,22 +220,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         }
     }
 
-
-    private fun getMimeType(uri: Uri): String? {
-        val mimeType: String?
-        mimeType = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-            val cr = this.contentResolver
-            cr.getType(uri)
-        } else {
-            val regex = Regex("[^A-Za-z0-9 .]")
-            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString().replace(regex, ""))
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    fileExtension.toLowerCase())
-        }
-        return mimeType
-    }
-
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -238,7 +230,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     @RequiresApi(Build.VERSION_CODES.M)
     private fun captureImage() {
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA),0)
+            requestPermissions(arrayOf(Manifest.permission.CAMERA),2222)
         }
         else {
             val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)

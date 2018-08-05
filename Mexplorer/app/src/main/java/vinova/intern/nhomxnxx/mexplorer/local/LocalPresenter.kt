@@ -28,7 +28,7 @@ class LocalPresenter(view:LocalInterface.View):LocalInterface.Presenter{
     }
     override fun saveImage(data: Intent?, adapter: LocalAdapter) {
         val extras = data?.extras
-        val imageBitmap = extras?.get("data") as Bitmap
+        val imageBitmap = extras?.get("data") as Bitmap? ?: return
         val bytes = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes)
         val file = createImageFile(adapter)

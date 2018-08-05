@@ -34,7 +34,10 @@ import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import vinova.intern.nhomxnxx.mexplorer.model.ListFileSec
 import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
+import vinova.intern.nhomxnxx.mexplorer.service.UploadFileService
+import vinova.intern.nhomxnxx.mexplorer.service.UploadFolderService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
 import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import java.io.File
 
@@ -107,6 +110,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		path.add(arrayListOf(cloudId,intent.getStringExtra("name")))
 		title = path.last()[1]
 
+		mPresenter.getList(cloudId,ctoken,DatabaseHandler(this).getToken()!!,cloudType)
+
 		adapter.setListener(object : CloudAdapter.ItemClickListener{
 			override fun onClick(file: FileSec) {
 				if (file.mime_type!!.contains("folder")) {
@@ -153,15 +158,28 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			PICKFILE_REQUEST_CODE -> {
 				if (data != null) {
 					val uri: Uri = data.data
-					mPresenter.upLoadFile(userToken, path.last()[0], uri, cloudType, ctoken)
+					FileUtils.getFile(this,uri) ?: return showError("Please choose another file")
+					val intent = Intent(this, UploadFileService::class.java)
+					intent.putExtra("uri",uri.toString())
+					intent.putExtra("user_token",userToken)
+					intent.putExtra("id",path.last()[0])
+					intent.putExtra("ctype",cloudType)
+					intent.putExtra("ctoken",ctoken)
+					startService(intent)
 				}
 			}
-
 			READ_REQUEST_CODE -> {
 				if (data!=null) {
 					val uri : Uri = data.data
 					folder = File(uri.path)
-					mPresenter.upLoadFolder(userToken,ctoken,cloudType,path.last()[0],folder.path.split(":").last())
+					val intent = Intent(this, UploadFolderService::class.java)
+					intent.putExtra("path",folder.path.split(":").last())
+					intent.putExtra("user_token",userToken)
+					intent.putExtra("id",path.last()[0])
+					intent.putExtra("ctype",cloudType)
+					intent.putExtra("ctoken",ctoken)
+					startService(intent)
+					//mPresenter.upLoadFolder(userToken,ctoken,cloudType,path.last()[0],folder.path.split(":").last())
 				}
 			}
 
@@ -388,6 +406,16 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		startService(intent)
 	}
 
+	override fun startUpload(user_token: String, id: String, file: File, ctype: String, ctoken: String) {
+		val intent = Intent(this, UploadFileService::class.java)
+		intent.putExtra("uri",Uri.fromFile(file).toString())
+		intent.putExtra("user_token",user_token)
+		intent.putExtra("id",id)
+		intent.putExtra("ctype",ctype)
+		intent.putExtra("ctoken",ctoken)
+		startService(intent)
+	}
+
 	private fun checkPermission(): Boolean {
 		val result = ContextCompat.checkSelfPermission(this,
 				Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -404,10 +432,19 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		when (requestCode) {
 			2 -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				startDownload(url_,name_,ctype_)
-			} else {
+				} else {
 				Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
 
 			}
+			2222-> {
+				if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+					startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
+				} else {
+					Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
+				}
+			}
+
 		}
 	}
 
@@ -425,7 +462,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	@RequiresApi(Build.VERSION_CODES.M)
 	private fun captureImage() {
 		if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-			requestPermissions(arrayOf(Manifest.permission.CAMERA),0)
+			requestPermissions(arrayOf(Manifest.permission.CAMERA),2222)
 		}
 		else {
 			val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)

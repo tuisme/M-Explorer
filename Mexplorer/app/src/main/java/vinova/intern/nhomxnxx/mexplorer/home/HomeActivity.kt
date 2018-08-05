@@ -71,7 +71,8 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	val CAPTURE_IMAGE_REQUEST_2 = 22
     val CAPTURE_IMAGE_REQUEST_3 = 24
     var isAuth:Boolean = false
-    lateinit var cloud:Cloud
+	lateinit var sw_auth:SwitchCompat
+	lateinit var cloud:Cloud
 
     val db = DatabaseHandler(this@HomeActivity)
 
@@ -101,6 +102,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		Toasty.error(this,message,Toast.LENGTH_SHORT).show()
 	}
 
+
 	@TargetApi(Build.VERSION_CODES.M)
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -125,7 +127,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	@RequiresApi(Build.VERSION_CODES.M)
 	private fun setSwitchAuth(){
-		val sw_auth = MenuItemCompat.getActionView(nav_view.menu.findItem(R.id.auth)).findViewById<SwitchCompat>(R.id.sw_auth)
+		sw_auth = MenuItemCompat.getActionView(nav_view.menu.findItem(R.id.auth)).findViewById<SwitchCompat>(R.id.sw_auth)
 		if (db.getIsFaceAuth() == 1){
 			sw_auth.isChecked = true
 		}
@@ -142,7 +144,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				ad.setPositiveButton("Yes") { _, _ ->
 					captureImage(CAPTURE_IMAGE_REQUEST)
 				}
-				ad.setNegativeButton("No") { _, _ -> Toasty.success(this@HomeActivity,"KO",Toast.LENGTH_SHORT).show() }
+				ad.setNegativeButton("No") { _, _ -> sw_auth.isChecked=false }
 				ad.show()
 			}
 			else {
@@ -154,7 +156,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				ad.setPositiveButton("Yes") { _, _ ->
 					captureImage(CAPTURE_IMAGE_REQUEST_2)
 				}
-				ad.setNegativeButton("No") { _, _ ->  }
+				ad.setNegativeButton("No") { _, _ ->  sw_auth.isChecked=true}
 				ad.show()
 			}
 		}
@@ -389,10 +391,14 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){
-            2222 -> {
-                val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
-                startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
-            }
+			2222-> {
+				if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+					startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
+				} else {
+					Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
+				}
+			}
         }
     }
 

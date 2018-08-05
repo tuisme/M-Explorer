@@ -147,7 +147,11 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
     @SuppressLint("CheckResult")
     override fun encryptFile(context:Context, data: Intent) {
         val extras = data.extras
-        val imageBitmap = extras?.get("data") as Bitmap ?: return
+        val imageBitmap = extras?.get("data") as Bitmap?
+        if (imageBitmap == null) {
+            mView.setSwitch(false)
+            return
+        }
         mView.showLoading(true)
         val bytes = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
@@ -189,7 +193,11 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
     override fun authentication(context:Context, data: Intent, isTurnOff:Boolean) {
         var faceId1: String
         val extras = data.extras
-        val imageBitmap = extras?.get("data") as Bitmap? ?: return
+        val imageBitmap = extras?.get("data") as Bitmap?
+        if (imageBitmap == null) {
+            mView.setSwitch(true)
+            return
+        }
         mView.showLoading(true)
         val bytes = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes)
@@ -204,10 +212,12 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                     when {
                         it.faces?.size ==0 -> {
                             mView.showLoading(false)
+                            mView.setSwitch(true)
                             Toasty.error(context, "No detect face, please capture image again", Toast.LENGTH_SHORT).show()
                         }
                         it.faces?.size!! > 1 -> {
                             mView.showLoading(false)
+                            mView.setSwitch(true)
                             Toasty.error(context,"Many face, please capture image again", Toast.LENGTH_SHORT).show()
                         }
                         else -> {
@@ -237,6 +247,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                     compare(context, faceId1,faceId2,isTurnOff)
                 },
                         {
+                            mView.setSwitch(true)
                             Toasty.error(context, "Error " + it.localizedMessage, Toast.LENGTH_SHORT).show()
                         })
     }
@@ -248,7 +259,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    if (it.confidence!! > 80) {
+                    if (it.confidence!! > 85) {
                         mView.showLoading(false)
                         if (isTurnOff) {
                             Toasty.success(context, "OK", Toast.LENGTH_SHORT).show()
@@ -257,6 +268,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                         } else mView.isAuth(true)
                     } else {
                         mView.showLoading(false)
+                        mView.setSwitch(true)
                         Toasty.error(context, "Not match, please check again", Toast.LENGTH_SHORT).show()
                     }
                 },

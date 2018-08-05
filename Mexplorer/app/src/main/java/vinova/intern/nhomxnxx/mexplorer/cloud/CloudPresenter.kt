@@ -23,15 +23,15 @@ import retrofit2.Response
 import vinova.intern.nhomxnxx.mexplorer.api.CallApi
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.model.*
-import vinova.intern.nhomxnxx.mexplorer.service.NotificationService
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
-import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
 import java.io.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 
 class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface.Presenter {
@@ -146,13 +146,15 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 				})
 	}
 
-	override fun upLoadFile(user_token: String, id: String, uri: Uri, ctype: String, ctoken: String) {
-		val file = FileUtils.getFile(ctx,uri) ?: return mView.showError("Please choose another file")
-
-		val requestBody = RequestBody.create(
-				MediaType.parse(ctx.contentResolver.getType(uri)),
-				file)
-		val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+	override fun upLoadFile(user_token: String, id: String, body: MultipartBody.Part, ctype: String, ctoken: String) {
+//		val file = FileUtils.getFile(ctx,uri) ?: return mView.showError("Please choose another file")
+//		val test = ctx.contentResolver.getType(uri)
+//		val mimeType = Files.probeContentType(file.toPath())
+//
+//		val requestBody = RequestBody.create(
+//				MediaType.parse(ctx.contentResolver.getType(uri)),
+//				file)
+//		val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
 
 		CallApi.getInstance().uploadFile(user_token, id, body, ctype, ctoken)
 				.enqueue(object : Callback<BaseResponse>{
@@ -173,37 +175,42 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 	}
 
 	override fun renameFile(user_token: String, id: String, fname: String, ctype: String, ctoken: String) {
-		CallApi.getInstance().renameFile(user_token, id, fname, ctype, ctoken)
-				.enqueue(object : Callback<BaseResponse>{
-					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
-						mView.showError(t.toString())
-					}
+		if (fname != "")
+			CallApi.getInstance().renameFile(user_token, id, fname, ctype, ctoken)
+					.enqueue(object : Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
 
-					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-						if (response?.body()?.status.equals("success"))
-							mView.refresh()
-						else
-							mView.showError(response?.errorBody()?.string()!!)
-					}
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success"))
+								mView.refresh()
+							else
+								mView.showError(response?.errorBody()?.string()!!)
+						}
 
-				})
+					})
+		else mView.showError("Please fill new name")
+
 	}
 
 	override fun renameFolder(userToken: String, id: String, newName: String, cloudType: String, ctoken: String) {
-		CallApi.getInstance().renameFolder(userToken, id, newName, cloudType, ctoken)
-				.enqueue(object : Callback<BaseResponse>{
-					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
-						mView.showError(t.toString())
-					}
+		if (newName != "")
+			CallApi.getInstance().renameFile(userToken, id, newName, cloudType, ctoken)
+					.enqueue(object : Callback<BaseResponse>{
+						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+							mView.showError(t.toString())
+						}
 
-					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-						if (response?.body()?.status.equals("success"))
-							mView.refresh()
-						else
-							mView.showError(response?.errorBody()?.string()!!)
-					}
+						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+							if (response?.body()?.status.equals("success"))
+								mView.refresh()
+							else
+								mView.showError(response?.errorBody()?.string()!!)
+						}
 
-				})
+					})
+		else mView.showError("Please fill new name")
 	}
 
 	override fun createFolder(user_token: String, fname: String, parent: String, ctype: String, ctoken: String) {
@@ -266,19 +273,17 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 				file)
 		val body = MultipartBody.Part.createFormData("zip", file.name, requestBody)
 
-		Thread(Runnable {
-			CallApi.getInstance().uploadFolder(user_token,id,map.toString(),body,ctype,ctoken)
-					.enqueue(object  : Callback<BaseResponse>{
-						override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
-							Log.e("ABCD",t.toString())
-						}
+		CallApi.getInstance().uploadFolder(user_token,id,map.toString(),body,ctype,ctoken)
+				.enqueue(object  : Callback<BaseResponse>{
+					override fun onFailure(call: Call<BaseResponse>?, t: Throwable?) {
+						mView.showError(t.toString())
+					}
 
-						override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
-							deleteFile(file)
-							ctx.startService(Intent(ctx,NotificationService::class.java))
-						}
-					})
-		}).start()
+					override fun onResponse(call: Call<BaseResponse>?, response: Response<BaseResponse>?) {
+						deleteFile(file)
+						mView.refresh()
+					}
+				})
 	}
 
 	private fun zip(directory : File,toLocation: String){
@@ -393,7 +398,7 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 
 	override fun saveImage(data: Intent?, user_token: String, id: String, ctype: String, ctoken: String) {
 		val extras = data?.extras
-		val imageBitmap = extras?.get("data") as Bitmap
+		val imageBitmap = extras?.get("data") as Bitmap? ?: return
 		val bytes = ByteArrayOutputStream()
 		imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes)
 		val file = createImageFile()
@@ -402,8 +407,8 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 			val fo = FileOutputStream(file)
 			fo.write(bytes.toByteArray())
 			fo.close()
-			uploadImage(user_token,id,file,ctype,ctoken)
-			mView.refresh()
+			mView.startUpload(user_token,id,file,ctype,ctoken)
+			file.deleteOnExit()
 		}catch (e: IOException){
 			e.printStackTrace()
 		}
@@ -419,8 +424,7 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 		// Save a file: path for use with ACTION_VIEW intents
 		return File.createTempFile(
 				imageFileName, /* prefix */
-				".png", /* suffix */
-				File(Environment.getExternalStorageDirectory().path + File.separator + "Temp")      /* directory */
+				".png" /* suffix */
 		)
 	}
 

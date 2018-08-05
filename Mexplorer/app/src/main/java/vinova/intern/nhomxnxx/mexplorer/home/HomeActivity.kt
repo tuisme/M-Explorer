@@ -2,10 +2,12 @@ package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.Manifest
 import android.annotation.TargetApi
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -31,7 +33,6 @@ import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
-import kotlinx.android.synthetic.main.switch_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -45,9 +46,12 @@ import vinova.intern.nhomxnxx.mexplorer.local.LocalActivity
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
+import vinova.intern.nhomxnxx.mexplorer.dialogs.PasswordDialog
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils.Companion.messageNetWork
+import vinova.intern.nhomxnxx.mexplorer.utils.Support
+import java.io.File
 import java.lang.Exception
 
 
@@ -55,9 +59,10 @@ import java.lang.Exception
 class HomeActivity : BaseActivity(),HomeInterface.View ,
 		RenameDialog.DialogListener, GoogleApiClient.OnConnectionFailedListener,
 		ConfirmDeleteDialog.ConfirmListener,
-		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener {
+		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener ,
+		PasswordDialog.DialogListener{
 
-    private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
+	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
 	private lateinit var adapter : RvHomeAdapter
 	private var listCloud : ListCloud = ListCloud()
 	val RC_SIGN_IN = 9001
@@ -74,7 +79,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	lateinit var sw_auth:SwitchCompat
 	lateinit var cloud:Cloud
 
-    val db = DatabaseHandler(this@HomeActivity)
+	val db = DatabaseHandler(this@HomeActivity)
 
 	override fun logoutSuccess() {
 		CustomDiaglogFragment.hideLoadingDialog()
@@ -110,6 +115,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		setRecyclerView()
 		setGoogleAccount()
 		setBox()
+
 		setSwitchAuth()
 		userToken = DatabaseHandler(this).getToken()!!
 		if (savedInstanceState==null) {
@@ -127,37 +133,42 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 	@RequiresApi(Build.VERSION_CODES.M)
 	private fun setSwitchAuth(){
-		sw_auth = MenuItemCompat.getActionView(nav_view.menu.findItem(R.id.auth)).findViewById<SwitchCompat>(R.id.sw_auth)
-		if (db.getIsFaceAuth() == 1){
-			sw_auth.isChecked = true
-		}
-		else if (db.getIsFaceAuth() == 0) {
-			sw_auth.isChecked = false
-		}
+		sw_auth = MenuItemCompat.getActionView(nav_view.menu.findItem(R.id.auth)).findViewById(R.id.sw_auth)
+		sw_auth.isChecked = db.getIsAuth() == 1
+
+
+
 		sw_auth.setOnClickListener {
-			if (sw_auth.isChecked) {
-				val ad = AlertDialog.Builder(this)
-				ad.create()
-				ad.setCancelable(false)
-				ad.setTitle(title)
-				ad.setMessage("Do you want to turn on face authentication?")
-				ad.setPositiveButton("Yes") { _, _ ->
-					captureImage(CAPTURE_IMAGE_REQUEST)
+			when {
+
+				db.getMentAuth() == null -> {
+					val auth = arrayOf<CharSequence>("Face", "Pattern")
+					val builder = AlertDialog.Builder(this)
+					builder.setTitle("Choose the method:")
+							.setCancelable(false)
+							.setNegativeButton("Cancle"){_, _ -> 	sw_auth.isChecked = db.getIsAuth() == 1
+							}
+							.setItems(auth) { p0, which ->
+								when(which){
+									0->	captureImage(CAPTURE_IMAGE_REQUEST)
+
+									1-> {
+										PasswordDialog.newInstance(1, null).show(supportFragmentManager,"fragment")
+									}
+
+								}
+							}
+					builder.show()
 				}
-				ad.setNegativeButton("No") { _, _ -> sw_auth.isChecked=false }
-				ad.show()
-			}
-			else {
-				val ad = AlertDialog.Builder(this)
-				ad.create()
-				ad.setCancelable(false)
-				ad.setTitle(title)
-				ad.setMessage("Please face authentication to turn off")
-				ad.setPositiveButton("Yes") { _, _ ->
-					captureImage(CAPTURE_IMAGE_REQUEST_2)
+				db.getMentAuth() == "Face" -> captureImage(CAPTURE_IMAGE_REQUEST_2)
+				db.getMentAuth() == "Pattern" -> {
+					val file = File(Environment.getExternalStorageDirectory().path +"/Temp/.auth/"+ "code.txt")
+					val encoded = Support.readFileToByteArray(file)
+					val templates = Support.keyy.let { Support.decrypt(it, encoded) }
+					val pass = templates.toString(Charsets.UTF_8)
+					PasswordDialog.newInstance(3, pass,true).show(supportFragmentManager,"fragment")
+
 				}
-				ad.setNegativeButton("No") { _, _ ->  sw_auth.isChecked=true}
-				ad.show()
 			}
 		}
 	}
@@ -228,9 +239,16 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 					startActivity(Intent(this@HomeActivity,LocalActivity::class.java)
 							.putExtra("name",cloud.name))
 				else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && db.getIsFaceAuth() == 1 && !isAuth) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && db.getIsAuth() == 1 && !isAuth && db.getMentAuth() =="Face") {
                         captureImage(CAPTURE_IMAGE_REQUEST_3)
                     }
+					else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && db.getIsAuth() == 1 && !isAuth && db.getMentAuth() =="Pattern") {
+						val file = File(Environment.getExternalStorageDirectory().path +"/Temp/.auth/"+ "code.txt")
+						val encoded = Support.readFileToByteArray(file)
+						val templates = Support.keyy.let { Support.decrypt(it, encoded) }
+						val pass = templates.toString(Charsets.UTF_8)
+						PasswordDialog.newInstance(3, pass,false).show(supportFragmentManager,"fragment")
+					}
                     else {
                         val intent = Intent(this@HomeActivity, CloudActivity::class.java)
                         intent.putExtra("id", cloud.root).putExtra("token", cloud.token)
@@ -264,12 +282,12 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 			}
 			CAPTURE_IMAGE_REQUEST_2 -> {
 				if (data != null) {
-					mPresenter.authentication(this@HomeActivity, data,true)
+					mPresenter.authentication(this@HomeActivity, data,db.getIsAuth() == 1)
 				}
 			}
             CAPTURE_IMAGE_REQUEST_3 -> {
                 if (data != null) {
-                    mPresenter.authentication(this@HomeActivity, data,false)
+                    mPresenter.authentication(this@HomeActivity, data,db.getIsAuth() == 0)
                 }
             }
 		}
@@ -396,6 +414,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 					val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
 					startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
 				} else {
+					sw_auth.isChecked = !sw_auth.isChecked
 					Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
 				}
 			}
@@ -413,6 +432,13 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		}
 	}
 
+	override fun turnOff() {
+		db.updateMentAuth(null,userToken)
+		db.updateisAuth(0, userToken)
+		Toasty.success(this,"Success",Toast.LENGTH_SHORT).show()
+
+	}
+
     override fun isAuth(isAuth: Boolean) {
         this@HomeActivity.isAuth = isAuth
         if (isAuth){
@@ -422,4 +448,14 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
             startActivity(intent)
         }
     }
+
+	override fun savePass(pass: ByteArray) {
+		Support.encrypt(Support.keyy, pass).let { Support.saveFile(it, "code.txt") }
+		db.updateMentAuth("Pattern",userToken)
+		db.updateisAuth(1,userToken)
+		this@HomeActivity.isAuth = false
+		Toasty.success(this,"Success",Toast.LENGTH_SHORT).show()
+		sw_auth.isChecked = true
+
+	}
 }

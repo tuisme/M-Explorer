@@ -25,7 +25,7 @@ interface ApiInterface {
               @Query("device_type") type : String,
               @Query("device_location") location : String): Call<Request>
 
-    @POST("/api/v2/users/logout")
+    @DELETE("/api/v2/users")
     fun logout(@Header("Access-Token") token:String) : Call<Request>
 
 

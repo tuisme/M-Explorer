@@ -24,8 +24,8 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
                 + DBTable.USER.AVATAR.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.USED.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.ISVIP.COLUMN_NAME + " TEXT,"
-                + DBTable.USER.VERI.COLUMN_NAME + " TEXT,"
-                + DBTable.USER.FACEAUTH.COLUMN_NAME + " TEXT,"
+                + DBTable.USER.METAUTH.COLUMN_NAME + " TEXT,"
+                + DBTable.USER.AUTH.COLUMN_NAME + " TEXT,"
                 + DBTable.USER.AllOCATED.COLUMN_NAME + " TEXT" + ")")
         // Chạy lệnh tạo bảng.
         db.execSQL(script)
@@ -39,7 +39,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
 
     companion object {
         private val DATABASE_NAME = "database"
-        private val DATABASE_VERSION = 2
+        private val DATABASE_VERSION = 3
         val LOGGING_IN = 1
         val NOT_LOGGING_IN = 0
         val GOOGLE = "GOOGLE"
@@ -48,7 +48,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
     }
 
     fun insertUserData(token:String?,email: String?, first_name: String?, last_name: String?,
-                       type: String, status: Int,avatar: String?,isvip : String? , used:Double?, veri : String?, isFaceAuth :Int,allocated : Double?) {
+                       type: String, status: Int,avatar: String?,isvip : String? , used:Double?, method : String?, isFaceAuth :Int,allocated : Double?) {
         val db = this.writableDatabase
         val values_user = ContentValues()
         values_user.put(DBTable.USER.TOKEN.COLUMN_NAME,token)
@@ -60,8 +60,8 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         values_user.put(DBTable.USER.AVATAR.COLUMN_NAME,avatar)
         values_user.put(DBTable.USER.ISVIP.COLUMN_NAME,isvip)
         values_user.put(DBTable.USER.USED.COLUMN_NAME,used)
-        values_user.put(DBTable.USER.VERI.COLUMN_NAME,veri)
-        values_user.put(DBTable.USER.FACEAUTH.COLUMN_NAME,isFaceAuth)
+        values_user.put(DBTable.USER.METAUTH.COLUMN_NAME,method)
+        values_user.put(DBTable.USER.AUTH.COLUMN_NAME,isFaceAuth)
         values_user.put(DBTable.USER.AllOCATED.COLUMN_NAME,allocated)
 
         db?.insert(DBTable.USER.TABLE_NAME, null, values_user)
@@ -167,7 +167,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
                 user.first_name = cursor.getString(DBTable.USER.FIRST_NAME.COLUMN_NUMBER)
                 user.last_name = cursor.getString(DBTable.USER.LAST_NAME.COLUMN_NUMBER)
                 user.is_vip = cursor.getString(DBTable.USER.ISVIP.COLUMN_NUMBER)!!.toBoolean()
-                user.verified = cursor.getString(DBTable.USER.VERI.COLUMN_NUMBER)
+                user.mentAuth = cursor.getString(DBTable.USER.METAUTH.COLUMN_NUMBER)
                 user.used = cursor.getDouble(DBTable.USER.USED.COLUMN_NUMBER)
                 user.avatar_url = cursor.getString(DBTable.USER.AVATAR.COLUMN_NUMBER)
                 user.allocated = cursor.getDouble(DBTable.USER.AllOCATED.COLUMN_NUMBER)
@@ -175,10 +175,23 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         return user
     }
 
-    fun updateFaceAuth(isFaceAuth: Int, token: String?): Boolean{
+    fun updateisAuth(isAuth: Int, token: String?): Boolean{
         val db = this.writableDatabase
         val args = ContentValues()
-        args.put(DBTable.USER.FACEAUTH.COLUMN_NAME,isFaceAuth)
+        args.put(DBTable.USER.AUTH.COLUMN_NAME,isAuth)
+
+        return try{
+            db.update(DBTable.USER.TABLE_NAME, args, DBTable.USER.TOKEN.COLUMN_NAME + " = '" + token +"'", null)
+            true
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            false
+        }
+    }
+    fun updateMentAuth(method: String?, token: String?): Boolean{
+        val db = this.writableDatabase
+        val args = ContentValues()
+        args.put(DBTable.USER.METAUTH.COLUMN_NAME,method)
 
         return try{
             db.update(DBTable.USER.TABLE_NAME, args, DBTable.USER.TOKEN.COLUMN_NAME + " = '" + token +"'", null)
@@ -190,14 +203,26 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
     }
 
     @SuppressLint("Recycle")
-    fun getIsFaceAuth():Int {
+    fun getIsAuth():Int {
         val db = this.writableDatabase
         val cursor = db?.rawQuery(
                 "SELECT * FROM " + DBTable.USER.TABLE_NAME, null
         )
         cursor?.moveToFirst()
         return if (cursor?.count!! > 0) {
-            cursor.getInt(DBTable.USER.FACEAUTH.COLUMN_NUMBER)
+            cursor.getInt(DBTable.USER.AUTH.COLUMN_NUMBER)
         } else -1
+    }
+
+    @SuppressLint("Recycle")
+    fun getMentAuth():String? {
+        val db = this.writableDatabase
+        val cursor = db?.rawQuery(
+                "SELECT * FROM " + DBTable.USER.TABLE_NAME, null
+        )
+        cursor?.moveToFirst()
+        return if (cursor?.count!! > 0) {
+            cursor.getString(DBTable.USER.METAUTH.COLUMN_NUMBER)
+        } else null
     }
 }

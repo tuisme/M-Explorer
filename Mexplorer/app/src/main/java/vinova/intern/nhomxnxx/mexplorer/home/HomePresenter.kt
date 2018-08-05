@@ -180,7 +180,9 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                             Support.encrypt(Support.keyy, ima).let { Support.saveFile(it, "enimg.jpg") }
                             Toasty.success(context, "Face authentication active", Toast.LENGTH_SHORT).show()
                             mView.isAuth(false)
-                            db.updateFaceAuth(1, db.getToken())
+                            val token = db.getToken()
+                            db.updateMentAuth("Face",token)
+                            db.updateisAuth(1, token)
                         }
                     }
                 },
@@ -263,7 +265,9 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                         mView.showLoading(false)
                         if (isTurnOff) {
                             Toasty.success(context, "OK", Toast.LENGTH_SHORT).show()
-                            db.updateFaceAuth(0, db.getToken())
+                            val token = db.getToken()
+                            db.updateisAuth(0, token)
+                            db.updateMentAuth(null,token)
                             mView.setSwitch(false)
                         } else mView.isAuth(true)
                     } else {

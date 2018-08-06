@@ -55,7 +55,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                             }
                         }
                         else {
-                            mView.showError(response?.body()?.message.toString())
+                            mView.showError(response?.message().toString())
                         }
                     }
 
@@ -93,11 +93,11 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
 
                                 }
                                 else{
-                                    mView.showError("can find user")
+                                    mView.showError("Can't find user")
                                 }
                             }
                             else {
-                                mView.showError(response?.body()?.message.toString())
+                                mView.showError(response?.message().toString())
                             }
                         }
 
@@ -141,12 +141,8 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     mView.showError(response?.body()?.message.toString())
                                 }
                             }
-                            Log.d("email", account.email)
-                            Log.d("name", account.displayName)
-                            Log.d("image", account.photoUrl.toString())
-                            Log.d("id", account.id)
-                            Log.d("familyName", account.familyName)
-                            Log.d("givenName", account.givenName)
+                            else
+                                mView.showError(response?.message().toString())
                         }
                     })
         }

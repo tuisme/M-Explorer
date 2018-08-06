@@ -9,26 +9,26 @@ Time spent: 3 weeks spent in total
 * [x] User can add new cloud ( google drive, dropbox, box), rename and delete it.
 * [x] User can view and delete the devices connected to your account.
 * [x] User can take photo via camera to face authencation.
-Local
+* Local
 * [x] User can view file by default app in smartphone.
 * [x] User can rename file or folder.
 * [x] User can delete file or folder.
 * [x] User can create file, folder or image.
-Google drive
+* Google drive
 * [x] User can view file by default app in smartphone.
 * [x] User can rename file or folder.
 * [x] User can delete file or folder.
 * [x] User can upload and download file.
 * [x] User can upload folder.
 * [x] User can copy or move file or folder in cloud.
-Dropbox
+* Dropbox
 * [x] User can view file by default app in smartphone.
 * [x] User can rename file or folder.
 * [x] User can delete file or folder.
 * [x] User can upload and download file.
 * [] User can upload folder.
 * [x] User can copy or move file or folder in cloud.
-Box
+* Box
 * [x] User can view file by default app in smartphone.
 * [x] User can rename file or folder.
 * [x] User can delete file or folder.

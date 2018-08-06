@@ -26,13 +26,13 @@ Time spent: 3 weeks spent in total
 * [x] User can rename file or folder.
 * [x] User can delete file or folder.
 * [x] User can upload and download file.
-* [] User can upload folder.
+    [] User can upload folder.
 * [x] User can copy or move file or folder in cloud.
 * Box
 * [x] User can view file by default app in smartphone.
 * [x] User can rename file or folder.
 * [x] User can delete file or folder.
-* [] User can upload and download file or folder.
+     [] User can upload and download file or folder.
 * [x] User can copy or move file or folder in cloud.
 
 ## License

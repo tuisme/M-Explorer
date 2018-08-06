@@ -74,4 +74,7 @@ class SignUpFragment : Fragment(), SignUpInterface.View{
 		Toasty.error(context!!,message,Toast.LENGTH_SHORT).show()
 	}
 
+	override fun updateUser() {
+
+	}
 }

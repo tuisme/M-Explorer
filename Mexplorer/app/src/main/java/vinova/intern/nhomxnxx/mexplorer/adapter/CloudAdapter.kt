@@ -40,22 +40,17 @@ class CloudAdapter(ctx : Context,view : TextView,rot : View,frag : FragmentManag
 
 	fun setData(list : ArrayList<FileSec>){
 		this.files = list
-		setAds()
+		if (itemCount > 0)
+			setAds()
 		if(files.isEmpty())
 			error.visibility = View.VISIBLE
 		else
 			error.visibility = View.GONE
 	}
 	private fun setAds(){
-		for (i in 0..itemCount step 10){
-			if (i>29) break
-			val last = if (i+10<itemCount) i+10
-							else itemCount
-			val pos = (i..last).random()
-			val file = FileSec.createFromParcel(Parcel.obtain())
-			file.mime_type = "ads"
-			files.add(pos,file)
-		}
+		val file = FileSec.createFromParcel(Parcel.obtain())
+		file.mime_type = "ads"
+		files.add(0,file)
 	}
 
 	fun ClosedRange<Int>.random() =

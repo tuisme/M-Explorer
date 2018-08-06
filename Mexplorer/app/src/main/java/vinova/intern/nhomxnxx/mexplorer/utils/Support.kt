@@ -4,19 +4,15 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import android.view.View
 import android.webkit.MimeTypeMap
-import com.google.android.gms.common.util.IOUtils
-import java.io.*
-import java.security.NoSuchAlgorithmException
-import java.security.SecureRandom
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.DecimalFormat
 import javax.crypto.Cipher
-import javax.crypto.CipherInputStream
-import javax.crypto.KeyGenerator
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-
 
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
@@ -26,7 +22,7 @@ class Support{
         var keyy = byteArrayOf(0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, 0x00, 0x55, 0x77, 0x55, 0x55, 0x77, 0x55)
         fun getFileSize(size: Long): String {
             if (size <= 0)
-                return "0"
+                return "0 KB"
             val units = arrayOf("B", "KB", "MB", "GB", "TB")
             val digitGroups = (Math.log10(size.toDouble()) / Math.log10(1024.0)).toInt()
             return DecimalFormat("#,##0.#").format(size / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]

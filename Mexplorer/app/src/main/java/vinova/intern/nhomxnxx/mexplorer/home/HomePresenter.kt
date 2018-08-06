@@ -5,6 +5,7 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.widget.Toast
@@ -29,14 +30,52 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 
 @Suppress("NAME_SHADOWING", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
+class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Presenter {
     val mView: HomeInterface.View = view
-    val api_key:String = "wWD5twUKYfBPNTZzdzQJoYL9BmSAKXcK"
-    val api_secret:String = "CdDgnwHSiiOXOGl7VdQ4mjm2Sykhca8B"
+    val ctx = context
+    private val api_key:String = "wWD5twUKYfBPNTZzdzQJoYL9BmSAKXcK"
+    private val api_secret:String = "CdDgnwHSiiOXOGl7VdQ4mjm2Sykhca8B"
+    val databaseAccess = DatabaseHandler(context)
     init {
         mView.setPresenter(this)
     }
     var tryGetList = false
+
+    override fun updateUser(first_name: String, last_name: String, uri: Uri) {
+        val file = File(uri.path)
+
+        val requestBody = RequestBody.create(
+                MediaType.parse("file/*"),
+                file)
+        val userToken = databaseAccess.getToken()!!
+
+        val avatar = MultipartBody.Part.createFormData("avatar", file.name, requestBody)
+
+        CallApi.getInstance().updateUsesr(userToken,first_name, last_name, avatar)
+                .enqueue(object : Callback<Request>{
+                    override fun onFailure(call: Call<Request>?, t: Throwable?) {
+                        mView.showError(t.toString())
+                    }
+
+                    override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+                        if (response?.body() != null){
+                            val user = response.body()?.data
+                            if (user != null) {
+                                if (databaseAccess.getUserLoggedIn() != null) {
+                                    databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
+                                }
+                                databaseAccess.insertUserData(user.token, user.email, user.first_name,
+                                        user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+                                        user.avatar_url,user.is_vip.toString(),user.used,user.mentAuth,0,user.allocated)
+                                mView.updateUser()
+                            }
+                        }
+                        else
+                            mView.showError(response?.message()!!)
+                    }
+
+                })
+    }
 
     override fun logout(context: Context?, token: String?) {
         val token = DatabaseHandler(context).getToken()
@@ -95,6 +134,15 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                 override fun onResponse(call: Call<ListCloud>?, response: Response<ListCloud>?) {
                     if (response?.body()?.status.equals("success")){
                         mView.refreshList(response?.body())
+                    }
+                    else{
+                        if (tryGetList){
+                            mView.forceLogOut("You are not sign in yet")
+                        }
+                        else{
+                            tryGetList = true
+                            mView.refresh()
+                        }
                     }
                 }
             })

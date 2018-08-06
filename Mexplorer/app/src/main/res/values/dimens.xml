@@ -1,4 +1,5 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="bottom_sheet_dialog_width">0dp</dimen>
+    <dimen name="profile_img">180dp</dimen>
 </resources>

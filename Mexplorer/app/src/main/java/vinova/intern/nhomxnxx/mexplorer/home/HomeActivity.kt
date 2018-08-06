@@ -2,13 +2,15 @@ package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.Manifest
 import android.annotation.TargetApi
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -39,14 +41,12 @@ import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.cloud.CloudActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.device.DeviceActivity
-import vinova.intern.nhomxnxx.mexplorer.dialogs.AddCloudDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.ConfirmDeleteDialog
-import vinova.intern.nhomxnxx.mexplorer.dialogs.RenameDialog
+import vinova.intern.nhomxnxx.mexplorer.dialogs.*
 import vinova.intern.nhomxnxx.mexplorer.local.LocalActivity
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
-import vinova.intern.nhomxnxx.mexplorer.dialogs.PasswordDialog
+import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils.Companion.messageNetWork
@@ -59,10 +59,11 @@ import java.lang.Exception
 class HomeActivity : BaseActivity(),HomeInterface.View ,
 		RenameDialog.DialogListener, GoogleApiClient.OnConnectionFailedListener,
 		ConfirmDeleteDialog.ConfirmListener,
-		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener ,
+		AddCloudDialog.DialogListener, BoxAuthentication.AuthListener,
+		ProfileDialog.DialogListener,
 		PasswordDialog.DialogListener{
 
-	private var mPresenter :HomeInterface.Presenter= HomePresenter(this)
+    private var mPresenter :HomeInterface.Presenter= HomePresenter(this,this)
 	private lateinit var adapter : RvHomeAdapter
 	private var listCloud : ListCloud = ListCloud()
 	val RC_SIGN_IN = 9001
@@ -75,6 +76,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	val CAPTURE_IMAGE_REQUEST = 20
 	val CAPTURE_IMAGE_REQUEST_2 = 22
     val CAPTURE_IMAGE_REQUEST_3 = 24
+	val TAKE_PROFILE_IMG_CODE = 456
     var isAuth:Boolean = false
 	lateinit var sw_auth:SwitchCompat
 	lateinit var cloud:Cloud
@@ -88,8 +90,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 
 	override fun forceLogOut(message: String) {
-		Toasty.info(this,message,Toast.LENGTH_SHORT).show()
-		startActivity(Intent(this,LogActivity::class.java))
+		startActivity(Intent(this,LogActivity::class.java).putExtra("force",true))
 		finish()
 	}
 
@@ -107,7 +108,6 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		Toasty.error(this,message,Toast.LENGTH_SHORT).show()
 	}
 
-
 	@TargetApi(Build.VERSION_CODES.M)
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -115,7 +115,6 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		setRecyclerView()
 		setGoogleAccount()
 		setBox()
-
 		setSwitchAuth()
 		userToken = DatabaseHandler(this).getToken()!!
 		if (savedInstanceState==null) {
@@ -136,32 +135,11 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		sw_auth = MenuItemCompat.getActionView(nav_view.menu.findItem(R.id.auth)).findViewById(R.id.sw_auth)
 		sw_auth.isChecked = db.getIsAuth() == 1
 
-
-
 		sw_auth.setOnClickListener {
-			when {
-
-				db.getMentAuth() == null -> {
-					val auth = arrayOf<CharSequence>("Face", "Pattern")
-					val builder = AlertDialog.Builder(this)
-					builder.setTitle("Choose the method:")
-							.setCancelable(false)
-							.setNegativeButton("Cancle"){_, _ -> 	sw_auth.isChecked = db.getIsAuth() == 1
-							}
-							.setItems(auth) { p0, which ->
-								when(which){
-									0->	captureImage(CAPTURE_IMAGE_REQUEST)
-
-									1-> {
-										PasswordDialog.newInstance(1, null).show(supportFragmentManager,"fragment")
-									}
-
-								}
-							}
-					builder.show()
-				}
-				db.getMentAuth() == "Face" -> captureImage(CAPTURE_IMAGE_REQUEST_2)
-				db.getMentAuth() == "Pattern" -> {
+			when(db.getMentAuth()) {
+				null -> chooseAuthMethod()
+				"Face" -> captureImage(CAPTURE_IMAGE_REQUEST_2)
+				"Pattern" -> {
 					val file = File(Environment.getExternalStorageDirectory().path +"/Temp/.auth/"+ "code.txt")
 					val encoded = Support.readFileToByteArray(file)
 					val templates = Support.keyy.let { Support.decrypt(it, encoded) }
@@ -171,6 +149,26 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				}
 			}
 		}
+	}
+
+	@RequiresApi(Build.VERSION_CODES.M)
+	private fun chooseAuthMethod(){
+		val auth = arrayOf<CharSequence>("Face", "Pattern")
+		val builder = AlertDialog.Builder(this)
+		builder.setTitle("Choose the method:")
+				.setCancelable(false)
+				.setNegativeButton("Cancel"){_, _ -> 	sw_auth.isChecked = db.getIsAuth() == 1
+				}
+				.setItems(auth) { _, which ->
+					when(which){
+						0->	captureImage(CAPTURE_IMAGE_REQUEST)
+
+						1-> {
+							PasswordDialog.newInstance(1, null).show(supportFragmentManager,"fragment")
+						}
+					}
+				}
+		builder.show()
 	}
 
 	private fun setGoogleAccount(){
@@ -194,8 +192,15 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		boxSession.setSessionAuthListener(this@HomeActivity)
 	}
 
+	@RequiresApi(Build.VERSION_CODES.M)
 	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
 		when(p0.itemId){
+			R.id.auth ->{
+				drawer_layout?.closeDrawer(GravityCompat.START)
+				chooseAuthMethod()
+				nav_view.menu.findItem(R.id.home).isChecked = true
+				return true
+			}
 			R.id.home->{
 
 			}
@@ -229,15 +234,25 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		rvContent.adapter = adapter
         rvContent.showShimmerAdapter()
 		swipeContent.setOnRefreshListener {
-			mPresenter.refreshList(DatabaseHandler(this).getToken())
-			swipeContent.isRefreshing = false
+			if (!NetworkUtils.isConnectedInternet(this)){
+				showError(NetworkUtils.messageNetWork)
+			}
+			else {
+				mPresenter.refreshList(DatabaseHandler(this).getToken())
+				swipeContent.isRefreshing = false
+			}
 		}
+
 		adapter.setListener(object : RvHomeAdapter.ItemClickListener{
             override fun onItemClick(cloud: Cloud) {
                 this@HomeActivity.cloud = cloud
-				if (cloud.type.equals("local"))
-					startActivity(Intent(this@HomeActivity,LocalActivity::class.java)
-							.putExtra("name",cloud.name))
+
+	            val mBehavior = BottomSheetBehavior.from(bottom_sheet_detail)
+
+	            if (mBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+					mBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+				else if (cloud.type.equals("local"))
+					startActivity(Intent(this@HomeActivity,LocalActivity::class.java))
 				else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && db.getIsAuth() == 1 && !isAuth && db.getMentAuth() =="Face") {
                         captureImage(CAPTURE_IMAGE_REQUEST_3)
@@ -258,9 +273,14 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 				}
 			}
 		})
+
 		fab_add.setOnClickListener {
 			AddCloudDialog.newInstance().show(supportFragmentManager,"Fragement")
 		}
+
+		nav_view.menu.findItem(R.id.auth).isVisible = true
+
+		nav_view.menu.findItem(R.id.home).isChecked = true
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -290,6 +310,11 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
                     mPresenter.authentication(this@HomeActivity, data,db.getIsAuth() == 0)
                 }
             }
+			TAKE_PROFILE_IMG_CODE ->{
+				if (data!=null){
+
+				}
+			}
 		}
 
 	}
@@ -418,6 +443,10 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 					Toasty.warning(this, "Permission Denied, Please allow to proceed !", Toast.LENGTH_LONG).show()
 				}
 			}
+	        TAKE_PROFILE_IMG_CODE->{
+		        val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+		        startActivityForResult(cameraIntent, TAKE_PROFILE_IMG_CODE)
+	        }
         }
     }
 
@@ -449,6 +478,10 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
         }
     }
 
+	override fun onUpdate(user: User) {
+		mPresenter.updateUser(user.first_name!!,user.last_name!!, Uri.parse(user.avatar_url))
+	}
+
 	override fun savePass(pass: ByteArray) {
 		Support.encrypt(Support.keyy, pass).let { Support.saveFile(it, "code.txt") }
 		db.updateMentAuth("Pattern",userToken)
@@ -457,5 +490,23 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		Toasty.success(this,"Success",Toast.LENGTH_SHORT).show()
 		sw_auth.isChecked = true
 
+	}
+
+	override fun updateUser() {
+		super.loadUser()
+	}
+
+	override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+		if (ev?.action == MotionEvent.ACTION_DOWN) {
+	        if (BottomSheetBehavior.from(bottom_sheet_detail).state ==BottomSheetBehavior.STATE_EXPANDED) {
+
+	            val outRect =  Rect()
+	            bottom_sheet_detail.getGlobalVisibleRect(outRect)
+
+	            if(!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt()))
+		            BottomSheetBehavior.from(bottom_sheet_detail).state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+	    }
+		return super.dispatchTouchEvent(ev)
 	}
 }

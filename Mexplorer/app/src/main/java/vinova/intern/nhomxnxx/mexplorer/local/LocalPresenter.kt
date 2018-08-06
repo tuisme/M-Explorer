@@ -4,7 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import com.facebook.login.LoginManager
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,7 +20,10 @@ import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class LocalPresenter(view:LocalInterface.View):LocalInterface.Presenter{
+class LocalPresenter(view:LocalInterface.View,ctx : Context):LocalInterface.Presenter{
+    val context = ctx
+    val databaseAccess = DatabaseHandler(context)
+
     override fun openFileOrFolder(adapter: LocalAdapter, file: File) {
         if (file.isDirectory) {
             adapter.path = file.absolutePath
@@ -236,4 +243,39 @@ class LocalPresenter(view:LocalInterface.View):LocalInterface.Presenter{
                     })
     }
 
+    override fun updateUser(first_name: String, last_name: String, uri: Uri) {
+        val file = File(uri.path)
+
+        val requestBody = RequestBody.create(
+                MediaType.parse("file/*"),
+                file)
+        val userToken = databaseAccess.getToken()!!
+
+        val avatar = MultipartBody.Part.createFormData("avatar", file.name, requestBody)
+
+        CallApi.getInstance().updateUsesr(userToken,first_name, last_name, avatar)
+                .enqueue(object : Callback<Request>{
+                    override fun onFailure(call: Call<Request>?, t: Throwable?) {
+                        mView.showError(t.toString())
+                    }
+
+                    override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+                        if (response?.body() != null){
+                            val user = response.body()?.data
+                            if (user != null) {
+                                if (databaseAccess.getUserLoggedIn() != null) {
+                                    databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
+                                }
+                                databaseAccess.insertUserData(user.token, user.email, user.first_name,
+                                        user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+                                        user.avatar_url,user.is_vip.toString(),user.used,user.mentAuth,0,user.allocated)
+                                mView.updateUser()
+                            }
+                        }
+                        else
+                            mView.showError(response?.message()!!)
+                    }
+
+                })
+    }
 }

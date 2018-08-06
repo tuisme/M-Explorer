@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -14,7 +13,6 @@ import android.os.Bundle
 import android.os.Environment.getExternalStorageDirectory
 import android.view.MenuItem
 import android.view.View
-import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -25,15 +23,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
-import kotlinx.android.synthetic.main.update_item_dialog.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.LocalAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
 import vinova.intern.nhomxnxx.mexplorer.device.DeviceActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
-import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
+import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.io.File
@@ -45,9 +42,10 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         NewFolderDialog.DialogListener,
         NewTextFileDialog.DialogListener,
         ConfirmDeleteDialog.ConfirmListener,
-        RenameDialog.DialogListener{
+        RenameDialog.DialogListener,
+        ProfileDialog.DialogListener{
 
-    private var mPresenter :LocalInterface.Presenter= LocalPresenter(this)
+    private var mPresenter :LocalInterface.Presenter= LocalPresenter(this,this)
     var mMovingPath:String? = null
     var mCopy:Boolean =false
     lateinit var adapter: LocalAdapter
@@ -208,7 +206,6 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         }
     }
 
-
     override fun onBackPressed() {
         if (adapter.path == getExternalStorageDirectory().absolutePath)
             super.onBackPressed()
@@ -238,12 +235,11 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         }
     }
 
-
     override fun onNavigationItemSelected(p0: MenuItem): Boolean {
         when(p0.itemId){
             R.id.home->{
-                val intent = Intent(this,HomeActivity::class.java)
-                startActivity(intent)
+	            finish()
+	            overridePendingTransition(R.anim.slide_in, R.anim.slide_out)
             }
             R.id.signout->{
                 CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
@@ -265,5 +261,13 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         CustomDiaglogFragment.hideLoadingDialog()
         startActivity(Intent(this, LogActivity::class.java))
         finish()
+    }
+
+    override fun onUpdate(user: User) {
+        mPresenter.updateUser(user.first_name!!,user.last_name!!, Uri.parse(user.avatar_url))
+    }
+
+    override fun updateUser() {
+        super.loadUser()
     }
 }

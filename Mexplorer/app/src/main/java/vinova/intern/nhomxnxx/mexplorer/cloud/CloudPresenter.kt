@@ -30,16 +30,52 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 
 class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface.Presenter {
 	val mView = view
 	val ctx = context
+	val databaseAccess = DatabaseHandler(context)
 	init {
 		mView.setPresenter(this)
 	}
+
+	override fun updateUser(first_name: String, last_name: String, uri: Uri) {
+		val file = File(uri.path)
+
+		val requestBody = RequestBody.create(
+				MediaType.parse("file/*"),
+				file)
+		val userToken = databaseAccess.getToken()!!
+
+		val avatar = MultipartBody.Part.createFormData("avatar", file.name, requestBody)
+
+		CallApi.getInstance().updateUsesr(userToken,first_name, last_name, avatar)
+				.enqueue(object : Callback<Request>{
+					override fun onFailure(call: Call<Request>?, t: Throwable?) {
+						mView.showError(t.toString())
+					}
+
+					override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+						if (response?.body() != null){
+							val user = response.body()?.data
+							if (user != null) {
+								if (databaseAccess.getUserLoggedIn() != null) {
+									databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
+								}
+								databaseAccess.insertUserData(user.token, user.email, user.first_name,
+										user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+										user.avatar_url,user.is_vip.toString(),user.used,user.mentAuth,0,user.allocated)
+								mView.updateUser()
+							}
+						}
+						else
+							mView.showError(response?.message()!!)
+					}
+
+				})
+	}
+
 	override fun getList(id:String,token:String,userToken:String,type : String) {
 		CallApi.getInstance().gotoCloud(id,token,userToken,type)
 				.enqueue(object : Callback<SpecificCloud>{
@@ -429,7 +465,7 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 	}
 
 
-	fun uploadImage(user_token: String, id: String, file: File, ctype: String, ctoken: String){
+	private fun uploadImage(user_token: String, id: String, file: File, ctype: String, ctoken: String){
 		val requestBody = RequestBody.create(
 				MediaType.parse("file/*"),
 				file)

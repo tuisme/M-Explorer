@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.item_ads.view.*
 import kotlinx.android.synthetic.main.item_folder.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.model.File
+import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.util.*
 
@@ -56,21 +57,15 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<RecyclerV
         return fileList.size
     }
 
-    fun setData() {
+    private fun setData() {
         this.fileList = getData(path) as ArrayList<File>
-        setAds()
+        if (itemCount > 0 && NetworkUtils.isConnectedInternet(ctx))
+            setAds()
     }
 
     private fun setAds(){
-        for (i in 0..itemCount step 10){
-            if (i>29) break
-            val last = if (i+10<itemCount) i+10
-            else itemCount
-            val pos = (i..last).random()
-            val file = File(null,null,null,"ads",null)
-            fileList.add(pos,file)
-        }
-    }
+        val file = File(null,null,null,"ads",null)
+        fileList.add(0,file)    }
 
     fun ClosedRange<Int>.random() =
             Random().nextInt((endInclusive + 1) - start) +  start

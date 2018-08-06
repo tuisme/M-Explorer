@@ -33,6 +33,7 @@ import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import vinova.intern.nhomxnxx.mexplorer.model.ListFileSec
+import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
 import vinova.intern.nhomxnxx.mexplorer.service.UploadFileService
 import vinova.intern.nhomxnxx.mexplorer.service.UploadFolderService
@@ -43,7 +44,8 @@ import java.io.File
 
 
 class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.DialogListener, UploadFileDialog.DialogListener,
-		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener, NewFolderDialog.DialogListener {
+		RenameDialog.DialogListener, ConfirmDeleteDialog.ConfirmListener, NewFolderDialog.DialogListener,
+		ProfileDialog.DialogListener{
 
 	private lateinit var adapter : CloudAdapter
 	var mPresenter : CloudInterface.Presenter = CloudPresenter(this,this)
@@ -335,7 +337,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	override fun onNavigationItemSelected(p0: MenuItem): Boolean {
 		when(p0.itemId){
 			R.id.home->{
-				super.onBackPressed()
+				finish()
+				overridePendingTransition(R.anim.slide_in, R.anim.slide_out)
 			}
 			R.id.signout->{
 				if (!NetworkUtils.isConnectedInternet(this)){
@@ -485,4 +488,11 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		}
 	}
 
+	override fun onUpdate(user: User) {
+		mPresenter.updateUser(user.first_name!!,user.last_name!!, Uri.parse(user.avatar_url))
+	}
+
+	override fun updateUser() {
+		loadUser()
+	}
 }

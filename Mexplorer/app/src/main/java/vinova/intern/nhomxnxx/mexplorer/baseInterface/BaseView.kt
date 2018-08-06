@@ -6,4 +6,6 @@ interface BaseView<T> {
     fun showLoading(isShow: Boolean)
 
     fun showError(message: String)
+
+    fun updateUser()
 }

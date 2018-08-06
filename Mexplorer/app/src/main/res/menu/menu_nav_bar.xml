@@ -25,6 +25,7 @@
             android:title="@string/device_connected" />
         <item
             android:id="@+id/auth"
+            android:visible="false"
             app:actionLayout="@layout/switch_layout"
             app:showAsAction="always"
             android:title="@string/face_authentication" />

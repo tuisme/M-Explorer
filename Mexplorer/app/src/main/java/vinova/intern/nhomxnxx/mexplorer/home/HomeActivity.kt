@@ -22,6 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.box.androidsdk.content.BoxConfig
 import com.box.androidsdk.content.auth.BoxAuthentication
 import com.box.androidsdk.content.models.BoxSession
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -35,6 +38,7 @@ import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
+import kotlinx.android.synthetic.main.nav_bar_header.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -80,6 +84,9 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
     var isAuth:Boolean = false
 	lateinit var sw_auth:SwitchCompat
 	lateinit var cloud:Cloud
+	private lateinit var fullAds : InterstitialAd
+	private lateinit var adRequest : AdRequest
+
 
 	val db = DatabaseHandler(this@HomeActivity)
 
@@ -117,6 +124,11 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		setBox()
 		setSwitchAuth()
 		userToken = DatabaseHandler(this).getToken()!!
+		MobileAds.initialize(this,getString(R.string.ads_app))
+
+		fullAds = InterstitialAd(this)
+		fullAds.adUnitId = getString(R.string.ads_id_redeem)
+
 		if (savedInstanceState==null) {
 			if (!NetworkUtils.isConnectedInternet(this)){
 				showError(NetworkUtils.messageNetWork)
@@ -281,6 +293,19 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		nav_view.menu.findItem(R.id.auth).isVisible = true
 
 		nav_view.menu.findItem(R.id.home).isChecked = true
+
+		nav_view.getHeaderView(0).buy_space.setOnClickListener {
+			adRequest = AdRequest.Builder().build()
+			fullAds.loadAd(adRequest)
+			if (fullAds.isLoaded){
+				fullAds.show()
+				mPresenter.redeem(userToken)
+			}
+//			fullAds.adListener = AdListener().apply {
+//				onAdClosed().apply {
+//				}
+//			}
+		}
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -157,6 +157,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         rvContent.addItemDecoration(DividerItemDecoration(rvContent.context, DividerItemDecoration.VERTICAL))
         rvContent.adapter = adapter
         adapter.setListener(this)
+        title = "Local"
         if (isStoragePermissionGranted()){
             adapter.refreshData()
         }

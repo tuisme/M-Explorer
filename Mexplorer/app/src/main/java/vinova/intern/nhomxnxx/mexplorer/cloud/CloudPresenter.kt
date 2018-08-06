@@ -529,5 +529,31 @@ class CloudPresenter(view : CloudInterface.View,context: Context):CloudInterface
 		}
 	}
 
+	override fun redeem(user_token: String) {
+		CallApi.getInstance().redeemSpace(user_token)
+				.enqueue(object : Callback<Request>{
+					override fun onFailure(call: Call<Request>?, t: Throwable?) {
+
+					}
+
+					override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+						if (response?.body() != null){
+							val user = response.body()?.data
+							if (user != null) {
+								if (databaseAccess.getUserLoggedIn() != null) {
+									databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
+								}
+								databaseAccess.insertUserData(user.token, user.email, user.first_name,
+										user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+										user.avatar_url,user.is_vip.toString(),user.used,user.mentAuth,0,user.allocated)
+								mView.updateUser()
+							}
+						}
+						else
+							mView.showError(response?.message()!!)
+					}
+				})
+	}
+
 
 }

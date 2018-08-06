@@ -125,6 +125,10 @@ interface ApiInterface {
     fun moveFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
                  @Query("type") type: String, @Query("token") token: String,
                  @Query("id_dest") id_dest:String, @Query("mime_type") mime_type:String) : Call<BaseResponse>
+
+    @POST("/api/v2/redeems")
+    fun redeemSpace(@Header("Access-Token") user_token: String) : Call<Request>
+
 }
 
 interface ApiFaceAuthInterface

@@ -493,6 +493,6 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	}
 
 	override fun updateUser() {
-		loadUser()
+		super.loadUser()
 	}
 }

@@ -90,7 +90,7 @@ class UploadFolderService : IntentService("Upload Folder Service"), ProgressRequ
         val CHANNEL_ID = "my_channel_03"
 
         notificationBuilder = NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_logo_img)
                 .setContentTitle(root.name)
                 .setContentText("Please wait a minute to upload...")
                 .setChannelId(CHANNEL_ID)

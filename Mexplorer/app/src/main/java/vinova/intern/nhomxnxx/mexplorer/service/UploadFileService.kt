@@ -85,7 +85,7 @@ class UploadFileService : IntentService("Upload File Service"), ProgressRequestB
         val CHANNEL_ID = "my_channel_02"
 
         notificationBuilder = NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_logo_img)
                 .setContentTitle(name)
                 .setContentText("Uploading file")
                 .setChannelId(CHANNEL_ID)

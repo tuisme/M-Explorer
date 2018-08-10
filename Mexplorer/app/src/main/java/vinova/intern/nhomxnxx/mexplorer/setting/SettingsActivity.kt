@@ -1,6 +1,7 @@
 package vinova.intern.nhomxnxx.mexplorer.setting
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -20,13 +21,13 @@ import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.io.File
-import androidx.core.content.ContextCompat.startActivity
-import com.google.android.gms.common.util.ClientLibraryUtils.getPackageInfo
-import android.R.attr.versionName
-import android.content.Context
 
 
 class SettingsActivity :AppCompatActivity(), SettingsInterface.View, PasswordDialog.DialogListener{
+    override fun forceLogOut(message: String) {
+
+    }
+
     override fun showLoading(isShow: Boolean) {
         if(isShow) CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
         else CustomDiaglogFragment.hideLoadingDialog()
@@ -43,7 +44,7 @@ class SettingsActivity :AppCompatActivity(), SettingsInterface.View, PasswordDia
     override fun isAuth(isAuth: Boolean) {
     }
 
-    private var mPresenter :SettingsInterface.Presenter= SettingsPresenter(this,this)
+    private var mPresenter :SettingsInterface.Presenter= SettingsPresenter(this)
 
     val CAPTURE_IMAGE_REQUEST = 20
     val CAPTURE_IMAGE_REQUEST_2 = 22

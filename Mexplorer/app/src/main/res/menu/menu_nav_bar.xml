@@ -4,16 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <group
         android:checkableBehavior="single">
+
         <item
             android:id="@+id/home"
             android:icon="@drawable/ic_home_black_24dp"
-            app:showAsAction="ifRoom"
-            android:orderInCategory="1"
+            app:showAsAction="always"
             android:title="@string/home"/>
         <item
             android:id="@+id/bookmark"
             android:icon="@drawable/ic_bookmark"
-            android:orderInCategory="100"
             app:showAsAction="always"
             android:title="@string/book_mark"
             tools:ignore="AlwaysShowAction" />
@@ -23,7 +22,12 @@
             android:orderInCategory="99"
             app:showAsAction="always"
             android:title="@string/device_connected" />
-
+        <item
+            android:id="@+id/update_account"
+            android:icon="@drawable/ic_premium"
+            app:showAsAction="always"
+            android:title="@string/update_account"
+            />
         <item
             android:id="@+id/setting"
             android:icon="@drawable/ic_setting"

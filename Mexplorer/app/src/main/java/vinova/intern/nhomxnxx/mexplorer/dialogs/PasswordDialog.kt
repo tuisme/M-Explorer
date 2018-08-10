@@ -1,8 +1,8 @@
 package vinova.intern.nhomxnxx.mexplorer.dialogs
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -88,7 +88,7 @@ class PasswordDialog:DialogFragment() {
             override fun onProgress(progressPattern: MutableList<PatternLockView.Dot>?) {
             }
         })
-        dialog.setOnKeyListener { dialogInterface, i, keyEvent ->
+        dialog.setOnKeyListener { _, i, _ ->
             if (i == KeyEvent.KEYCODE_BACK) {
                 if (func == 1 || func == 2)
                     mListener?.setSwitch(false)
@@ -110,8 +110,8 @@ class PasswordDialog:DialogFragment() {
         fun setSwitch(isChecked: Boolean)
     }
 
-    override fun onAttach(activity: Activity) {
-        super.onAttach(activity)
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
         try {
             mListener = activity as DialogListener
         } catch (e: ClassCastException) {

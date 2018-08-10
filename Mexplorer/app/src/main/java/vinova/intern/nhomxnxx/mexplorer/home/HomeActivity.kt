@@ -2,7 +2,10 @@ package vinova.intern.nhomxnxx.mexplorer.home
 
 import android.Manifest
 import android.annotation.TargetApi
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.net.Uri
@@ -13,18 +16,14 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.box.androidsdk.content.BoxConfig
 import com.box.androidsdk.content.auth.BoxAuthentication
 import com.box.androidsdk.content.models.BoxSession
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
-import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.reward.RewardedVideoAdListener
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -38,7 +37,6 @@ import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
-import kotlinx.android.synthetic.main.nav_bar_header.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.RvHomeAdapter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
@@ -89,9 +87,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
     val CAPTURE_IMAGE_REQUEST_3 = 24
 	val TAKE_PROFILE_IMG_CODE = 456
 	lateinit var cloud:Cloud
-	private lateinit var fullAds : InterstitialAd
-	private lateinit var adRequest : AdRequest
-
+	private lateinit var mRewardedVideoAdListener: RewardedVideoAdListener
 
 	val db = DatabaseHandler(this@HomeActivity)
 
@@ -124,15 +120,11 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		super.onCreateDrawer()
+		userToken = DatabaseHandler(this).getToken()!!
 		setRecyclerView()
 		setGoogleAccount()
 		setBox()
-		userToken = DatabaseHandler(this).getToken()!!
-		MobileAds.initialize(this,getString(R.string.ads_app))
-
-		fullAds = InterstitialAd(this)
-		fullAds.adUnitId = getString(R.string.ads_id_redeem)
-
+		super.setAdsListener(this,mPresenter,userToken)
 		if (savedInstanceState==null) {
 			if (!NetworkUtils.isConnectedInternet(this)){
 				showError(NetworkUtils.messageNetWork)
@@ -180,7 +172,6 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 			}
 			R.id.setting -> {
 				startActivity(Intent(this, SettingsActivity::class.java))
-
 			}
 			R.id.device_connected -> {
 				val intent = Intent(this,DeviceActivity::class.java)
@@ -203,6 +194,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 		rvContent.layoutManager = manager
 		rvContent.adapter = adapter
         rvContent.showShimmerAdapter()
+
 		swipeContent.setOnRefreshListener {
 			if (!NetworkUtils.isConnectedInternet(this)){
 				showError(NetworkUtils.messageNetWork)
@@ -249,18 +241,23 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 
 		nav_view.menu.findItem(R.id.home).isChecked = true
 
-		nav_view.getHeaderView(0).buy_space.setOnClickListener {
-			adRequest = AdRequest.Builder().build()
-			fullAds.loadAd(adRequest)
-			if (fullAds.isLoaded){
-				fullAds.show()
-				mPresenter.redeem(userToken)
+		mMessageReceiver = object : BroadcastReceiver() {
+			override fun onReceive(p0: Context?, p1: Intent?) {
+				val message = p1?.getStringExtra("message")
+				when(message){
+					"Signout" -> forceLogOut("You are not sign in yet")
+					else -> Toasty.success(this@HomeActivity,message!!,Toast.LENGTH_SHORT).show()
+				}
 			}
-//			fullAds.adListener = AdListener().apply {
-//				onAdClosed().apply {
-//				}
-//			}
+
 		}
+	}
+
+	override fun onStart() {
+		super.onStart()
+		LocalBroadcastManager.getInstance(this).registerReceiver((mMessageReceiver),
+				object : IntentFilter("MyData"){}
+		)
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

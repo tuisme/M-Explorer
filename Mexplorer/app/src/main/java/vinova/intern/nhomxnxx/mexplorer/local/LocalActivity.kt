@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -31,6 +33,7 @@ import vinova.intern.nhomxnxx.mexplorer.device.DeviceActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
+import vinova.intern.nhomxnxx.mexplorer.setting.SettingsActivity
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.io.File
@@ -105,6 +108,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
 
     override fun onClick(file: File) {
         mPresenter.openFileOrFolder(adapter,file)
+	    title = adapter.path
     }
 
     override fun onLongClick(file: File) {
@@ -156,11 +160,17 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         adapter = LocalAdapter(this,error_nothing)
         rvContent.addItemDecoration(DividerItemDecoration(rvContent.context, DividerItemDecoration.VERTICAL))
         rvContent.adapter = adapter
-        adapter.setListener(this)
+        setLisenter()
+        super.setAdsListener(this,mPresenter,DatabaseHandler(this).getToken()!!)
         title = adapter.path
         if (isStoragePermissionGranted()){
             adapter.refreshData()
         }
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun setLisenter(){
+        adapter.setListener(this)
         fab_add.visibility = View.VISIBLE
         fab_add.setOnClickListener {
             AddItemsDialog.newInstance().show(supportFragmentManager, "add_items")
@@ -176,6 +186,16 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         decline_move.setOnClickListener {
             moving_layout.visibility = View.GONE
             mMovingPath = null
+        }
+
+        mMessageReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val message = p1?.getStringExtra("message")
+                when(message){
+                    "Signout" -> forceLogOut("You are not sign in yet")
+                    else -> Toasty.success(this@LocalActivity,message!!,Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -215,6 +235,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
                 error_nothing.visibility = View.GONE
             adapter.path = File(adapter.path).parent
             adapter.refreshData()
+            title = adapter.path
         }
     }
 
@@ -249,6 +270,9 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
             R.id.bookmark->{
                 super.onBackPressed()
             }
+            R.id.setting -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+            }
             R.id.device_connected -> {
                 val intent = Intent(this, DeviceActivity::class.java)
                 startActivity(intent)
@@ -270,5 +294,10 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
 
     override fun updateUser() {
         super.loadUser()
+    }
+
+    override fun forceLogOut(message: String) {
+        startActivity(Intent(this,LogActivity::class.java).putExtra("force",true))
+        finish()
     }
 }

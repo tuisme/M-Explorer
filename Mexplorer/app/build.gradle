@@ -111,4 +111,6 @@ dependencies {
     //PatternLockView
     implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
 
+    //billing
+    implementation 'com.android.billingclient:billing:1.1'
 }

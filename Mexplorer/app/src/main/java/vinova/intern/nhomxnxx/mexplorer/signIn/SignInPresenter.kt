@@ -67,6 +67,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
         val request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken()) { obj, _ ->
             val provider = "facebook"
             val databaseAccess = DatabaseHandler(context)
+            Log.e("ABCD",obj.toString())
             val email = obj?.getString("email").toString()
             val firstName = obj?.getString("first_name").toString()
             val lastName = obj?.getString("last_name").toString()
@@ -104,7 +105,7 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                     })
         }
         val parameters = Bundle()
-        parameters.putString("fields", "id,email,first_name,last_name")
+        parameters.putString("fields", "id,email,first_name,last_name,picture.type(large)")
         request.parameters = parameters
         request.executeAsync()
     }

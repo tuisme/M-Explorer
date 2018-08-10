@@ -3,6 +3,8 @@ package vinova.intern.nhomxnxx.mexplorer.cloud
 import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -21,7 +23,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.ads.MobileAds
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.adapter.CloudAdapter
@@ -37,6 +38,7 @@ import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.service.DownloadService
 import vinova.intern.nhomxnxx.mexplorer.service.UploadFileService
 import vinova.intern.nhomxnxx.mexplorer.service.UploadFolderService
+import vinova.intern.nhomxnxx.mexplorer.setting.SettingsActivity
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 import vinova.intern.nhomxnxx.mexplorer.utils.FileUtils
 import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
@@ -61,7 +63,6 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	var path : ArrayList<ArrayList<String>> = arrayListOf()
 	val CAPTURE_IMAGE_REQUEST = 20
 	lateinit var folder : File
-	var firstLoadUser = true
 	var saveList : ListFileSec = ListFileSec(arrayListOf())
     lateinit var idItem: String
     var mCopy:Boolean =false
@@ -78,6 +79,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		super.onCreateDrawer()
 		setRv()
 		userToken = DatabaseHandler(this).getToken()!!
+
 		accept_move.setOnClickListener {
 			moving_layout.visibility = View.GONE
             CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
@@ -88,7 +90,10 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			moving_layout.visibility = View.GONE
 			idItem = ""
 		}
+
 		MobileAds.initialize(this,getString(R.string.ads_app))
+
+		super.setAdsListener(this,mPresenter,userToken)
 
 		if (savedInstanceState == null) {
 			if (!NetworkUtils.isConnectedInternet(this)){
@@ -100,7 +105,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 	}
 
 	private fun setRv(){
-		adapter = CloudAdapter(this,error_nothing,bottom_sheet_detail,supportFragmentManager)
+		adapter = CloudAdapter(this,error_nothing)
 		rvContent.layoutManager = LinearLayoutManager(this)
 		rvContent.adapter = adapter
 		rvContent.addItemDecoration(DividerItemDecoration(rvContent.context, DividerItemDecoration.VERTICAL))
@@ -110,7 +115,8 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 		cloudType = intent.getStringExtra("type")
 		cloudId = intent.getStringExtra("id")
 		path.add(arrayListOf(cloudId,intent.getStringExtra("name")))
-		title = path.last()[1]
+
+		setTitle()
 
 		mPresenter.getList(cloudId,ctoken,DatabaseHandler(this).getToken()!!,cloudType)
 
@@ -120,6 +126,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 					mPresenter.getList(file.id!!, ctoken, DatabaseHandler(this@CloudActivity).getToken()!!, cloudType)
 					rvContent.showShimmerAdapter()
 					path.add(arrayListOf(file.id!!,file.name!!))
+					setTitle()
 				}
 				else{
 					CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
@@ -141,6 +148,21 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			rvContent.showShimmerAdapter()
 			mPresenter.getList(path.last()[0],ctoken,userToken,cloudType)
 		}
+
+		mMessageReceiver = object : BroadcastReceiver() {
+			override fun onReceive(p0: Context?, p1: Intent?) {
+				val message = p1?.getStringExtra("message")
+				when(message){
+					"Signout" -> forceLogOut("You are not sign in yet")
+					else -> Toasty.success(this@CloudActivity,message!!,Toast.LENGTH_SHORT).show()
+				}
+			}
+		}
+	}
+
+	override fun forceLogOut(message: String) {
+		startActivity(Intent(this,LogActivity::class.java).putExtra("force",true))
+		finish()
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -303,7 +325,6 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 	override fun showList(files: List<FileSec>) {
 		saveList.files = files
-		title = path.last()[1]
 		swipeContent.isRefreshing = false
 		rvContent.hideShimmerAdapter()
 		adapter.setData(files as java.util.ArrayList<FileSec>)
@@ -351,6 +372,9 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 			R.id.bookmark->{
 
 			}
+			R.id.setting -> {
+				startActivity(Intent(this, SettingsActivity::class.java))
+			}
 			R.id.device_connected -> {
 				val intent = Intent(this, DeviceActivity::class.java)
 				startActivity(intent)
@@ -371,6 +395,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
                 if (adapter.error.visibility == View.VISIBLE)
                     adapter.error.visibility = View.GONE
 				rvContent.showShimmerAdapter()
+				setTitle()
 				path.removeAt(path.size-1)
 				val id = path.last()[0]
 				mPresenter.getList(id,ctoken,userToken,cloudType)
@@ -494,5 +519,18 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 	override fun updateUser() {
 		super.loadUser()
+	}
+
+	private fun setTitle(){
+		var a = ""
+		var first = true
+		for (i in path )
+			a +=    if (first){
+						first = false
+						i[1]
+					}
+					else
+						"/${i[1]}"
+		title = a
 	}
 }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.webkit.MimeTypeMap
+import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -94,6 +95,34 @@ class Support{
                     e.printStackTrace()
                 }
             }
+        }
+
+        fun sortListInCloud(list : ArrayList<FileSec>): ArrayList<FileSec> {
+            val (pos,nega) = list.partition {
+                it.mime_type!!.contains("folder")
+            }
+            val a = pos.sortedBy {
+                it.name!!.toLowerCase()
+            }.toMutableList()
+            val b= nega.sortedBy {
+                it.name!!.toLowerCase()
+            }.toMutableList()
+            a.addAll(b)
+            return a as ArrayList<FileSec>
+        }
+
+        fun sortListLocal(list : ArrayList<vinova.intern.nhomxnxx.mexplorer.model.File>) : ArrayList<vinova.intern.nhomxnxx.mexplorer.model.File>{
+            val (pos,nega) = list.partition {
+                it.type == null
+            }
+            val a = pos.sortedBy {
+                it.name!!.toLowerCase()
+            }.toMutableList()
+            val b= nega.sortedBy {
+                it.name!!.toLowerCase()
+            }.toMutableList()
+            a.addAll(b)
+            return a as ArrayList<vinova.intern.nhomxnxx.mexplorer.model.File>
         }
     }
 }

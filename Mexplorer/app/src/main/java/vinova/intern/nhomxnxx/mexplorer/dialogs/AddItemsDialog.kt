@@ -1,16 +1,14 @@
 package vinova.intern.nhomxnxx.mexplorer.dialogs
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-
 import com.google.android.material.bottomsheet.BottomSheetDialog
-
 import vinova.intern.nhomxnxx.mexplorer.R
 
 
@@ -58,14 +56,13 @@ class AddItemsDialog : DialogFragment() {
         fun onOptionClick(which: Int, path: String?)
     }
 
-    override fun onAttach(activity: Activity) {
-        super.onAttach(activity)
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
         try {
             mListener = activity as DialogListener
         } catch (e: ClassCastException) {
             throw ClassCastException(activity.toString() + " must implement DialogListener")
         }
-
     }
 
     override fun onDetach() {

@@ -8,4 +8,7 @@ interface BaseView<T> {
     fun showError(message: String)
 
     fun updateUser()
+
+    fun forceLogOut(message : String)
+
 }

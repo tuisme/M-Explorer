@@ -77,4 +77,8 @@ class SignUpFragment : Fragment(), SignUpInterface.View{
 	override fun updateUser() {
 
 	}
+
+	override fun forceLogOut(message: String) {
+
+	}
 }

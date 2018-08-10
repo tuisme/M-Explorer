@@ -1,8 +1,8 @@
 package vinova.intern.nhomxnxx.mexplorer.dialogs
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
@@ -116,14 +116,13 @@ class UpdateItemDialog : DialogFragment() {
         fun onOptionClick(which: Int, path: String?)
     }
 
-    override fun onAttach(activity: Activity) {
-        super.onAttach(activity)
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
         try {
             mListener = activity as DialogListener
         } catch (e: ClassCastException) {
             throw ClassCastException(activity.toString() + " must implement DialogListener")
         }
-
     }
 
     override fun onDetach() {

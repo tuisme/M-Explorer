@@ -2,8 +2,8 @@ package vinova.intern.nhomxnxx.mexplorer.dialogs
 
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,7 +13,6 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.add_cloud_bottomsheetdialog.*
 import kotlinx.android.synthetic.main.add_cloud_bottomsheetdialog.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 
@@ -100,14 +99,13 @@ class AddCloudDialog:DialogFragment() {
 		fun onOptionClick(name : String,provider : String)
 	}
 
-	override fun onAttach(activity: Activity) {
-		super.onAttach(activity)
+	override fun onAttach(context: Context?) {
+		super.onAttach(context)
 		try {
 			mListener = activity as AddCloudDialog.DialogListener
 		} catch (e: ClassCastException) {
 			throw ClassCastException(activity.toString() + " must implement DialogListener")
 		}
-
 	}
 
 	override fun onDetach() {

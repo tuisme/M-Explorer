@@ -89,7 +89,10 @@
 
     <string name="ads_id">ca-app-pub-4821856613666036/2505927770</string>
     <string name="ads_app">ca-app-pub-4821856613666036~4776867892</string>
+
     <string name="ads_id_redeem">ca-app-pub-4821856613666036/9670511044</string>
+
+    <string name="ads_id_vid">ca-app-pub-4821856613666036/9234987659</string>
 
     <string name="time">Time</string>
     <string name="online">Current</string>
@@ -97,7 +100,8 @@
     <string name="update">Update</string>
     <string name="edit_name">Edit Name</string>
     <string name="create_password">Create password</string>
-    <string name="buy_more_space">Buy more</string>
+    <string name="buy_more_space">Get more</string>
+    <string name="update_account">Upgrade account</string>
 
 
     <string name="pref_header_about">About</string>
@@ -123,4 +127,5 @@
 
     <string name="setting">Setting</string>
     <string name="upgrade_account">Upgrade account</string>
+    <string name="moving_file_txt">Moving: file.txt</string>
 </resources>

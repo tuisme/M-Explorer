@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import kotlinx.android.synthetic.main.item_ads.view.*
@@ -33,6 +34,7 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<RecyclerV
     private val NORMALNUMBER = 12345
 
     private val ctx = context
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(ctx)
         return when(viewType){
@@ -58,17 +60,16 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<RecyclerV
     }
 
     private fun setData() {
-        this.fileList = getData(path) as ArrayList<File>
+        this.fileList = Support.sortListLocal(getData(path) as ArrayList<File>)
         if (itemCount > 0 && NetworkUtils.isConnectedInternet(ctx))
             setAds()
     }
 
     private fun setAds(){
         val file = File(null,null,null,"ads",null)
-        fileList.add(0,file)    }
+        fileList.add(0,file)
+    }
 
-    fun ClosedRange<Int>.random() =
-            Random().nextInt((endInclusive + 1) - start) +  start
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -147,6 +148,12 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<RecyclerV
     private fun configureAds(holderAds: AdsViewHolder){
         val adResq = AdRequest.Builder().build()
         holderAds.ads.loadAd(adResq)
+        holderAds.ads.adListener = object : AdListener(){
+            override fun onAdLoaded() {
+                super.onAdLoaded()
+                notifyDataSetChanged()
+            }
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -167,7 +174,7 @@ class LocalAdapter(context: Context,view : View): RecyclerView.Adapter<RecyclerV
         val ads : AdView = itemView.adView
     }
 
-    fun getData(path: String):List<File>{
+    private fun getData(path: String):List<File>{
         val root = java.io.File(path)
         val files = root.listFiles()
         fileList.clear()

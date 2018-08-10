@@ -73,9 +73,8 @@
             android:background="@drawable/customize_button_ripple"
             android:text="@string/sign_in"
             android:textColor="#fff"
-            app:layout_constraintEnd_toEndOf="@+id/fab_log_with_google"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="@+id/fab_log_with_face"
+            app:layout_constraintEnd_toEndOf="@+id/materialCardView"
+            app:layout_constraintStart_toStartOf="@+id/materialCardView"
             app:layout_constraintTop_toBottomOf="@+id/materialCardView" />
 
         <TextView
@@ -88,9 +87,8 @@
             android:text="@string/forget_password"
             android:textColor="#fff"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/fab_log_with_google"
-            app:layout_constraintHorizontal_bias="0.75"
-            app:layout_constraintStart_toStartOf="@+id/login_face"
+            app:layout_constraintEnd_toEndOf="@+id/btn_sign_in"
+            app:layout_constraintStart_toStartOf="@+id/btn_sign_in"
             app:layout_constraintTop_toBottomOf="@+id/btn_sign_in"
             app:layout_constraintVertical_bias="0.0" />
 
@@ -98,16 +96,14 @@
             android:id="@+id/fab_log_with_face"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:src="@drawable/ic_facebook_logo"
             app:backgroundTint="@color/colorBackgroundFacebook"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.42"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/fab_log_with_google"
+            app:layout_constraintStart_toStartOf="@+id/btn_sign_in"
             app:layout_constraintTop_toBottomOf="@+id/btn_forget"
             app:layout_constraintVertical_bias="0.004" />
 
@@ -127,12 +123,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:src="@drawable/ic_gmail_logo"
             app:backgroundTint="@color/colorBackgroundGoogle"
             app:layout_constraintBottom_toBottomOf="@+id/fab_log_with_face"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintEnd_toEndOf="@+id/btn_sign_in"
             app:layout_constraintStart_toEndOf="@+id/fab_log_with_face"
             app:layout_constraintTop_toTopOf="@+id/fab_log_with_face"
             app:layout_constraintVertical_bias="0.0" />

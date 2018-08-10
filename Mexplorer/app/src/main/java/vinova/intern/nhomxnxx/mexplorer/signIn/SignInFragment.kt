@@ -201,6 +201,10 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 		}
 	}
 
+	override fun forceLogOut(message: String) {
+
+	}
+
 	override fun updateUser() {
 
 	}

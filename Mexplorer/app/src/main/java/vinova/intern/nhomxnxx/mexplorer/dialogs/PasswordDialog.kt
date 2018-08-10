@@ -125,7 +125,7 @@ class PasswordDialog:DialogFragment() {
     }
 
     companion object {
-
+        val frag = this
         private val FUNC = "func"
         private val PASS = "pass"
         private val TURN = "turn"

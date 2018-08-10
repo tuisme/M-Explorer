@@ -48,7 +48,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
     }
 
     fun insertUserData(token:String?,email: String?, first_name: String?, last_name: String?,
-                       type: String, status: Int,avatar: String?,isvip : String? , used:Double?, method : String?, isFaceAuth :Int,allocated : Double?) {
+                       type: String, status: Int,avatar: String?,isvip : String? , used:Double?, method : String?, isAuth :Int,allocated : Double?) {
         val db = this.writableDatabase
         val values_user = ContentValues()
         values_user.put(DBTable.USER.TOKEN.COLUMN_NAME,token)
@@ -61,7 +61,7 @@ class DatabaseHandler(context: Context?) : SQLiteOpenHelper(context, DATABASE_NA
         values_user.put(DBTable.USER.ISVIP.COLUMN_NAME,isvip)
         values_user.put(DBTable.USER.USED.COLUMN_NAME,used)
         values_user.put(DBTable.USER.METAUTH.COLUMN_NAME,method)
-        values_user.put(DBTable.USER.AUTH.COLUMN_NAME,isFaceAuth)
+        values_user.put(DBTable.USER.AUTH.COLUMN_NAME,isAuth)
         values_user.put(DBTable.USER.AllOCATED.COLUMN_NAME,allocated)
 
         db?.insert(DBTable.USER.TABLE_NAME, null, values_user)

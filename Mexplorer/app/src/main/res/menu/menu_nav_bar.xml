@@ -20,15 +20,17 @@
         <item
             android:id="@+id/device_connected"
             android:icon="@drawable/ic_device_connected"
-            android:orderInCategory="100"
+            android:orderInCategory="99"
             app:showAsAction="always"
             android:title="@string/device_connected" />
+
         <item
-            android:id="@+id/auth"
-            android:visible="false"
-            app:actionLayout="@layout/switch_layout"
+            android:id="@+id/setting"
+            android:icon="@drawable/ic_setting"
+            android:orderInCategory="100"
             app:showAsAction="always"
-            android:title="@string/face_authentication" />
+            android:title="@string/setting" />
+
         <item
             android:id="@+id/signout"
             android:icon="@drawable/ic_sign_out"

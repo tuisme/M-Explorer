@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/general"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:text="@string/pref_header_general"
+        android:textColor="@color/colorAccent"
+        android:textSize="12sp"
+        tools:ignore="RtlSymmetry" />
+
+    <TextView
+        android:id="@+id/tv_up_acc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/upgrade_account"
+        android:textColor="@android:color/background_dark" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/sw_auth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/authentication" />
+
+    <TextView
+        android:id="@+id/about"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:text="@string/pref_header_about"
+        android:textColor="@color/colorAccent"
+        android:textSize="12sp"
+        tools:ignore="RtlSymmetry" />
+    <TextView
+        android:id="@+id/summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/summary_about" />
+    <TextView
+        android:id="@+id/tv_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textColor="@android:color/background_dark"
+        android:text="@string/title_version" />
+    <TextView
+        android:id="@+id/tv_send_feedback"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/background_dark"
+        android:padding="16dp"
+        android:text="@string/title_send_feedback" />
+    <TextView
+        android:id="@+id/tv_FAQ"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/background_dark"
+        android:padding="16dp"
+        android:text="@string/title_faq" />
+    <TextView
+        android:id="@+id/tv_pripo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/background_dark"
+        android:padding="16dp"
+        android:text="@string/privacy_policy" />
+    <TextView
+        android:id="@+id/tv_term_con"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/background_dark"
+        android:padding="16dp"
+        android:text="@string/title_terms" />
+
+</LinearLayout>

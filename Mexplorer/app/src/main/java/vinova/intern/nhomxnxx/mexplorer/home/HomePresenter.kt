@@ -219,55 +219,9 @@ class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Pre
                 })
     }
 
-    @SuppressLint("CheckResult")
-    override fun encryptFile(context:Context, data: Intent) {
-        val extras = data.extras
-        val imageBitmap = extras?.get("data") as Bitmap?
-        if (imageBitmap == null) {
-            mView.setSwitch(false)
-            return
-        }
-        mView.showLoading(true)
-        val bytes = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val ima = bytes.toByteArray()
-        val db = DatabaseHandler(context)
-        val requestFile = RequestBody.create(MediaType.parse("image/*"), ima)
-        val body = MultipartBody.Part.createFormData("image_file","face", requestFile)
-        CallApiFaceAuth.getInstance().getFace(api_key,api_secret, body)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    when {
-                        it.faces?.size ==0 -> {
-                            mView.showLoading(false)
-                            Toast.makeText(context, "Please capture image again", Toast.LENGTH_SHORT).show()
-                            mView.setSwitch(false)
-                        }
-                        it.faces?.size!! > 1 -> {
-                            mView.showLoading(false)
-                            Toast.makeText(context, "Many face, please capture image again", Toast.LENGTH_SHORT).show()
-                            mView.setSwitch(false)
-
-                        }
-                        else -> {
-                            mView.showLoading(false)
-                            Support.encrypt(Support.keyy, ima).let { Support.saveFile(it, "enimg.jpg") }
-                            Toasty.success(context, "Face authentication active", Toast.LENGTH_SHORT).show()
-                            mView.isAuth(false)
-                            val token = db.getToken()
-                            db.updateMentAuth("Face",token)
-                            db.updateisAuth(1, token)
-                        }
-                    }
-                },
-                        {
-                            Toasty.error(context, "Error " + it.localizedMessage, Toast.LENGTH_SHORT).show()
-                        })
-    }
 
     @SuppressLint("CheckResult")
-    override fun authentication(context:Context, data: Intent, isTurnOff:Boolean) {
+    override fun authentication(context:Context, data: Intent) {
         var faceId1: String
         val extras = data.extras
         val imageBitmap = extras?.get("data") as Bitmap?
@@ -275,6 +229,7 @@ class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Pre
             mView.setSwitch(true)
             return
         }
+
         mView.showLoading(true)
         val bytes = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes)
@@ -299,7 +254,7 @@ class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Pre
                         }
                         else -> {
                             faceId1 = it.faces!![0].faceToken.toString()
-                            getFaceId2(context, faceId1,isTurnOff)
+                            getFaceId2(context, faceId1)
                         }
                     }
                 },{
@@ -309,7 +264,7 @@ class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Pre
 
     @SuppressLint("CheckResult")
     @TargetApi(Build.VERSION_CODES.O)
-    private fun getFaceId2(context:Context, faceId1:String,isTurnOff:Boolean) {
+    private fun getFaceId2(context:Context, faceId1:String) {
         var faceId2: String
         val file = File(Environment.getExternalStorageDirectory().path +"/Temp/.auth/"+ "enimg.jpg")
         val encoded = Support.readFileToByteArray(file)
@@ -321,7 +276,7 @@ class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Pre
                 .observeOn(Schedulers.io())
                 .subscribe({
                     faceId2 = it.faces!![0].faceToken.toString()
-                    compare(context, faceId1,faceId2,isTurnOff)
+                    compare(context, faceId1,faceId2)
                 },
                         {
                             mView.setSwitch(true)
@@ -330,21 +285,15 @@ class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Pre
     }
 
     @SuppressLint("CheckResult")
-    private fun compare(context:Context, faceId1:String, faceId2:String, isTurnOff:Boolean) {
-        val db = DatabaseHandler(context)
+    private fun compare(context:Context, faceId1:String, faceId2:String) {
         CallApiFaceAuth.getInstance().compare(api_key,api_secret,faceId1,faceId2)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     if (it.confidence!! > 85) {
                         mView.showLoading(false)
-                        if (isTurnOff) {
-                            Toasty.success(context, "OK", Toast.LENGTH_SHORT).show()
-                            val token = db.getToken()
-                            db.updateisAuth(0, token)
-                            db.updateMentAuth(null,token)
-                            mView.setSwitch(false)
-                        } else mView.isAuth(true)
+                        mView.isAuth(true)
+
                     } else {
                         mView.showLoading(false)
                         mView.setSwitch(true)

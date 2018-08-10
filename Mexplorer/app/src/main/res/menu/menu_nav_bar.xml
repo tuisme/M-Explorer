@@ -9,23 +9,25 @@
             android:id="@+id/home"
             android:icon="@drawable/ic_home_black_24dp"
             app:showAsAction="always"
-            android:title="@string/home"/>
+            android:title="@string/clouds"/>
         <item
             android:id="@+id/bookmark"
             android:icon="@drawable/ic_bookmark"
             app:showAsAction="always"
             android:title="@string/book_mark"
-            tools:ignore="AlwaysShowAction" />
+            tools:ignore="AlwaysShowAction"
+            android:visible="false"/>
         <item
             android:id="@+id/device_connected"
             android:icon="@drawable/ic_device_connected"
-            android:orderInCategory="99"
+            android:orderInCategory="98"
             app:showAsAction="always"
             android:title="@string/device_connected" />
         <item
             android:id="@+id/update_account"
             android:icon="@drawable/ic_premium"
             app:showAsAction="always"
+            android:orderInCategory="99"
             android:title="@string/update_account"
             />
         <item
@@ -40,6 +42,7 @@
             android:icon="@drawable/ic_sign_out"
             app:showAsAction="always"
             android:orderInCategory="101"
+            android:visible="false"
             android:title="@string/sign_out"/>
     </group>
 </menu>

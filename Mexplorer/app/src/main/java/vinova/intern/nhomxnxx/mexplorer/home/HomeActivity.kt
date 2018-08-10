@@ -171,7 +171,7 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 			R.id.bookmark->{
 			}
 			R.id.setting -> {
-				startActivity(Intent(this, SettingsActivity::class.java))
+				startActivityForResult(Intent(this, SettingsActivity::class.java),1997)
 			}
 			R.id.device_connected -> {
 				val intent = Intent(this,DeviceActivity::class.java)
@@ -261,33 +261,43 @@ class HomeActivity : BaseActivity(),HomeInterface.View ,
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-		super.onActivityResult(requestCode, resultCode, data)
-		when (requestCode){
-			9001 -> {
-				val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-				if(result.isSuccess){
-					val account: GoogleSignInAccount = result.signInAccount!!
-					val authCode = account.serverAuthCode
-					mPresenter.sendCode(authCode!!,newName,userToken,providerName)
-				}
-			}
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            9001 -> {
+                val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+                if (result.isSuccess) {
+                    val account: GoogleSignInAccount = result.signInAccount!!
+                    val authCode = account.serverAuthCode
+                    mPresenter.sendCode(authCode!!, newName, userToken, providerName)
+                }
+            }
             CAPTURE_IMAGE_REQUEST_3 -> {
                 if (data != null) {
-					setSwitch(false)
-                    if (!NetworkUtils.isConnectedInternet(this)){
+                    setSwitch(false)
+                    if (!NetworkUtils.isConnectedInternet(this)) {
                         showError(NetworkUtils.messageNetWork)
                         return
                     }
                     mPresenter.authentication(this@HomeActivity, data)
                 }
             }
-			TAKE_PROFILE_IMG_CODE ->{
-				if (data!=null){
+            TAKE_PROFILE_IMG_CODE -> {
+                if (data != null) {
 
-				}
-			}
-		}
-
+                }
+            }
+            1997 -> {
+                if (resultCode == 1997) {
+                    if (!NetworkUtils.isConnectedInternet(this)) {
+                        showError(NetworkUtils.messageNetWork)
+                        return
+                    }
+                    CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+                    mPresenter.logout(this, DatabaseHandler(this).getToken())
+                    Auth.GoogleSignInApi.signOut(mGoogleApiClient)
+                }
+            }
+        }
 	}
 
 	override fun onRename(fromPath: String, toPath: String) {

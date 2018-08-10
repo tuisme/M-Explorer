@@ -69,11 +69,12 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val databaseAccess = DatabaseHandler(context)
             Log.e("ABCD",obj.toString())
             val email = obj?.getString("email").toString()
+            val url = obj.getJSONObject("picture").getJSONObject("data").getString("url")
             val firstName = obj?.getString("first_name").toString()
             val lastName = obj?.getString("last_name").toString()
             val androidName = android.os.Build.MODEL
             val api = CallApi.getInstance()
-            api.logInProvider(provider, email,firstName,lastName,androidId,androidName,"android",location)
+            api.logInProvider(provider, email,firstName,lastName,url,androidId,androidName,"android",location)
                     .enqueue(object:Callback<Request>{
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
 
@@ -116,11 +117,12 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val databaseAccess = DatabaseHandler(context)
             val account: GoogleSignInAccount = result.signInAccount!!
             val email = account.email
+            val url = account.photoUrl.toString()
             val first_name = account.familyName
             val last_name = account.givenName
             val androidName = android.os.Build.MODEL
             val api = CallApi.getInstance()
-            api.logInProvider("google",email!!, first_name.toString(), last_name.toString(),androidId,androidName,"android",location)
+            api.logInProvider("google",email!!, first_name.toString(), last_name.toString(),url,androidId,androidName,"android",location)
                     .enqueue(object:Callback<Request> {
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
 

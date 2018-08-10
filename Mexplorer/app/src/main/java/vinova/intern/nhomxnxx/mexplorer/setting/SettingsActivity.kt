@@ -63,6 +63,11 @@ class SettingsActivity :AppCompatActivity(), SettingsInterface.View, PasswordDia
             sendFeedback(this)
         }
 
+        tv_signout.setOnClickListener{
+            setResult(1997)
+            finish()
+        }
+
     }
 
     override fun savePass(pass: ByteArray) {
@@ -182,10 +187,11 @@ class SettingsActivity :AppCompatActivity(), SettingsInterface.View, PasswordDia
     }
 
 
-    fun sendFeedback(context: Context) {
+
+    private fun sendFeedback(context: Context) {
         var body: String? = null
         try {
-            body = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName
+            body = context.packageManager.getPackageInfo(context.packageName, 0).versionName
             body = "\n\n-----------------------------\nPlease don't remove this information\n Device OS: Android \n Device OS version: " +
                     Build.VERSION.RELEASE + "\n App Version: " + body + "\n Device Brand: " + Build.BRAND +
                     "\n Device Model: " + Build.MODEL + "\n Device Manufacturer: " + Build.MANUFACTURER

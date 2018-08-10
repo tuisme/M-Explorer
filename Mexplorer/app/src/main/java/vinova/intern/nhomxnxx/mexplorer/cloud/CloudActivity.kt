@@ -212,6 +212,16 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 					mPresenter.saveImage(data, userToken, path.last()[0], cloudType, ctoken)
 				}
 			}
+			1997->{
+				if (resultCode ==1997){
+					if (!NetworkUtils.isConnectedInternet(this)){
+						showError(NetworkUtils.messageNetWork)
+						return
+					}
+					CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+					mPresenter.logout(this, DatabaseHandler(this).getToken())
+				}
+			}
 		}
 	}
 
@@ -373,7 +383,7 @@ class CloudActivity : BaseActivity(),CloudInterface.View, UpdateItemDialog.Dialo
 
 			}
 			R.id.setting -> {
-				startActivity(Intent(this, SettingsActivity::class.java))
+				startActivityForResult(Intent(this, SettingsActivity::class.java),1997)
 			}
 			R.id.device_connected -> {
 				val intent = Intent(this, DeviceActivity::class.java)

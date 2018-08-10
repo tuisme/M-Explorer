@@ -128,4 +128,5 @@
     <string name="setting">Setting</string>
     <string name="upgrade_account">Upgrade account</string>
     <string name="moving_file_txt">Moving: file.txt</string>
+    <string name="clouds">Clouds</string>
 </resources>

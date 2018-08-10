@@ -58,7 +58,10 @@ class UpdateItemDialog : DialogFragment() {
             mListener?.onOptionClick(R.id.delete, path ?: "${file?.id}|$isDirectory|${file?.name}")
         }
 
-        if (!isDirectory && path ==null || isDirectory && path ==null) {
+        if (isDirectory && path !=null) {
+            move.visibility = View.GONE
+            copy.visibility = View.GONE
+        } else {
             move.setOnClickListener {
                 dialog.dismiss()
                 mListener?.onOptionClick(R.id.move, path ?: "${file?.id}|$isDirectory|${file?.name}")
@@ -68,9 +71,6 @@ class UpdateItemDialog : DialogFragment() {
                 dialog.dismiss()
                 mListener?.onOptionClick(R.id.copy, path ?: "${file?.id}|$isDirectory|${file?.name}")
             }
-        } else {
-            move.visibility = View.GONE
-            copy.visibility = View.GONE
         }
         var folderPath = Environment.getExternalStorageDirectory().path + File.separator + "Temp"
         when(ctype){

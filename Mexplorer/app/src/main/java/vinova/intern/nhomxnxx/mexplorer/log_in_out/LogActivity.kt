@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.tabs.TabLayout
+import com.google.firebase.FirebaseApp
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_log.*
 import retrofit2.Call
@@ -22,7 +23,10 @@ class LogActivity:AppCompatActivity(),ForgotDialog.DialogListener {
 		window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_log)
+		FirebaseApp.initializeApp(this)
 		changeTab()
+		if (intent.getBooleanExtra("force",false))
+			Toasty.error(this,"Your account is not availabe. Please sign in again",Toast.LENGTH_LONG).show()
 	}
 
 	private fun changeTab(){

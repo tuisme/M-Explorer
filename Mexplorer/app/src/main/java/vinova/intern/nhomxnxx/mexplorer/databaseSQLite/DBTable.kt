@@ -50,12 +50,12 @@ class DBTable {
             val COLUMN_NUMBER = 8
         }
 
-        object VERI{
-            val COLUMN_NAME = "verified"
+        object METAUTH{
+            val COLUMN_NAME = "method"
             val COLUMN_NUMBER = 9
         }
-        object FACEAUTH{
-            val COLUMN_NAME = "isFaceAuth"
+        object AUTH{
+            val COLUMN_NAME = "isAuth"
             val COLUMN_NUMBER = 10
         }
         object AllOCATED{

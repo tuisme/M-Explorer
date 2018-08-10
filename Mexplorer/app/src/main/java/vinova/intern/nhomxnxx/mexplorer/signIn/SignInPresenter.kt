@@ -3,13 +3,13 @@ package vinova.intern.nhomxnxx.mexplorer.signIn
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import com.facebook.AccessToken
 import com.facebook.GraphRequest
 import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
+import com.google.firebase.iid.FirebaseInstanceId
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -20,9 +20,14 @@ import vinova.intern.nhomxnxx.mexplorer.model.Request
 
 class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
     val mView: SignInInterface.View = view
+    lateinit var androidId : String
 
     init {
         mView.setPresenter(this)
+	    FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
+		    if (it.isSuccessful)
+			    androidId = it.result.token
+	    }
     }
 
     @SuppressLint("HardwareIds")
@@ -30,7 +35,6 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
         val databaseAccess = DatabaseHandler(context)
         val api = CallApi.getInstance()
         val androidName = android.os.Build.MODEL
-        val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
         api.logIn(email, password, androidId, androidName,"android",location)
                 .enqueue(object:Callback<Request>{
                     override fun onFailure(call: Call<Request>?, t: Throwable?) {
@@ -46,13 +50,12 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                 }
                                 databaseAccess.insertUserData(user.token, user.email, user.first_name,
                                         user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
-                                        user.avatar_url,user.is_vip.toString(),user.used,user.verified,0,user.allocated)
-                                mView.signInSuccess(user)
-
+                                        user.avatar_url,user.is_vip.toString(),user.used,null,0,user.allocated)
+                                mView.signInSuccess()
                             }
                         }
                         else {
-                            mView.showError(response?.body()?.message.toString())
+                            mView.showError(response?.message().toString())
                         }
                     }
 
@@ -68,7 +71,6 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val firstName = obj?.getString("first_name").toString()
             val lastName = obj?.getString("last_name").toString()
             val androidName = android.os.Build.MODEL
-            val androidId = Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
             val api = CallApi.getInstance()
             api.logInProvider(provider, email,firstName,lastName,androidId,androidName,"android",location)
                     .enqueue(object:Callback<Request>{
@@ -86,16 +88,16 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     databaseAccess.insertUserData(user.token, user.email, user.first_name,
                                             user.last_name, DatabaseHandler.FACEBOOK, DatabaseHandler.LOGGING_IN,
                                             user.avatar_url
-                                            ,user.is_vip.toString(),user.used,user.verified,0,user.allocated)
-                                    mView.signInSuccess(user)
+                                            ,user.is_vip.toString(),user.used,null,0,user.allocated)
+                                    mView.signInSuccess()
 
                                 }
                                 else{
-                                    mView.showError("can find user")
+                                    mView.showError("Can't find user")
                                 }
                             }
                             else {
-                                mView.showError(response?.body()?.message.toString())
+                                mView.showError(response?.message().toString())
                             }
                         }
 
@@ -116,12 +118,11 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
             val first_name = account.familyName
             val last_name = account.givenName
             val androidName = android.os.Build.MODEL
-            val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
             val api = CallApi.getInstance()
             api.logInProvider("google",email!!, first_name.toString(), last_name.toString(),androidId,androidName,"android",location)
                     .enqueue(object:Callback<Request> {
                         override fun onFailure(call: Call<Request>?, t: Throwable?) {
-                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                         }
 
                         override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
@@ -133,19 +134,15 @@ class SignInPresenter(view: SignInInterface.View) :SignInInterface.Presenter{
                                     }
                                     databaseAccess.insertUserData(user.token, user.email, user.first_name,
                                             user.last_name, DatabaseHandler.GOOGLE, DatabaseHandler.LOGGING_IN,user.avatar_url,
-                                            user.is_vip.toString(),user.used,user.verified,0,user.allocated)
-                                    mView.signInSuccess(user)
+                                            user.is_vip.toString(),user.used,null,0,user.allocated)
+                                    mView.signInSuccess()
                                 }
                                 else {
                                     mView.showError(response?.body()?.message.toString())
                                 }
                             }
-                            Log.d("email", account.email)
-                            Log.d("name", account.displayName)
-                            Log.d("image", account.photoUrl.toString())
-                            Log.d("id", account.id)
-                            Log.d("familyName", account.familyName)
-                            Log.d("givenName", account.givenName)
+                            else
+                                mView.showError(response?.message().toString())
                         }
                     })
         }

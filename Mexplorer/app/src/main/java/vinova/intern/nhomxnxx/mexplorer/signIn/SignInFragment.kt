@@ -32,11 +32,10 @@ import com.google.android.gms.common.api.Scope
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.ForgotDialog
 import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
-import vinova.intern.nhomxnxx.mexplorer.model.User
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import java.util.*
 
 
@@ -55,11 +54,10 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 	private lateinit var mLocationManager : LocationManager
 
 	private val LOCATION_PERMS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.ACCESS_COARSE_LOCATION)
+			Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-	override fun signInSuccess(user: User) {
+	override fun signInSuccess() {
         CustomDiaglogFragment.hideLoadingDialog()
-		startActivity(Intent(context,BaseActivity::class.java))
 		startActivity(Intent(context, HomeActivity::class.java))
 		activity?.finish()
 	}
@@ -111,7 +109,11 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 
 		btn_sign_in.setOnClickListener {
 			CustomDiaglogFragment.showLoadingDialog(fragmentManager)
-			if (email_sign_in.text.toString().trim() == "" || pass_word_sign_in.text.toString().trim() == "") {
+			if (!NetworkUtils.isConnectedInternet(context!!)){
+				showError(NetworkUtils.messageNetWork)
+
+			}
+			else if (email_sign_in.text.toString().trim() == "" || pass_word_sign_in.text.toString().trim() == "") {
 				CustomDiaglogFragment.hideLoadingDialog()
 				Toast.makeText(context, "Please fill all field", Toast.LENGTH_LONG).show()
 			} else {
@@ -197,5 +199,9 @@ class SignInFragment:Fragment(), GoogleApiClient.OnConnectionFailedListener, Sig
 				}
 			}
 		}
+	}
+
+	override fun updateUser() {
+
 	}
 }

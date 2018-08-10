@@ -25,7 +25,14 @@ interface ApiInterface {
               @Query("device_type") type : String,
               @Query("device_location") location : String): Call<Request>
 
-    @POST("/api/v2/users/logout")
+    @PUT("/api/v2/users")
+    @Multipart
+    fun updateUsesr(@Header("Access-Token") user_token: String,
+                    @Query("first_name") first_name: String,
+                    @Query("last_name") last_name: String,
+                    @Part avatar : MultipartBody.Part) : Call<Request>
+
+    @DELETE("/api/v2/users")
     fun logout(@Header("Access-Token") token:String) : Call<Request>
 
 
@@ -103,10 +110,12 @@ interface ApiInterface {
                      @Query("json") json : String,
                      @Part zip : MultipartBody.Part, @Query("type") type: String,
                      @Query("token") token : String) : Call<BaseResponse>
+
     @DELETE("/api/v2/folders")
     fun deleteFolder(@Header("Access-Token") user_token: String, @Query("id") id: String,
                    @Query("type") type: String,
                    @Query("token") token: String) : Call<BaseResponse>
+
     @POST("/api/v2/jobs/copy_1_cloud")
     fun copyFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
                  @Query("type") type: String, @Query("token") token: String,
@@ -116,6 +125,10 @@ interface ApiInterface {
     fun moveFile(@Header("Access-Token") user_token: String, @Query("id") id: String,
                  @Query("type") type: String, @Query("token") token: String,
                  @Query("id_dest") id_dest:String, @Query("mime_type") mime_type:String) : Call<BaseResponse>
+
+    @POST("/api/v2/redeems")
+    fun redeemSpace(@Header("Access-Token") user_token: String) : Call<Request>
+
 }
 
 interface ApiFaceAuthInterface

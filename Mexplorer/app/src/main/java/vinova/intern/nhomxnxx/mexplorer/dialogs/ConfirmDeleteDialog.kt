@@ -14,16 +14,11 @@ class ConfirmDeleteDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(activity)
 
-        val msg: String
+        val msg = "Are you want to delete?"
         val path = arguments?.getString(PATH)
         val isDic = arguments?.getBoolean(DIC)
         val id = arguments?.getString(ID)
-        val file = File(path)
-        msg = if (file.isDirectory) {
-            "You are about to delete the folder with all it's content for real."
-        } else {
-            "You are about to delete the file"
-        }
+        File(path)
         builder.setMessage(msg)
         builder.setPositiveButton(R.string.label_delete) { _, _ ->
             if (isLocal)

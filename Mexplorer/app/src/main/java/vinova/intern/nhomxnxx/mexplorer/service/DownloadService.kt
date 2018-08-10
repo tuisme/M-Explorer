@@ -64,7 +64,7 @@ class DownloadService : IntentService("Download Service") {
         val CHANNEL_ID = "my_channel_01"
 
         notificationBuilder = NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_logo_img)
                 .setContentTitle(name)
                 .setContentText("Downloading File")
                 .setChannelId(CHANNEL_ID)

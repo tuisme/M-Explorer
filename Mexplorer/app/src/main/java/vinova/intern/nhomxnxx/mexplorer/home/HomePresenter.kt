@@ -5,6 +5,7 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.widget.Toast
@@ -29,14 +30,79 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 
 @Suppress("NAME_SHADOWING", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
+class HomePresenter(view:HomeInterface.View,context: Context): HomeInterface.Presenter {
     val mView: HomeInterface.View = view
-    val api_key:String = "wWD5twUKYfBPNTZzdzQJoYL9BmSAKXcK"
-    val api_secret:String = "CdDgnwHSiiOXOGl7VdQ4mjm2Sykhca8B"
+    val ctx = context
+    private val api_key:String = "wWD5twUKYfBPNTZzdzQJoYL9BmSAKXcK"
+    private val api_secret:String = "CdDgnwHSiiOXOGl7VdQ4mjm2Sykhca8B"
+    val databaseAccess = DatabaseHandler(context)
     init {
         mView.setPresenter(this)
     }
     var tryGetList = false
+
+    override fun redeem(user_token: String) {
+        CallApi.getInstance().redeemSpace(user_token)
+                .enqueue(object : Callback<Request>{
+                    override fun onFailure(call: Call<Request>?, t: Throwable?) {
+
+                    }
+
+                    override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+                        if (response?.body() != null){
+                            val user = response.body()?.data
+                            if (user != null) {
+                                if (databaseAccess.getUserLoggedIn() != null) {
+                                    databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
+                                }
+                                databaseAccess.insertUserData(user.token, user.email, user.first_name,
+                                        user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+                                        user.avatar_url,user.is_vip.toString(),user.used,user.mentAuth,0,user.allocated)
+                                mView.updateUser()
+                            }
+                        }
+                        else
+                            mView.showError(response?.message()!!)
+                    }
+
+                })
+    }
+
+    override fun updateUser(first_name: String, last_name: String, uri: Uri) {
+        val file = File(uri.path)
+
+        val requestBody = RequestBody.create(
+                MediaType.parse("file/*"),
+                file)
+        val userToken = databaseAccess.getToken()!!
+
+        val avatar = MultipartBody.Part.createFormData("avatar", file.name, requestBody)
+
+        CallApi.getInstance().updateUsesr(userToken,first_name, last_name, avatar)
+                .enqueue(object : Callback<Request>{
+                    override fun onFailure(call: Call<Request>?, t: Throwable?) {
+                        mView.showError(t.toString())
+                    }
+
+                    override fun onResponse(call: Call<Request>?, response: Response<Request>?) {
+                        if (response?.body() != null){
+                            val user = response.body()?.data
+                            if (user != null) {
+                                if (databaseAccess.getUserLoggedIn() != null) {
+                                    databaseAccess.deleteUserData(databaseAccess.getUserLoggedIn())
+                                }
+                                databaseAccess.insertUserData(user.token, user.email, user.first_name,
+                                        user.last_name, DatabaseHandler.NORMAL, DatabaseHandler.LOGGING_IN,
+                                        user.avatar_url,user.is_vip.toString(),user.used,user.mentAuth,0,user.allocated)
+                                mView.updateUser()
+                            }
+                        }
+                        else
+                            mView.showError(response?.message()!!)
+                    }
+
+                })
+    }
 
     override fun logout(context: Context?, token: String?) {
         val token = DatabaseHandler(context).getToken()
@@ -96,6 +162,15 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                     if (response?.body()?.status.equals("success")){
                         mView.refreshList(response?.body())
                     }
+                    else{
+                        if (tryGetList){
+                            mView.forceLogOut("You are not sign in yet")
+                        }
+                        else{
+                            tryGetList = true
+                            mView.refresh()
+                        }
+                    }
                 }
             })
     }
@@ -147,7 +222,11 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
     @SuppressLint("CheckResult")
     override fun encryptFile(context:Context, data: Intent) {
         val extras = data.extras
-        val imageBitmap = extras?.get("data") as Bitmap ?: return
+        val imageBitmap = extras?.get("data") as Bitmap?
+        if (imageBitmap == null) {
+            mView.setSwitch(false)
+            return
+        }
         mView.showLoading(true)
         val bytes = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
@@ -176,7 +255,9 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                             Support.encrypt(Support.keyy, ima).let { Support.saveFile(it, "enimg.jpg") }
                             Toasty.success(context, "Face authentication active", Toast.LENGTH_SHORT).show()
                             mView.isAuth(false)
-                            db.updateFaceAuth(1, db.getToken())
+                            val token = db.getToken()
+                            db.updateMentAuth("Face",token)
+                            db.updateisAuth(1, token)
                         }
                     }
                 },
@@ -189,7 +270,11 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
     override fun authentication(context:Context, data: Intent, isTurnOff:Boolean) {
         var faceId1: String
         val extras = data.extras
-        val imageBitmap = extras?.get("data") as Bitmap? ?: return
+        val imageBitmap = extras?.get("data") as Bitmap?
+        if (imageBitmap == null) {
+            mView.setSwitch(true)
+            return
+        }
         mView.showLoading(true)
         val bytes = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes)
@@ -204,10 +289,12 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                     when {
                         it.faces?.size ==0 -> {
                             mView.showLoading(false)
+                            mView.setSwitch(true)
                             Toasty.error(context, "No detect face, please capture image again", Toast.LENGTH_SHORT).show()
                         }
                         it.faces?.size!! > 1 -> {
                             mView.showLoading(false)
+                            mView.setSwitch(true)
                             Toasty.error(context,"Many face, please capture image again", Toast.LENGTH_SHORT).show()
                         }
                         else -> {
@@ -237,6 +324,7 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                     compare(context, faceId1,faceId2,isTurnOff)
                 },
                         {
+                            mView.setSwitch(true)
                             Toasty.error(context, "Error " + it.localizedMessage, Toast.LENGTH_SHORT).show()
                         })
     }
@@ -248,15 +336,18 @@ class HomePresenter(view:HomeInterface.View): HomeInterface.Presenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    if (it.confidence!! > 80) {
+                    if (it.confidence!! > 85) {
                         mView.showLoading(false)
                         if (isTurnOff) {
                             Toasty.success(context, "OK", Toast.LENGTH_SHORT).show()
-                            db.updateFaceAuth(0, db.getToken())
+                            val token = db.getToken()
+                            db.updateisAuth(0, token)
+                            db.updateMentAuth(null,token)
                             mView.setSwitch(false)
                         } else mView.isAuth(true)
                     } else {
                         mView.showLoading(false)
+                        mView.setSwitch(true)
                         Toasty.error(context, "Not match, please check again", Toast.LENGTH_SHORT).show()
                     }
                 },

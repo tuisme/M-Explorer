@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'com.google.gms.google-services'
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -56,8 +58,10 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+
     //okhttp
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+
     //RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.1.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
@@ -100,4 +104,11 @@ dependencies {
 
     //swipeDelete
     implementation 'com.android.support:design:28.0.0-beta01'
+
+    //pick image
+    implementation 'com.github.jrvansuita:PickImage:2.2.3'
+
+    //PatternLockView
+    implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
+
 }

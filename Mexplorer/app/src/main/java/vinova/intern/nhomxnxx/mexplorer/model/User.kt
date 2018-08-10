@@ -9,7 +9,7 @@ data class User (
         var first_name: String? = null,
         var last_name: String? = null,
         var avatar_url: String? = null,
-        var verified: String? = null,
+        var mentAuth: String? = null,
         var used: Double? = null,
         var is_vip: Boolean? = null,
         var allocated : Double? = null
@@ -32,7 +32,7 @@ data class User (
         parcel.writeString(first_name)
         parcel.writeString(last_name)
         parcel.writeString(avatar_url)
-        parcel.writeString(verified)
+        parcel.writeString(mentAuth)
         parcel.writeValue(used)
         parcel.writeValue(is_vip)
         parcel.writeValue(allocated)

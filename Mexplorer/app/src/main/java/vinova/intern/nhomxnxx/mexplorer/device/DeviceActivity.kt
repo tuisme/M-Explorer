@@ -3,6 +3,7 @@ package vinova.intern.nhomxnxx.mexplorer.device
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.*
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View.GONE
@@ -10,18 +11,9 @@ import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.content_home_layout.*
-import kotlinx.android.synthetic.main.nav_bar_header.*
-import vinova.intern.nhomxnxx.mexplorer.adapter.DeviceAdapter
-import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
-import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.model.Devices
-import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
@@ -29,27 +21,44 @@ import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.Scope
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.iid.FirebaseInstanceId
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.item_device.*
+import kotlinx.android.synthetic.main.content_home_layout.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.home.HomeActivity
+import vinova.intern.nhomxnxx.mexplorer.adapter.DeviceAdapter
+import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseActivity
+import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.dialogs.ProfileDialog
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
+import vinova.intern.nhomxnxx.mexplorer.model.Devices
+import vinova.intern.nhomxnxx.mexplorer.model.User
+import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 
 @SuppressLint("Registered")
-class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnConnectionFailedListener{
+class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnConnectionFailedListener,ProfileDialog.DialogListener{
+
     override fun onConnectionFailed(p0: ConnectionResult) {
         Toast.makeText(this@DeviceActivity,"Failed",Toast.LENGTH_SHORT).show()
     }
 
     private lateinit var adapter : DeviceAdapter
-    private var mPresenter: DeviceInterface.Presenter = DevicePresenter(this)
+    private var mPresenter: DeviceInterface.Presenter = DevicePresenter(this,this)
     lateinit var token : String
     private var position: Int? = null
-    var mGoogleApiClient: GoogleApiClient? = null
-    val androidName = android.os.Build.MODEL
+    private var mGoogleApiClient: GoogleApiClient? = null
     private var listDevice: MutableList<Devices> = mutableListOf()
     private val p = Paint()
+    private lateinit var androidId : String
+
+    init {
+    	FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
+            if(it.isSuccessful)
+                androidId = it.result.token
+        }
+    }
+
     override fun showList(devices : MutableList<Devices>?) {
         adapter.setData(devices)
         listDevice = devices!!
@@ -95,7 +104,8 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
             mGoogleApiClient?.connect()
         }
     }
-    fun setDevice(){
+
+    private fun setDevice(){
         adapter = DeviceAdapter(this)
         rvContent.layoutManager = LinearLayoutManager(this)
         rvContent.adapter= adapter
@@ -107,15 +117,20 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
             rvContent.showShimmerAdapter()
             mPresenter.getDevice(token)
         }
-
+        nav_view.menu.findItem(R.id.device_connected).isChecked = true
     }
+
     override fun refresh() {
         CustomDiaglogFragment.hideLoadingDialog()
         mPresenter.getDevice(token)
     }
+
     fun checkName(){
-        if (listDevice[position!!].device_name != androidName)
-            mPresenter.deleteDevice(token,listDevice.get(position!!).id!!)
+        if (listDevice[position!!].device_id != androidId) {
+            mPresenter.deleteDevice(token, listDevice.get(position!!).id!!)
+            val snackbar = Snackbar.make(window.decorView.rootView, " Removed device!", Snackbar.LENGTH_LONG)
+            snackbar.show()
+        }
         else
             Toast.makeText(this@DeviceActivity,"Device is connecting", Toast.LENGTH_SHORT).show()
     }
@@ -130,13 +145,10 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
                 if (direction == ItemTouchHelper.LEFT) {
                     checkName()
                     refresh()
-                    val snackbar = Snackbar.make(window.decorView.rootView, " Removed device!", Snackbar.LENGTH_LONG)
-                    snackbar.show()
+
                 } else {
                     checkName()
                     refresh()
-                    val snackbar = Snackbar.make(window.decorView.rootView, " Removed device!", Snackbar.LENGTH_LONG)
-                    snackbar.show()
                 }
             }
 
@@ -171,11 +183,12 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
         itemTouchHelper.attachToRecyclerView(rvContent)
     }
+
     override fun onNavigationItemSelected(p0: MenuItem): Boolean {
         when(p0.itemId){
             R.id.home->{
-                val intent = Intent(this,HomeActivity::class.java)
-                startActivity(intent)
+	            finish()
+	            overridePendingTransition(R.anim.slide_in, R.anim.slide_out)
             }
             R.id.signout->{
                 CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
@@ -192,9 +205,18 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
         drawer_layout?.closeDrawer(GravityCompat.START)
         return true
     }
+
     override fun logoutSuccess() {
         CustomDiaglogFragment.hideLoadingDialog()
         startActivity(Intent(this, LogActivity::class.java))
         finish()
+    }
+
+    override fun onUpdate(user: User) {
+        mPresenter.updateUser(user.first_name!!,user.last_name!!, Uri.parse(user.avatar_url))
+    }
+
+    override fun updateUser() {
+        super.loadUser()
     }
 }

@@ -25,10 +25,10 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_logo_img"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_cloud_computing"
+        android:roundIcon="@drawable/ic_logo_img"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning"
+        tools:ignore="ExtraText,GoogleAppIndexingWarning"
         android:fullBackupContent="true">
         <activity android:name=".logo.LogoActivity"
             android:theme="@style/AppTheme_">
@@ -101,7 +101,12 @@
 
         <service android:name=".service.DownloadService" />
 
-        <service android:name=".service.NotificationService"/>
+        <service android:name=".service.UploadFileService"/>
+        <service android:name=".service.UploadFolderService" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_logo_img" />
 
         <service android:name=".utils.MessagingService"
             tools:ignore="ExportedService">
@@ -109,6 +114,17 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.com.vansuita.pickimage.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/picker_provider_paths" />
+        </provider>
     </application>
 
 </manifest>

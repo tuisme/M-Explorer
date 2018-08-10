@@ -2,11 +2,12 @@ package vinova.intern.nhomxnxx.mexplorer.cloud
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import okhttp3.MultipartBody
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BasePresenter
 import vinova.intern.nhomxnxx.mexplorer.baseInterface.BaseView
 import vinova.intern.nhomxnxx.mexplorer.model.FileDetail
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
+import java.io.File
 
 interface CloudInterface {
 
@@ -16,13 +17,14 @@ interface CloudInterface {
 		fun logoutSuccess()
 		fun refresh()
 		fun downloadFile(url:String,name:String,ctype: String)
+		fun startUpload(user_token: String, id: String, file: File, ctype: String, ctoken: String)
 	}
 
 	interface Presenter : BasePresenter{
 		fun getList(id:String,token:String,userToken:String,type : String)
 		fun openFile(context: Context, url: String)
 		fun getUrlFile(id : String,ctoken:String,user_token:String,ctype : String)
-		fun upLoadFile(user_token: String,id: String,uri: Uri,ctype: String,ctoken : String)
+		fun upLoadFile(user_token: String,id: String,body: MultipartBody.Part,ctype: String,ctoken : String)
 		fun download(id : String,ctoken:String,user_token:String,ctype : String)
 		fun renameFile(user_token: String,id: String,fname: String,ctype: String,ctoken: String)
 		fun renameFolder(userToken: String, id: String, newName: String, cloudType: String, ctoken: String)

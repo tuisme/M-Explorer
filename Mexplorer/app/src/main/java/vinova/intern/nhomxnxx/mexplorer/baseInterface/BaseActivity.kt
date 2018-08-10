@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.nav_bar_header.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
 import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
+import vinova.intern.nhomxnxx.mexplorer.dialogs.ProfileDialog
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 
 open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -57,7 +58,10 @@ open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 		nav_view?.setNavigationItemSelectedListener(this)
 		nav_view?.menu?.getItem(0)?.isChecked = true
 		nav_view?.itemIconTintList = null
-		loadUser(nav_view.getHeaderView(0))
+		nav_view.getHeaderView(0).img_profile.setOnClickListener {
+			ProfileDialog.getInstance(DatabaseHandler(this).getUser()).show(supportFragmentManager,"fragment")
+		}
+		loadUser()
 	}
 
 	override fun onBackPressed() {
@@ -87,7 +91,8 @@ open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 	}
 
 	@SuppressLint("SetTextI18n")
-	fun loadUser(parentView : View){
+	fun loadUser(){
+		val parentView = nav_view.getHeaderView(0)
 		val user = DatabaseHandler(this).getUser()
 		val name = "${user.first_name} ${user.last_name}"
 		parentView.user_name.text = name
@@ -99,8 +104,5 @@ open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 		Glide.with(this)
 				.load(user.avatar_url)
 				.into(parentView.img_profile)
-		parentView.img_profile.setOnClickListener {
-
-		}
 	}
 }

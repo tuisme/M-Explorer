@@ -149,7 +149,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_content_copy_grey_24dp"
+            android:src="@drawable/ic_download"
             tools:ignore="ContentDescription" />
 
         <Switch
@@ -179,7 +179,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_content_copy_grey_24dp"
+            android:src="@drawable/ic_share"
             tools:ignore="ContentDescription" />
 
         <TextView

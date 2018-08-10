@@ -1,14 +1,26 @@
 package vinova.intern.nhomxnxx.mexplorer.baseInterface
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.reward.RewardItem
+import com.google.android.gms.ads.reward.RewardedVideoAd
+import com.google.android.gms.ads.reward.RewardedVideoAdListener
 import com.google.android.material.navigation.NavigationView
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.nav_bar_header.view.*
@@ -19,8 +31,17 @@ import vinova.intern.nhomxnxx.mexplorer.utils.Support
 
 open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 	private val END_SCALE = 0.8f
-	private var goHome = false
 	private var token : String? =null
+	protected lateinit var fullAds : InterstitialAd
+	protected lateinit var mRewardedVideoAd: RewardedVideoAd
+	private var i = 0
+
+	protected var mMessageReceiver = object : BroadcastReceiver() {
+		override fun onReceive(context: Context?, intent: Intent?) {
+
+		}
+	}
+
 	protected fun onCreateDrawer() {
 		setContentView(R.layout.activity_home)
 		setSupportActionBar(tool_bar_home)
@@ -105,4 +126,59 @@ open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 				.load(user.avatar_url)
 				.into(parentView.img_profile)
 	}
+
+	protected fun setAdsListener(ctx : Context,mPresenter : BasePresenter,userToken : String){
+		val adId = getString(R.string.ads_id_vid)
+
+		MobileAds.initialize(ctx,adId)
+
+		mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(ctx)
+
+		mRewardedVideoAd.loadAd(adId, AdRequest.Builder().build())
+
+		mRewardedVideoAd.rewardedVideoAdListener = object : RewardedVideoAdListener{
+			override fun onRewardedVideoAdClosed() {
+				Log.e("ABCD","ad closed")
+			}
+
+			override fun onRewardedVideoAdLeftApplication() {
+				Log.e("ABCD","ad left")
+			}
+
+			override fun onRewardedVideoAdLoaded() {
+				Log.e("ABCD","ad load")
+			}
+
+			override fun onRewardedVideoAdOpened() {
+			}
+
+			override fun onRewardedVideoCompleted() {
+				mPresenter.redeem(userToken)
+			}
+
+			override fun onRewarded(p0: RewardItem?) {
+				mPresenter.redeem(userToken)
+			}
+
+			override fun onRewardedVideoStarted() {
+				Log.e("ABCD","ad started")
+				mRewardedVideoAd.loadAd(adId,AdRequest.Builder().build())
+			}
+
+			override fun onRewardedVideoAdFailedToLoad(p0: Int) {
+				Log.e("ABCD","ad failed to load ${i++}")
+				mRewardedVideoAd.loadAd(adId,AdRequest.Builder().build())
+			}
+
+		}
+
+		nav_view.getHeaderView(0).buy_space.setOnClickListener {
+			if (mRewardedVideoAd.isLoaded){
+				mRewardedVideoAd.show()
+			}
+			else
+				Toasty.normal(ctx,"No video ads available", Toast.LENGTH_SHORT).show()
+		}
+	}
+
 }

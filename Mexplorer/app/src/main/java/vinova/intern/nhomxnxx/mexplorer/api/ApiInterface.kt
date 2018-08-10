@@ -41,6 +41,7 @@ interface ApiInterface {
                     @Query("email") email:String,
                     @Query("first_name") first_name: String,
                     @Query("last_name") last_name: String,
+                    @Query("avatar_url") url:String,
                     @Query("device_id") android_id: String,
                     @Query("device_name") android_name: String,
                     @Query("device_type") type : String,

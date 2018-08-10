@@ -2,35 +2,37 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="vinova.intern.nhomxnxx.mexplorer">
-    <uses-feature android:name="android.hardware.camera"
+
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@drawable/ic_logo_img"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_logo_img"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="ExtraText,GoogleAppIndexingWarning"
-        android:fullBackupContent="true">
-        <activity android:name=".logo.LogoActivity"
+        tools:ignore="ExtraText,GoogleAppIndexingWarning">
+        <activity
+            android:name=".logo.LogoActivity"
             android:theme="@style/AppTheme_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,38 +42,40 @@
         </activity>
         <activity
             android:name=".baseInterface.BaseActivity"
-            android:theme="@style/AppTheme_"/>
+            android:theme="@style/AppTheme_" />
 
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
 
-        <activity android:name="com.facebook.FacebookActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".log_in_out.LogActivity"
-            android:theme="@style/AppTheme_"/>
-
-        <activity android:name=".home.HomeActivity"
-            android:theme="@style/AppTheme_"
-            />
-        <activity android:name=".device.DeviceActivity"
-            android:theme="@style/AppTheme_"
-            />
-        <activity android:name=".local.LocalActivity"
-            android:theme="@style/AppTheme_"
-            />
+        <activity
+            android:name=".log_in_out.LogActivity"
+            android:theme="@style/AppTheme_" />
+        <activity
+            android:name=".home.HomeActivity"
+            android:theme="@style/AppTheme_" />
+        <activity
+            android:name=".device.DeviceActivity"
+            android:theme="@style/AppTheme_" />
+        <activity
+            android:name=".local.LocalActivity"
+            android:theme="@style/AppTheme_" />
 
         <provider
             android:name=".utils.GenericFileProvider"
@@ -80,38 +84,41 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".cloud.CloudActivity"
-            android:theme="@style/AppTheme_"/>
-
+        <activity
+            android:name=".cloud.CloudActivity"
+            android:theme="@style/AppTheme_" />
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
-            android:launchMode="singleTask"
-            android:configChanges="orientation|keyboard">
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask">
             <intent-filter>
+
                 <!-- Change this to be db- followed by your app key -->
                 <data android:scheme="db-mzbf7iesot0oc5u" />
+
                 <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <service android:name=".service.DownloadService" />
-
-        <service android:name=".service.UploadFileService"/>
+        <service android:name=".service.UploadFileService" />
         <service android:name=".service.UploadFolderService" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_logo_img" />
 
-        <service android:name=".utils.MessagingService"
+        <service
+            android:name=".utils.MessagingService"
             tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
@@ -125,6 +132,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/picker_provider_paths" />
         </provider>
+
+        <activity
+            android:name=".setting.SettingsActivity"
+            android:label="@string/title_activity_settings" />
     </application>
 
 </manifest>

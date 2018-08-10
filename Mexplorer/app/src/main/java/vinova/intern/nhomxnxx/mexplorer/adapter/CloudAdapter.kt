@@ -7,39 +7,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.item_ads.view.*
 import kotlinx.android.synthetic.main.item_folder.view.*
 import vinova.intern.nhomxnxx.mexplorer.R
-import vinova.intern.nhomxnxx.mexplorer.databaseSQLite.DatabaseHandler
-import vinova.intern.nhomxnxx.mexplorer.model.Cloud
 import vinova.intern.nhomxnxx.mexplorer.model.FileSec
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.util.*
 
 @Suppress("IMPLICIT_CAST_TO_ANY")
-class CloudAdapter(ctx : Context,view : TextView,rot : View,frag : FragmentManager): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CloudAdapter(ctx : Context,view : TextView): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 	val context = ctx
 	val error = view
-	val root = rot
-	private val sup = frag
-	private val bottomSheetBehave = BottomSheetBehavior.from(root)
 	var files: ArrayList<FileSec> = arrayListOf()
-	private var listCloud : MutableList<Cloud> = mutableListOf()
 	private lateinit var listener: CloudAdapter.ItemClickListener
-	private val token = DatabaseHandler(context).getToken()
-
 	private val ADNUMBER = 2511
 	private val NORMALNUMBER = 12345
 
 	fun setData(list : ArrayList<FileSec>){
-		this.files = list
+		this.files = Support.sortListInCloud(list)
 		if (itemCount > 0)
 			setAds()
 		if(files.isEmpty())
@@ -52,9 +42,6 @@ class CloudAdapter(ctx : Context,view : TextView,rot : View,frag : FragmentManag
 		file.mime_type = "ads"
 		files.add(0,file)
 	}
-
-	fun ClosedRange<Int>.random() =
-			Random().nextInt((endInclusive + 1) - start) +  start
 
 	fun setListener(listener: CloudAdapter.ItemClickListener) {
 		this.listener = listener

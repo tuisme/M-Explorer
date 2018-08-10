@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -31,7 +33,9 @@ import vinova.intern.nhomxnxx.mexplorer.device.DeviceActivity
 import vinova.intern.nhomxnxx.mexplorer.dialogs.*
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.User
+import vinova.intern.nhomxnxx.mexplorer.setting.SettingsActivity
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
+import vinova.intern.nhomxnxx.mexplorer.utils.NetworkUtils
 import vinova.intern.nhomxnxx.mexplorer.utils.Support
 import java.io.File
 
@@ -43,11 +47,11 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         NewTextFileDialog.DialogListener,
         ConfirmDeleteDialog.ConfirmListener,
         RenameDialog.DialogListener,
-        ProfileDialog.DialogListener{
+        ProfileDialog.DialogListener {
 
-    private var mPresenter :LocalInterface.Presenter= LocalPresenter(this,this)
-    var mMovingPath:String? = null
-    var mCopy:Boolean =false
+    private var mPresenter: LocalInterface.Presenter = LocalPresenter(this, this)
+    var mMovingPath: String? = null
+    var mCopy: Boolean = false
     lateinit var adapter: LocalAdapter
     val CAPTURE_IMAGE_REQUEST = 20
 
@@ -61,9 +65,8 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
             intent.setDataAndType(apkURI, Support.getMimeType(this, uri))
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             startActivity(intent)
-        }
-        catch (e: ActivityNotFoundException){
-            Toasty.info(this,"No support this file", Toast.LENGTH_SHORT).show()
+        } catch (e: ActivityNotFoundException) {
+            Toasty.info(this, "No support this file", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -72,7 +75,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     }
 
     override fun showToast(mes: String) {
-        if(error_nothing.visibility == View.VISIBLE)
+        if (error_nothing.visibility == View.VISIBLE)
             error_nothing.visibility = View.GONE
         Toast.makeText(this, mes, Toast.LENGTH_SHORT).show()
     }
@@ -86,7 +89,7 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     }
 
     override fun onNewFolder(name: String) {
-        mPresenter.newFolder(adapter,name)
+        mPresenter.newFolder(adapter, name)
     }
 
     override fun onNewFile(name: String, content: String) {
@@ -104,7 +107,8 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
     }
 
     override fun onClick(file: File) {
-        mPresenter.openFileOrFolder(adapter,file)
+        mPresenter.openFileOrFolder(adapter, file)
+        title = adapter.path
     }
 
     override fun onLongClick(file: File) {
@@ -153,29 +157,45 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         super.onCreate(savedInstanceState)
         super.onCreateDrawer()
         rvContent.layoutManager = LinearLayoutManager(this)
-        adapter = LocalAdapter(this,error_nothing)
+        adapter = LocalAdapter(this, error_nothing)
         rvContent.addItemDecoration(DividerItemDecoration(rvContent.context, DividerItemDecoration.VERTICAL))
         rvContent.adapter = adapter
-        adapter.setListener(this)
-        title = "Local"
-        if (isStoragePermissionGranted()){
+        setLisenter()
+        super.setAdsListener(this, mPresenter, DatabaseHandler(this).getToken()!!)
+        title = adapter.path
+        if (isStoragePermissionGranted()) {
             adapter.refreshData()
         }
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun setLisenter() {
+        adapter.setListener(this)
         fab_add.visibility = View.VISIBLE
         fab_add.setOnClickListener {
             AddItemsDialog.newInstance().show(supportFragmentManager, "add_items")
         }
-        swipeContent.isEnabled =false
+        swipeContent.isEnabled = false
 
         accept_move.setOnClickListener {
             moving_layout.visibility = View.GONE
-            mPresenter.moveOrCopy(mMovingPath,mCopy,adapter)
+            mPresenter.moveOrCopy(mMovingPath, mCopy, adapter)
             mMovingPath = null
         }
 
         decline_move.setOnClickListener {
             moving_layout.visibility = View.GONE
             mMovingPath = null
+        }
+
+        mMessageReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val message = p1?.getStringExtra("message")
+                when (message) {
+                    "Signout" -> forceLogOut("You are not sign in yet")
+                    else -> Toasty.success(this@LocalActivity, message!!, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -195,8 +215,8 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
-            2222-> {
+        when (requestCode) {
+            2222 -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
                     startActivityForResult(cameraIntent, CAPTURE_IMAGE_REQUEST)
@@ -211,10 +231,11 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         if (adapter.path == getExternalStorageDirectory().absolutePath)
             super.onBackPressed()
         else {
-            if(error_nothing.visibility == View.VISIBLE)
+            if (error_nothing.visibility == View.VISIBLE)
                 error_nothing.visibility = View.GONE
             adapter.path = File(adapter.path).parent
             adapter.refreshData()
+            title = adapter.path
         }
     }
 
@@ -222,6 +243,16 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
             mPresenter.saveImage(data, adapter)
+        }
+        if (requestCode == 1997) {
+            if (resultCode == 1997) {
+                if (!NetworkUtils.isConnectedInternet(this)) {
+                    showError(NetworkUtils.messageNetWork)
+                    return
+                }
+                CustomDiaglogFragment.showLoadingDialog(supportFragmentManager)
+                mPresenter.logout(this, DatabaseHandler(this).getToken())
+            }
         }
     }
 
@@ -249,6 +280,9 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
             R.id.bookmark->{
                 super.onBackPressed()
             }
+            R.id.setting -> {
+                startActivityForResult(Intent(this, SettingsActivity::class.java), 1997)
+            }
             R.id.device_connected -> {
                 val intent = Intent(this, DeviceActivity::class.java)
                 startActivity(intent)
@@ -270,5 +304,10 @@ class LocalActivity :BaseActivity(),LocalInterface.View, AddItemsDialog.DialogLi
 
     override fun updateUser() {
         super.loadUser()
+    }
+
+    override fun forceLogOut(message: String) {
+        startActivity(Intent(this,LogActivity::class.java).putExtra("force",true))
+        finish()
     }
 }

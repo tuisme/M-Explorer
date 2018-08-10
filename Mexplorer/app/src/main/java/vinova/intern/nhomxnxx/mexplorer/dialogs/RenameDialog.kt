@@ -1,9 +1,9 @@
 package vinova.intern.nhomxnxx.mexplorer.dialogs
 
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,7 +14,6 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import vinova.intern.nhomxnxx.mexplorer.R
 import java.io.File
-import java.util.*
 
 
 class RenameDialog : DialogFragment() {
@@ -69,14 +68,13 @@ class RenameDialog : DialogFragment() {
         fun onReNameCloud(newName: String,id:String,isDic:Boolean,token:String)
     }
 
-    override fun onAttach(activity: Activity) {
-        super.onAttach(activity)
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
         try {
             mListener = activity as DialogListener
         } catch (e: ClassCastException) {
             throw ClassCastException(activity.toString() + " must implement DialogListener")
         }
-
     }
 
     override fun onDetach() {

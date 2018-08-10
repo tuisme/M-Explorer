@@ -1,21 +1,25 @@
 package vinova.intern.nhomxnxx.mexplorer.utils
 
-import android.content.ContentValues.TAG
-import android.util.Log
+import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
+
+
 class MessagingService : FirebaseMessagingService() {
-	override fun onMessageReceived(p0: RemoteMessage?) {
-		super.onMessageReceived(p0)
-		Log.d(TAG, "From: " + p0?.from)
+	private lateinit var mBroadcaster : LocalBroadcastManager
 
-		// Check if message contains a data payload.
-		if (p0?.data?.isNotEmpty()!!) {
-			Log.d(TAG, "Message data payload: " + p0.data)
+	override fun onCreate() {
+		super.onCreate()
+		mBroadcaster = LocalBroadcastManager.getInstance(this)
+	}
 
-
-		}
-
+	override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+		super.onMessageReceived(remoteMessage)
+		val intent = Intent("MyData")
+		val z = remoteMessage?.notification?.body
+		intent.putExtra("message",z)
+		mBroadcaster.sendBroadcast(intent)
 	}
 }

@@ -9,7 +9,6 @@ import vinova.intern.nhomxnxx.mexplorer.model.ListCloud
 interface HomeInterface {
     interface View: BaseView<Presenter> {
         fun logoutSuccess()
-        fun forceLogOut(message : String)
         fun showList(list : ListCloud?)
         fun refreshList(list : ListCloud?)
         fun refresh()
@@ -23,7 +22,6 @@ interface HomeInterface {
         fun renameCloud(id:String,newName : String,token:String,userToken :String)
         fun deleteCloud(id:String,token:String)
         fun sendCode(code : String,name:String,userToken: String,provider:String)
-        fun encryptFile(context: Context,data: Intent)
-        fun authentication(context: Context,data: Intent, isTurnOff:Boolean)
+        fun authentication(context: Context,data: Intent)
     }
 }

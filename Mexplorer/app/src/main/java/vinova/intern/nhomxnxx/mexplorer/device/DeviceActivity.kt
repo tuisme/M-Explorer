@@ -1,7 +1,10 @@
 package vinova.intern.nhomxnxx.mexplorer.device
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +13,7 @@ import android.view.View.GONE
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,6 +37,7 @@ import vinova.intern.nhomxnxx.mexplorer.dialogs.ProfileDialog
 import vinova.intern.nhomxnxx.mexplorer.log_in_out.LogActivity
 import vinova.intern.nhomxnxx.mexplorer.model.Devices
 import vinova.intern.nhomxnxx.mexplorer.model.User
+import vinova.intern.nhomxnxx.mexplorer.setting.SettingsActivity
 import vinova.intern.nhomxnxx.mexplorer.utils.CustomDiaglogFragment
 
 
@@ -45,7 +50,7 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
 
     private lateinit var adapter : DeviceAdapter
     private var mPresenter: DeviceInterface.Presenter = DevicePresenter(this,this)
-    lateinit var token : String
+    lateinit var userToken : String
     private var position: Int? = null
     private var mGoogleApiClient: GoogleApiClient? = null
     private var listDevice: MutableList<Devices> = mutableListOf()
@@ -87,9 +92,10 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
         super.onCreateDrawer()
         fab_add.visibility = GONE
         setDevice()
-        token = DatabaseHandler(this@DeviceActivity).getToken()!!
+        userToken = DatabaseHandler(this@DeviceActivity).getToken()!!
+        super.setAdsListener(this,mPresenter,userToken)
         if (savedInstanceState==null){
-            mPresenter.getDevice(token)
+            mPresenter.getDevice(userToken)
             enableSwipe()
             swipeContent.isRefreshing = false
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -105,6 +111,18 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        LocalBroadcastManager.getInstance(this).registerReceiver((mMessageReceiver),
+                object : IntentFilter("MyData"){}
+        )
+    }
+
+    override fun forceLogOut(message: String) {
+        startActivity(Intent(this,LogActivity::class.java).putExtra("force",true))
+        finish()
+    }
+
     private fun setDevice(){
         adapter = DeviceAdapter(this)
         rvContent.layoutManager = LinearLayoutManager(this)
@@ -115,19 +133,29 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
         swipeContent.setOnRefreshListener {
             swipeContent.isRefreshing = false
             rvContent.showShimmerAdapter()
-            mPresenter.getDevice(token)
+            mPresenter.getDevice(userToken)
         }
         nav_view.menu.findItem(R.id.device_connected).isChecked = true
+
+        mMessageReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val message = p1?.getStringExtra("message")
+                when(message){
+                    "Signout" -> forceLogOut("You are not sign in yet")
+                    else -> Toasty.success(this@DeviceActivity,message!!,Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     override fun refresh() {
         CustomDiaglogFragment.hideLoadingDialog()
-        mPresenter.getDevice(token)
+        mPresenter.getDevice(userToken)
     }
 
     fun checkName(){
         if (listDevice[position!!].device_id != androidId) {
-            mPresenter.deleteDevice(token, listDevice.get(position!!).id!!)
+            mPresenter.deleteDevice(userToken, listDevice.get(position!!).id!!)
             val snackbar = Snackbar.make(window.decorView.rootView, " Removed device!", Snackbar.LENGTH_LONG)
             snackbar.show()
         }
@@ -195,6 +223,9 @@ class DeviceActivity: BaseActivity(), DeviceInterface.View,GoogleApiClient.OnCon
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient)
                 mPresenter.logout(this, DatabaseHandler(this).getToken())
 
+            }
+            R.id.setting -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
             }
             R.id.bookmark->{
 
